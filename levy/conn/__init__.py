@@ -227,8 +227,6 @@ class Connection(neuro.Processor):
         self._programmed = False
 
     def clear_activity(self) -> None:
-        if self._programmed is False:
-            raise RuntimeError("Cannot clear network activity before programming the target FPGA.")
 
         if self._inp.type == IoType.DISPATCH:
             self._interface.write(

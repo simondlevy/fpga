@@ -15,8 +15,8 @@ conn.load_network(net)
 
 for _ in range(3):
 
-    proc.clear_activity()
-    #conn.clear_activity()
+    #proc.clear_activity()
+    conn.clear_activity()
 
     proc.apply_spikes([neuro.Spike(0, i, 1.0) for i in range(3)])
     #conn.apply_spikes([neuro.Spike(0, i, 1.0) for i in range(3)])
