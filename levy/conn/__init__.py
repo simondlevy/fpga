@@ -155,7 +155,7 @@ class Connection:
 
     def __init__(
         self,
-        clock_freq,
+        clock_freq : float,
         net: neuro.Network,
         target_name: str,
         interface: Serial | str | None = None,
