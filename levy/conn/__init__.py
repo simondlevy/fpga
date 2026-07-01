@@ -7,23 +7,48 @@
 import bitstruct as bs
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
+from math import ceil, log2
 from periphery import Serial
 from threading import Thread
 from time import sleep
 from typing import Iterable
 
-from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
-
 SYSTEM_BUFFER = 4096
+
+
+def clog2(value: float) -> int:
+    return int(ceil(log2(value)))
+
+
+def signed_width(value: int) -> int:
+    return clog2(abs(value) + int(value >= 0)) + 1
+
+
+def unsigned_width(value: int) -> int:
+    if value < 0:
+        raise ValueError(f"Value of {value} is negative")
+    return signed_width(value) - 1
+
+
+def width_bytes_to_bits(bytes: int) -> int:
+    return int(bytes * 8)
+
+
+def width_bits_to_bytes(bits: int) -> int:
+    return int(ceil(bits / 8))
+
+
+def width_nearest_byte(bits: int) -> int:
+    return width_bytes_to_bits(width_bits_to_bytes(bits))
 
 
 class Spike:
 
-    def __init__(self, ident:int, time:float, value: float):
+    def __init__(self, ident: int, time: float, value: float):
 
-        self.id=ident
-        self.time=time
-        self.value=value
+        self.id = ident
+        self.time = time
+        self.value = value
 
     def __lt__(self, other):
         return self.time < other.time
