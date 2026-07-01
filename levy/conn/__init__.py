@@ -16,7 +16,7 @@ from periphery import Serial
 
 from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
-from fpga.network import charge_width, spike_value_factor
+from fpga.network import spike_value_factor
 
 SYSTEM_BUFFER = 4096
 
@@ -90,7 +90,8 @@ class _IoConfig:
                 spk_names = ["opcode"]
                 spk_fmt_str = f"u{opc_width}"
                 idx_width, operand_width = dispatch_operand_widths(
-                    opc_width, self._num_net_io(), self._get_charge_width(), is_axi
+                    opc_width, self._num_net_io(), self._get_charge_width(),
+                    is_axi
                 )
 
                 cmd_names = spk_names + ["operand"]
@@ -181,18 +182,22 @@ class Connection:
 
         match self._io_type[:2]:
             case "DI":
-                self._inp = InpConfig(IoType.DISPATCH, num_inputs, charge_width)
+                self._inp = InpConfig(
+                        IoType.DISPATCH, num_inputs, charge_width)
             case "SI":
-                self._inp = InpConfig(IoType.STREAM, num_inputs, charge_width)
+                self._inp = InpConfig(
+                        IoType.STREAM, num_inputs, charge_width)
             case _:
                 raise ValueError(
                     f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
                 )
         match self._io_type[2:]:
             case "DO":
-                self._out = OutConfig(IoType.DISPATCH, num_outputs, charge_width)
+                self._out = OutConfig(
+                        IoType.DISPATCH, num_outputs, charge_width)
             case "SO":
-                self._out = OutConfig(IoType.STREAM, num_outputs, charge_width)
+                self._out = OutConfig(
+                        IoType.STREAM, num_outputs, charge_width)
             case _:
                 raise ValueError(
                     f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
@@ -277,7 +282,6 @@ class Connection:
         return [
             self.output_count(out_idx)
             for out_idx in range(self._num_outputs)]
-        
 
     def output_last_fire(self, out_idx: int) -> float:
         outs = self.output_vector(out_idx)
