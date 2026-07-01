@@ -137,7 +137,7 @@ class InpConfig(_IoConfig):
 
     def _get_charge_width(self):
         # TODO: support fires input
-        return charge_width(self._network)
+        return self._charge_width # charge_width(self._network)
 
 
 class OutConfig(_IoConfig):
