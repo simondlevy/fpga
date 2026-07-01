@@ -145,7 +145,7 @@ class OutConfig(_IoConfig):
         self.queue = {out: [] for out in range(self._network.num_outputs())}
 
     def _num_net_io(self):
-        return self._network.num_outputs()
+        return self._num_neurons
 
     def _charge_width(cls):
         # TODO: support charges output
@@ -189,9 +189,9 @@ class Connection:
                 )
         match self._io_type[2:]:
             case "DO":
-                self._out = OutConfig(IoType.DISPATCH, self._network)
+                self._out = OutConfig(IoType.DISPATCH, self._network, num_outputs)
             case "SO":
-                self._out = OutConfig(IoType.STREAM, self._network)
+                self._out = OutConfig(IoType.STREAM, self._network, num_outputs)
             case _:
                 raise ValueError(
                     f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
