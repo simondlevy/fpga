@@ -40,7 +40,6 @@ conn = conn.Connection(
         PORT_NAME,
         baudrate,
         clock_freq,
-        net,
         num_inputs,
         num_outputs,
         charge_width,
