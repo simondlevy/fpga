@@ -82,30 +82,24 @@ class _IoConfig:
         self._num_neurons = num_neurons
         self._charge_width = charge_width
 
-        match self.type:
+        opc_width = unsigned_width(len(DispatchOpcode) - 1)
+        spk_names = ["opcode"]
+        spk_fmt_str = f"u{opc_width}"
+        idx_width, operand_width = dispatch_operand_widths(
+            opc_width, self._num_net_io(), self._get_charge_width(),
+            is_axi
+        )
 
-            case IoType.DISPATCH:
-                opc_width = unsigned_width(len(DispatchOpcode) - 1)
-                spk_names = ["opcode"]
-                spk_fmt_str = f"u{opc_width}"
-                idx_width, operand_width = dispatch_operand_widths(
-                    opc_width, self._num_net_io(), self._get_charge_width(),
-                    is_axi
-                )
+        cmd_names = spk_names + ["operand"]
+        cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
+        self.cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
 
-                cmd_names = spk_names + ["operand"]
-                cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
-                self.cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
-
-                if idx_width:
-                    spk_names.append("idx")
-                    spk_fmt_str += f"u{idx_width}"
-                if self._get_charge_width():
-                    spk_names.append("val")
-                    spk_fmt_str += f"s{self._get_charge_width()}"
-
-            case _:
-                raise ValueError()
+        if idx_width:
+            spk_names.append("idx")
+            spk_fmt_str += f"u{idx_width}"
+        if self._get_charge_width():
+            spk_names.append("val")
+            spk_fmt_str += f"s{self._get_charge_width()}"
 
         self.spk_fmt = bs.compile(spk_fmt_str, spk_names)
 
