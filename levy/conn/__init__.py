@@ -21,7 +21,9 @@ class MySpike:
 
     def __init__(self, ident:int, time:float, value: float):
 
-        pass
+        self.id=ident
+        self.time=time
+        self.value=value
 
 # we're hacking Spike to support comparison
 Spike.__lt__ = lambda self, other: self.time < other.time
