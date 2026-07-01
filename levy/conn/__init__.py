@@ -162,6 +162,7 @@ class Connection:
             baudrate: int,
             clock_freq: float,
             net: neuro.Network,
+            num_inputs: int,
             num_outputs: int,
             io_type: str = "DISO"):
 

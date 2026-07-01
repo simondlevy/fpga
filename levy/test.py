@@ -32,7 +32,14 @@ num_inputs = net.num_inputs()
 
 num_outputs = net.num_outputs()
 
-conn = conn.Connection(PORT_NAME, baudrate, clock_freq, net, num_outputs, "DIDO")
+conn = conn.Connection(
+        PORT_NAME,
+        baudrate,
+        clock_freq,
+        net,
+        num_inputs,
+        num_outputs,
+        "DIDO")
 
 for _ in range(3):
 
