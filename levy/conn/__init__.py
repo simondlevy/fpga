@@ -77,7 +77,7 @@ class _IoConfig:
         self,
         io_type: IoType,
         net: neuro.Network,
-        num_neurons: int = 0,
+        num_neurons: int,
         is_axi: bool = True,
     ):
         self._network = net
