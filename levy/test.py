@@ -31,11 +31,10 @@ else:
 
 clock_freq = target_config["parameters"]["clk_freq"]
 
-
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
 
-conn = conn.Connection(net, "basys3", "/dev/ttyUSB1", "DIDO")
+conn = conn.Connection(clock_freq, net, "basys3", "/dev/ttyUSB1", "DIDO")
 
 for _ in range(3):
 

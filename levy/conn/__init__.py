@@ -155,6 +155,7 @@ class Connection:
 
     def __init__(
         self,
+        clock_freq,
         net: neuro.Network,
         target_name: str,
         interface: Serial | str | None = None,
@@ -217,9 +218,7 @@ class Connection:
             case IoType.DISPATCH:
                 max_bytes_per_run *= self._network.num_outputs() + 1
                 self._secs_per_run += (
-                    self._network.num_outputs()
-                    / target_config["parameters"]["clk_freq"]
-                )
+                    self._network.num_outputs() / clock_freq)
             case IoType.STREAM:
                 pass
             case _:
