@@ -164,9 +164,7 @@ class Connection:
         *args,
         **kwargs,
     ):
-        interface = Serial(interface, baudrate)
-
-        self._interface = interface
+        self._interface = Serial(interface, baudrate)
 
         self._io_type = io_type.upper()
 
