@@ -3,7 +3,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-import sys
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
 from importlib import resources
@@ -22,10 +21,6 @@ from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 from fpga.network import charge_width, spike_value_factor
 
 SYSTEM_BUFFER = 4096
-
-if not sys.version_info.major == 3 and sys.version_info.minor >= 6:
-    raise RuntimeError("Python 3.6 or newer is required.")
-
 
 # we're hacking Spike to support comparison
 neuro.Spike.__lt__ = lambda self, other: self.time < other.time
