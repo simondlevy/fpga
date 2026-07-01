@@ -19,8 +19,6 @@ target_config = None
 with open(resources.files(fpga.config).joinpath("targets.json")) as f:
     target_config = load(f)[TARGET_NAME]
 
-interface = None
-
 baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
 
 clock_freq = target_config["parameters"]["clk_freq"]
