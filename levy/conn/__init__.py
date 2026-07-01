@@ -142,7 +142,7 @@ class OutConfig(_IoConfig):
 
     def clear(self):
         super().clear()
-        self.queue = {out: [] for out in range(self._network.num_outputs())}
+        self.queue = {out: [] for out in range(self._num_neurons)}
 
     def _num_net_io(self):
         return self._num_neurons
