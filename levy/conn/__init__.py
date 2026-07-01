@@ -159,7 +159,6 @@ class Connection:
         baudrate : int,
         clock_freq : float,
         net: neuro.Network,
-        target_name: str,
         interface: Serial | str | None = None,
         io_type: str = "DISO",
         *args,
