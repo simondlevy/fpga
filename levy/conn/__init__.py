@@ -371,7 +371,7 @@ class Connection:
 
                 case IoType.STREAM:
                     out_dict = self._out.spk_fmt.unpack(rx)
-                    for out_idx in range(self._network.num_outputs()):
+                    for out_idx in range(self._num_outputs):
                         if out_dict[out_idx]:
                             self._out.queue[out_idx].append(
                                     float(self._out.time))
