@@ -84,6 +84,7 @@ class _IoConfig:
         self._network = net
         self.type = io_type
         self._num_neurons = num_neurons
+        self._charge_width = charge_width
 
         match self.type:
             case IoType.DISPATCH:
