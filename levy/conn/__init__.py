@@ -171,10 +171,6 @@ class Connection:
 
         self._io_type = io_type.upper()
 
-        self._network = None
-
-        # self.clear()
-
         self._network = net
 
         self._num_inputs = num_inputs
@@ -248,14 +244,6 @@ class Connection:
 
     def apply_spikes(self, spikes: list[neuro.Spike]) -> None:
         [self.apply_spike(spike) for spike in spikes]
-
-    '''
-    def clear(self) -> None:
-        if self._network:
-            print('bazinga')
-            self.clear_activity()
-        self._network = None
-    '''
 
     def clear_activity(self) -> None:
 
