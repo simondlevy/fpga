@@ -156,19 +156,17 @@ class Connection:
     def __init__(
         self,
         net: neuro.Network,
-        target: str,
+        target_name: str,
         interface: Serial | str | None = None,
         io_type: str = "DISO",
         *args,
         **kwargs,
     ):
 
-        self._target_name = target
-
         target_config = None
 
         with open(resources.files(config).joinpath("targets.json")) as f:
-            target_config = load(f)[self._target_name]
+            target_config = load(f)[target_name]
 
         if interface is None or isinstance(interface, str):
             baudrate = 115200
