@@ -192,7 +192,26 @@ class Connection:
         self.clear()
 
         self._network = net
-        self._setup_io()
+
+        match self._io_type[:2]:
+            case "DI":
+                self._inp = InpConfig(IoType.DISPATCH, self._network)
+            case "SI":
+                self._inp = InpConfig(IoType.STREAM, self._network)
+            case _:
+                raise ValueError(
+                    f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
+                )
+        match self._io_type[2:]:
+            case "DO":
+                self._out = OutConfig(IoType.DISPATCH, self._network)
+            case "SO":
+                self._out = OutConfig(IoType.STREAM, self._network)
+            case _:
+                raise ValueError(
+                    f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
+                )
+        self._set_comm_limits()
 
     def apply_spike(self, spike: neuro.Spike) -> None:
 
@@ -488,24 +507,3 @@ class Connection:
                 pass
             case _:
                 raise ValueError()
-
-    def _setup_io(self):
-        match self._io_type[:2]:
-            case "DI":
-                self._inp = InpConfig(IoType.DISPATCH, self._network)
-            case "SI":
-                self._inp = InpConfig(IoType.STREAM, self._network)
-            case _:
-                raise ValueError(
-                    f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
-                )
-        match self._io_type[2:]:
-            case "DO":
-                self._out = OutConfig(IoType.DISPATCH, self._network)
-            case "SO":
-                self._out = OutConfig(IoType.STREAM, self._network)
-            case _:
-                raise ValueError(
-                    f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
-                )
-        self._set_comm_limits()
