@@ -16,6 +16,7 @@ from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
 SYSTEM_BUFFER = 4096
 
+
 class Spike:
 
     def __init__(self, ident:int, time:float, value: float):
@@ -24,10 +25,17 @@ class Spike:
         self.time=time
         self.value=value
 
-Spike.__lt__ = lambda self, other: self.time < other.time
-Spike.__le__ = lambda self, other: self.time <= other.time
-Spike.__gt__ = lambda self, other: self.time > other.time
-Spike.__ge__ = lambda self, other: self.time >= other.time
+    def __lt__(self, other):
+        return self.time < other.time
+
+    def __le__(self, other):
+        return self.time <= other.time
+
+    def __gt__(self, other):
+        return self.time > other.time
+
+    def __ge__(self, other):
+        return self.time >= other.time
 
 
 class _InpQueue(list):
