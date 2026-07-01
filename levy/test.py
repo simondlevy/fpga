@@ -19,18 +19,17 @@ with open(resources.files(fpga.config).joinpath("targets.json")) as f:
     target_config = load(f)[target_name]
 
 interface = None
-baudrate = None
 
-if interface is None or isinstance(interface, str):
-    baudrate = 115200
-    try:
-        baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
-    except KeyError:
-        pass
-    except IndexError:
-        pass
-    if isinstance(interface, str):
-        interface = Serial(interface, baudrate)
+baudrate = 115200
+
+try:
+    baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
+except KeyError:
+    pass
+except IndexError:
+    pass
+if isinstance(interface, str):
+    interface = Serial(interface, baudrate)
 
 clock_freq = target_config["parameters"]["clk_freq"]
 
