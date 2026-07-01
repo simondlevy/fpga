@@ -148,19 +148,14 @@ class OutConfig(_IoConfig):
         # TODO: support charges output
         return 0
 
+##############################################################################
+
 
 class Connection:
 
-    def __init__(
-        self,
-        port_name: str,
-        baudrate: int,
-        clock_freq: float,
-        net: neuro.Network,
-        io_type: str = "DISO",
-        *args,
-        **kwargs,
-    ):
+    def __init__(self, port_name: str, baudrate: int, clock_freq: float, net:
+                 neuro.Network, io_type: str = "DISO"):
+
         self._interface = Serial(port_name, baudrate)
 
         self._io_type = io_type.upper()
