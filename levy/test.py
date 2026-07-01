@@ -1,5 +1,6 @@
 import neuro
 import fpga
+import conn
 
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
