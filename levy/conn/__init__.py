@@ -78,6 +78,7 @@ class _IoConfig:
         io_type: IoType,
         net: neuro.Network,
         num_neurons: int,
+        charge_width: int = 0,
         is_axi: bool = True,
     ):
         self._network = net
