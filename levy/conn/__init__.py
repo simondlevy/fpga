@@ -176,6 +176,8 @@ class Connection:
 
         self._network = net
 
+        self._num_inputs = num_inputs
+
         match self._io_type[:2]:
             case "DI":
                 self._inp = InpConfig(IoType.DISPATCH, self._network)
