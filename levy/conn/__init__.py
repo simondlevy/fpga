@@ -81,7 +81,6 @@ class _IoConfig:
         charge_width: int,
         is_axi: bool = True,
     ):
-        self._network = net
         self.type = io_type
         self._num_neurons = num_neurons
         self._charge_width = charge_width
