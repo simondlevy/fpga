@@ -156,7 +156,7 @@ class Connection:
 
     def __init__(
         self,
-        interface: str,
+        port_name: str,
         baudrate : int,
         clock_freq : float,
         net: neuro.Network,
@@ -164,7 +164,7 @@ class Connection:
         *args,
         **kwargs,
     ):
-        self._interface = Serial(interface, baudrate)
+        self._interface = Serial(port_name, baudrate)
 
         self._io_type = io_type.upper()
 
