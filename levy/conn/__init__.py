@@ -3,6 +3,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
 from importlib import resources
@@ -164,9 +165,7 @@ class Connection:
         *args,
         **kwargs,
     ):
-        if interface is None or isinstance(interface, str):
-            if isinstance(interface, str):
-                interface = Serial(interface, baudrate)
+        interface = Serial(interface, baudrate)
 
         self._interface = interface
 
