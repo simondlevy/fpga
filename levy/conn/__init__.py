@@ -76,7 +76,7 @@ class _IoConfig:
     def __init__(
         self,
         io_type: IoType,
-        net: neuro.Network,
+        ignore,
         num_neurons: int,
         charge_width: int,
         is_axi: bool = True,
