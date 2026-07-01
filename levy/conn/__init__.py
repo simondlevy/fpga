@@ -211,7 +211,37 @@ class Connection:
                 raise ValueError(
                     f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
                 )
-        self._set_comm_limits()
+
+        self._secs_per_run = 0.0
+
+        max_bytes_per_run = width_bits_to_bytes(self._out.spk_fmt.calcsize())
+        match self._out.type:
+            case IoType.DISPATCH:
+                max_bytes_per_run *= self._network.num_outputs() + 1
+                self._secs_per_run += (
+                    self._network.num_outputs()
+                    / self._target_config["parameters"]["clk_freq"]
+                )
+            case IoType.STREAM:
+                pass
+            case _:
+                raise ValueError()
+        self._secs_per_run += max_bytes_per_run * 10 / self._baudrate
+        self._max_run = SYSTEM_BUFFER // max_bytes_per_run
+        self._max_runs_ahead = self._max_run
+
+        match self._inp.type:
+            case IoType.DISPATCH:
+                # limited by both buffer size and command field width
+                self._max_run = min(
+                    2 ** (self._inp.cmd_fmt._infos[1].size) - 1,
+                    self._max_run,
+                )
+            case IoType.STREAM:
+                pass
+            case _:
+                raise ValueError()
+
 
     def apply_spike(self, spike: neuro.Spike) -> None:
 
@@ -476,34 +506,3 @@ class Connection:
                     self._interface.write(
                             self._inp.spk_fmt.pack(run_dict)[::-1])
                     pause(1)
-
-    def _set_comm_limits(self):
-        self._secs_per_run = 0.0
-
-        max_bytes_per_run = width_bits_to_bytes(self._out.spk_fmt.calcsize())
-        match self._out.type:
-            case IoType.DISPATCH:
-                max_bytes_per_run *= self._network.num_outputs() + 1
-                self._secs_per_run += (
-                    self._network.num_outputs()
-                    / self._target_config["parameters"]["clk_freq"]
-                )
-            case IoType.STREAM:
-                pass
-            case _:
-                raise ValueError()
-        self._secs_per_run += max_bytes_per_run * 10 / self._baudrate
-        self._max_run = SYSTEM_BUFFER // max_bytes_per_run
-        self._max_runs_ahead = self._max_run
-
-        match self._inp.type:
-            case IoType.DISPATCH:
-                # limited by both buffer size and command field width
-                self._max_run = min(
-                    2 ** (self._inp.cmd_fmt._infos[1].size) - 1,
-                    self._max_run,
-                )
-            case IoType.STREAM:
-                pass
-            case _:
-                raise ValueError()
