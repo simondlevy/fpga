@@ -382,8 +382,9 @@ class Connection:
                runs: int, sync: bool = False) -> None:
 
         spike_dict = {
-            self._network.get_node(s.id).input_id: int(
-                s.value * self._spike_value_factor)
+
+            self._network.get_node(s.id).input_id: int(s.value * self._spike_value_factor)
+
             for s in spikes
         }
 
@@ -437,31 +438,3 @@ class Connection:
                             }
                         )[::-1]
                     )
-
-            case IoType.STREAM:
-
-                if not runs:
-                    raise RuntimeError(
-                        "Cannot send spikes to stream source without running."
-                    )
-
-                run_dict = {inp_idx: 0
-                            for inp_idx in range(self._num_inputs)}
-                run_dict[StreamFlag.SNC.name] = False
-                run_dict[StreamFlag.CLR.name] = False
-                temp = run_dict.copy()
-                temp.update(spike_dict)
-                spike_dict = temp
-
-                spike_dict[StreamFlag.SNC.name] = sync and (runs == 1)
-                if self._inp.time == 0:
-                    spike_dict[StreamFlag.CLR.name] = True
-                self._interface.write(self._inp.spk_fmt.pack(spike_dict)[::-1])
-                pause(1)
-
-                for r in reversed(range(runs - 1)):
-                    if sync and r == 0:
-                        run_dict[StreamFlag.SNC.name] = True
-                    self._interface.write(
-                            self._inp.spk_fmt.pack(run_dict)[::-1])
-                    pause(1)
