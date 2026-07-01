@@ -16,8 +16,6 @@ from periphery import Serial
 
 from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
-from fpga.network import spike_value_factor as svf
-
 SYSTEM_BUFFER = 4096
 
 # we're hacking Spike to support comparison
@@ -412,8 +410,7 @@ class Connection:
     ) -> None:
         spike_dict = {
             self._network.get_node(s.id).input_id: int(
-                s.value * svf(self._network)
-            )
+                s.value * self._spike_value_factor)
             for s in spikes
         }
         if any(key < 0 for key in spike_dict.keys()):
