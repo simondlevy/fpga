@@ -157,8 +157,6 @@ class Connection:
 
         self._io_type = io_type.upper()
 
-        self._network = net
-
         self._num_inputs = num_inputs
 
         self._spike_value_factor = spike_value_factor
