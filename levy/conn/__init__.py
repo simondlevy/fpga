@@ -77,10 +77,13 @@ class _IoConfig:
         self,
         io_type: IoType,
         net: neuro.Network,
+        num_neurons: int = 0,
         is_axi: bool = True,
     ):
         self._network = net
         self.type = io_type
+        self._num_neurons = num_neurons
+
         match self.type:
             case IoType.DISPATCH:
                 opc_width = unsigned_width(len(DispatchOpcode) - 1)
