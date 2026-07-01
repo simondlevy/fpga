@@ -34,6 +34,8 @@ num_inputs = net.num_inputs()
 
 num_outputs = net.num_outputs()
 
+spike_value_factor = fpga.network.spike_value_factor(net)
+
 conn = conn.Connection(
         PORT_NAME,
         baudrate,
