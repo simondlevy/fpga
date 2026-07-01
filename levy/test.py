@@ -9,7 +9,7 @@ proc = fpga.Processor("basys3", "/dev/ttyUSB1", "DIDO")
 
 proc.load_network(net)
 
-conn = conn.Connection(1, "basys3", "/dev/ttyUSB1", "DIDO")
+conn = conn.Connection("basys3", "/dev/ttyUSB1", "DIDO")
 
 for _ in range(3):
 

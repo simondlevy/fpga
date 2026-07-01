@@ -165,7 +165,6 @@ class OutConfig(_IoConfig):
 class Connection(neuro.Processor):
     def __init__(
         self,
-        num_inputs : int,
         target: str,
         interface: Serial | str | None = None,
         io_type: str = "DISO",
@@ -175,8 +174,6 @@ class Connection(neuro.Processor):
         super().__init__(*args, **kwargs)
 
         self._target_name = target
-
-        self.num_inputs = num_inputs
 
         with open(resources.files(config).joinpath("targets.json")) as f:
             self._target_config = load(f)[self._target_name]
@@ -194,7 +191,7 @@ class Connection(neuro.Processor):
         elif isinstance(interface, Serial):
             baudrate = interface.baudrate
         else:
-            raise RuntimeError("fpga Connection interface must be a periphery.Serial or str or None object.")
+            raise RuntimeError("fpga Processor interface must be a periphery.Serial or str or None object.")
         self._interface = interface
         self._baudrate = baudrate
 
@@ -203,8 +200,6 @@ class Connection(neuro.Processor):
         self._network = None
         self._programmed = False
         self.clear()
-
-        # self._setup_io()
 
     def apply_spike(self, spike: neuro.Spike) -> None:
         if self._programmed is False:
@@ -232,6 +227,8 @@ class Connection(neuro.Processor):
         self._programmed = False
 
     def clear_activity(self) -> None:
+        if self._programmed is False:
+            raise RuntimeError("Cannot clear network activity before programming the target FPGA.")
 
         if self._inp.type == IoType.DISPATCH:
             self._interface.write(
