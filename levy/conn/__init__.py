@@ -250,21 +250,11 @@ class Connection(neuro.Processor):
         self._inp.clear()
         self._out.clear()
 
-    def load_network(self, net: neuro.Network, should_program: bool = True) -> None:
+    def load_network(self, net: neuro.Network) -> None:
         self.clear()
         self._network = net
         self._setup_io()
         backend = self._build_network()
-        if should_program:
-            if not isinstance(self._interface, Serial):
-                raise RuntimeError("Cannot program network onto FPGA without a valid serial interface.")
-
-            backend.run()
-            self._programmed = True
-            # hardware will sometimes send CLR on startup
-            while self._interface.poll(1):
-                self._interface.read(self._interface.input_waiting())
-            self.clear_activity()
 
     def output_count(self, out_idx: int) -> int:
         return len(self.output_vector(out_idx))
