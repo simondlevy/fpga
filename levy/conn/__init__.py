@@ -382,9 +382,7 @@ class Connection:
                runs: int, sync: bool = False) -> None:
 
         spike_dict = {
-
-            self._network.get_node(s.id).input_id: int(s.value * self._spike_value_factor)
-
+            s.id: int(s.value * self._spike_value_factor)
             for s in spikes
         }
 
