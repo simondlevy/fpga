@@ -164,11 +164,6 @@ class Connection:
         *args,
         **kwargs,
     ):
-        target_config = None
-
-        with open(resources.files(config).joinpath("targets.json")) as f:
-            target_config = load(f)[target_name]
-
         if interface is None or isinstance(interface, str):
             if isinstance(interface, str):
                 interface = Serial(interface, baudrate)
