@@ -180,9 +180,9 @@ class Connection:
 
         match self._io_type[:2]:
             case "DI":
-                self._inp = InpConfig(IoType.DISPATCH, self._network)
+                self._inp = InpConfig(IoType.DISPATCH, self._network, num_inputs)
             case "SI":
-                self._inp = InpConfig(IoType.STREAM, self._network)
+                self._inp = InpConfig(IoType.STREAM, self._network, num_inputs)
             case _:
                 raise ValueError(
                     f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
