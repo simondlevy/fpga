@@ -155,6 +155,7 @@ class Connection:
 
     def __init__(
         self,
+        baudrate : int,
         clock_freq : float,
         net: neuro.Network,
         target_name: str,

@@ -13,6 +13,7 @@ with open(resources.files(fpga.config).joinpath("targets.json")) as f:
     target_config = load(f)[target_name]
 
 interface = None
+baudrate = None
 
 if interface is None or isinstance(interface, str):
     baudrate = 115200
@@ -34,7 +35,7 @@ clock_freq = target_config["parameters"]["clk_freq"]
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
 
-conn = conn.Connection(clock_freq, net, "basys3", "/dev/ttyUSB1", "DIDO")
+conn = conn.Connection(baudrate, clock_freq, net, "basys3", "/dev/ttyUSB1", "DIDO")
 
 for _ in range(3):
 
