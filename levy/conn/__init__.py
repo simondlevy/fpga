@@ -153,14 +153,21 @@ class OutConfig(_IoConfig):
 
 class Connection:
 
-    def __init__(self, port_name: str, baudrate: int, clock_freq: float, net:
-                 neuro.Network, io_type: str = "DISO"):
+    def __init__(
+            self,
+            port_name: str,
+            baudrate: int,
+            clock_freq: float,
+            net: neuro.Network,
+            num_outputs: int,
+            io_type: str = "DISO"):
 
         self._interface = Serial(port_name, baudrate)
 
         self._io_type = io_type.upper()
 
         self._network = None
+
         self.clear()
 
         self._network = net

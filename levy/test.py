@@ -28,7 +28,9 @@ clock_freq = target_config["parameters"]["clk_freq"]
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
 
-conn = conn.Connection(PORT_NAME, baudrate, clock_freq, net, "DIDO")
+num_outputs = net.num_outputs()
+
+conn = conn.Connection(PORT_NAME, baudrate, clock_freq, net, num_outputs, "DIDO")
 
 for _ in range(3):
 
