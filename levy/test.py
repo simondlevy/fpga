@@ -11,12 +11,12 @@ import conn
 import fpga
 import neuro
 
-target_name = "basys3"
+TARGET_NAME = "basys3"
 
 target_config = None
 
 with open(resources.files(fpga.config).joinpath("targets.json")) as f:
-    target_config = load(f)[target_name]
+    target_config = load(f)[TARGET_NAME]
 
 interface = None
 
