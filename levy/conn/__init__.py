@@ -184,7 +184,6 @@ class Connection:
         else:
             raise RuntimeError("Illegal fpga Processor interface")
         self._interface = interface
-        self._baudrate = baudrate
 
         self._io_type = io_type.upper()
 
@@ -226,7 +225,7 @@ class Connection:
                 pass
             case _:
                 raise ValueError()
-        self._secs_per_run += max_bytes_per_run * 10 / self._baudrate
+        self._secs_per_run += max_bytes_per_run * 10 / baudrate
         self._max_run = SYSTEM_BUFFER // max_bytes_per_run
         self._max_runs_ahead = self._max_run
 
