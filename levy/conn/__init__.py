@@ -468,7 +468,7 @@ class Connection:
                         "Cannot send spikes to stream source without running."
                     )
                 run_dict = {inp_idx: 0
-                            for inp_idx in range(self._network.num_inputs())}
+                            for inp_idx in range(self._num_inputs)}
                 run_dict[StreamFlag.SNC.name] = False
                 run_dict[StreamFlag.CLR.name] = False
                 temp = run_dict.copy()
