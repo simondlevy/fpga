@@ -1,6 +1,34 @@
-import neuro
-import fpga
+from importlib import resources
+from json import load
+
 import conn
+import fpga
+import neuro
+
+target_name = "basys3"
+
+target_config = None
+
+with open(resources.files(fpga.config).joinpath("targets.json")) as f:
+    target_config = load(f)[target_name]
+
+interface = None
+
+if interface is None or isinstance(interface, str):
+    baudrate = 115200
+    try:
+        baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
+    except KeyError:
+        pass
+    except IndexError:
+        pass
+    if isinstance(interface, str):
+        interface = Serial(interface, baudrate)
+elif isinstance(interface, Serial):
+    baudrate = interface.baudrate
+else:
+    raise RuntimeError("Illegal fpga Processor interface")
+
 
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
