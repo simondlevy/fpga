@@ -83,6 +83,7 @@ class _IoConfig:
         self._charge_width = charge_width
 
         match self.type:
+
             case IoType.DISPATCH:
                 opc_width = unsigned_width(len(DispatchOpcode) - 1)
                 spk_names = ["opcode"]
@@ -102,19 +103,10 @@ class _IoConfig:
                 if self._get_charge_width():
                     spk_names.append("val")
                     spk_fmt_str += f"s{self._get_charge_width()}"
-            case IoType.STREAM:
-                spk_names = [flg.name for flg in StreamFlag]
-                spk_fmt_str = "b1" * len(StreamFlag)
-                spk_fmt_elem = (
-                    f"s{self._get_charge_width()}"
-                    if self._get_charge_width()
-                    else "b1"
-                )
-                for io in range(self._num_net_io()):
-                    spk_names.append(io)
-                    spk_fmt_str += spk_fmt_elem
+
             case _:
                 raise ValueError()
+
         self.spk_fmt = bs.compile(spk_fmt_str, spk_names)
 
         self.clear()
@@ -188,6 +180,7 @@ class Connection:
                 raise ValueError(
                     f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
                 )
+
         match self._io_type[2:]:
             case "DO":
                 self._out = OutConfig(
@@ -215,17 +208,11 @@ class Connection:
         self._max_run = SYSTEM_BUFFER // max_bytes_per_run
         self._max_runs_ahead = self._max_run
 
-        match self._inp.type:
-            case IoType.DISPATCH:
-                # limited by both buffer size and command field width
-                self._max_run = min(
-                    2 ** (self._inp.cmd_fmt._infos[1].size) - 1,
-                    self._max_run,
-                )
-            case IoType.STREAM:
-                pass
-            case _:
-                raise ValueError()
+        # limited by both buffer size and command field width
+        self._max_run = min(
+            2 ** (self._inp.cmd_fmt._infos[1].size) - 1,
+            self._max_run,
+        )
 
     def apply_spike(self, spike: neuro.Spike) -> None:
 
@@ -302,6 +289,7 @@ class Connection:
 
         if time < 1:
             raise ValueError("Cannot run for less than 1 timestep")
+
         target_time = self._inp.time + time
         rx_thread = Thread(target=self._hw_rx, args=(target_time,))
         rx_thread.daemon = True
@@ -404,6 +392,7 @@ class Connection:
                 s.value * self._spike_value_factor)
             for s in spikes
         }
+
         if any(key < 0 for key in spike_dict.keys()):
             raise ValueError("Cannot send spikes to non-input node.")
 
@@ -459,10 +448,12 @@ class Connection:
                     )
 
             case IoType.STREAM:
+
                 if not runs:
                     raise RuntimeError(
                         "Cannot send spikes to stream source without running."
                     )
+
                 run_dict = {inp_idx: 0
                             for inp_idx in range(self._num_inputs)}
                 run_dict[StreamFlag.SNC.name] = False
