@@ -196,7 +196,7 @@ class Connection:
         max_bytes_per_run = width_bits_to_bytes(self._out.spk_fmt.calcsize())
         match self._out.type:
             case IoType.DISPATCH:
-                max_bytes_per_run *= self._network.num_outputs() + 1
+                max_bytes_per_run *= num_outputs + 1
                 self._secs_per_run += (
                     self._network.num_outputs() / clock_freq)
             case IoType.STREAM:
