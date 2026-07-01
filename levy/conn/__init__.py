@@ -3,8 +3,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-import os.path
-import pathlib as pl
 import sys
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
@@ -16,20 +14,12 @@ from typing import Iterable
 
 import bitstruct as bs
 import neuro
-from edalize.edatool import get_edatool
 from periphery import Serial
 
-import fpga
-from fpga import config, rtl
+from fpga import config
 from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
-from fpga.network import (
-    HASH_LEN,
-    build_network_sv,
-    charge_width,
-    hash_network,
-    proc_name,
-    spike_value_factor,
-)
+
+from fpga.network import charge_width, spike_value_factor
 
 SYSTEM_BUFFER = 4096
 
@@ -82,7 +72,9 @@ def dispatch_operand_widths(
     idx_width = unsigned_width(net_num_io - 1)
     spk_width = idx_width + net_charge_width
     operand_width = (
-        width_nearest_byte(opc_width + spk_width) - opc_width if is_axi else spk_width
+        width_nearest_byte(opc_width + spk_width) - opc_width
+        if is_axi
+        else spk_width
     )
     return idx_width, operand_width
 
@@ -119,7 +111,9 @@ class _IoConfig:
                 spk_names = [flg.name for flg in StreamFlag]
                 spk_fmt_str = "b1" * len(StreamFlag)
                 spk_fmt_elem = (
-                    f"s{self._charge_width()}" if self._charge_width() else "b1"
+                    f"s{self._charge_width()}"
+                    if self._charge_width()
+                    else "b1"
                 )
                 for io in range(self._num_net_io()):
                     spk_names.append(io)
@@ -181,8 +175,9 @@ class Connection:
 
         if interface is None or isinstance(interface, str):
             baudrate = 115200
+            cfg = self._target_config
             try:
-                baudrate = self._target_config["parameters"]["uart"]["baud_rates"][-1]
+                baudrate = cfg["parameters"]["uart"]["baud_rates"][-1]
             except KeyError:
                 pass
             except IndexError:
@@ -192,7 +187,7 @@ class Connection:
         elif isinstance(interface, Serial):
             baudrate = interface.baudrate
         else:
-            raise RuntimeError("fpga Processor interface must be a periphery.Serial or str or None object.")
+            raise RuntimeError("Illegal fpga Processor interface")
         self._interface = interface
         self._baudrate = baudrate
 
@@ -213,7 +208,8 @@ class Connection:
         )
         if self._inp.type == IoType.DISPATCH:
             spikes_now = []
-            while self._inp.queue and self._inp.queue[0].time == self._inp.time:
+            while (self._inp.queue and
+                   self._inp.queue[0].time == self._inp.time):
                 # send these spikes as soon as they arrive to reduce latency
                 spikes_now.append(self._inp.queue.popleft())
             self._hw_tx(spikes_now, 0, False)
@@ -253,7 +249,8 @@ class Connection:
 
     def output_counts(self) -> list[int]:
         return [
-            self.output_count(out_idx) for out_idx in range(self._network.num_outputs())
+            self.output_count(out_idx)
+            for out_idx in range(self._network.num_outputs())
         ]
 
     def output_last_fire(self, out_idx: int) -> float:
@@ -269,7 +266,8 @@ class Connection:
     def output_vector(self, out_idx: int) -> list[float]:
 
         return [
-            t - self._last_run for t in self._out.queue[out_idx] if t >= self._last_run
+            t - self._last_run
+            for t in self._out.queue[out_idx] if t >= self._last_run
         ]
 
     def output_vectors(self) -> list[list[float]]:
@@ -281,7 +279,7 @@ class Connection:
     def run(self, time: int) -> None:
 
         if time < 1:
-            raise ValueError("It's not possible to run for less than 1 timestep")
+            raise ValueError("Cannot run for less than 1 timestep")
         target_time = self._inp.time + time
         rx_thread = Thread(target=self._hw_rx, args=(target_time,))
         rx_thread.daemon = True
@@ -289,9 +287,12 @@ class Connection:
         self._last_run = self._inp.time
         while self._inp.time < target_time:
             spikes = []
-            while self._inp.queue and int(self._inp.queue[0].time) == self._inp.time:
+            while (self._inp.queue and
+                   int(self._inp.queue[0].time) == self._inp.time):
                 spikes.append(self._inp.queue.popleft())
-            run_time = int(self._inp.queue[0].time) if self._inp.queue else target_time
+            run_time = (int(self._inp.queue[0].time)
+                        if self._inp.queue
+                        else target_time)
             self._hw_tx(
                 spikes,
                 run_time - self._inp.time,
@@ -315,7 +316,8 @@ class Connection:
                 10.0,
             )[::-1]
             if len(rx) != num_rx_bytes:
-                raise RuntimeError("Did not receive coherent response from target.")
+                raise RuntimeError(
+                        "Did not receive coherent response from target.")
 
             match self._out.type:
                 case IoType.DISPATCH:
@@ -331,13 +333,15 @@ class Connection:
                                 and self._out.spk_fmt._infos[1].name == "idx"
                                 else 0
                             )
-                            self._out.queue[out_idx].append(float(self._out.time))
+                            self._out.queue[out_idx].append(
+                                    float(self._out.time))
                         case DispatchOpcode.SNC:
                             break
                         case DispatchOpcode.CLR:
                             if seek_clr:
                                 return
-                            elif self._out.time and self._inp.type == IoType.DISPATCH:
+                            elif (self._out.time and
+                                  self._inp.type == IoType.DISPATCH):
                                 raise RuntimeError(
                                     "Should not have received CLR during run()"
                                 )
@@ -350,15 +354,18 @@ class Connection:
                     out_dict = self._out.spk_fmt.unpack(rx)
                     for out_idx in range(self._network.num_outputs()):
                         if out_dict[out_idx]:
-                            self._out.queue[out_idx].append(float(self._out.time))
+                            self._out.queue[out_idx].append(
+                                    float(self._out.time))
                     if out_dict[StreamFlag.CLR.name] and self._out.time:
-                        raise RuntimeError("Should not have received CLR during run()")
+                        raise RuntimeError(
+                                "Should not have received CLR during run()")
 
                     self._out.time += 1
 
                     # don't check DISO because SNC can't travel back in time
                     if self._inp.type == IoType.STREAM and (
-                        out_dict[StreamFlag.SNC.name] != (self._out.time == target)
+                        out_dict[StreamFlag.SNC.name] !=
+                        (self._out.time == target)
                     ):
                         raise RuntimeError(
                             f"SNC flag {bool(out_dict[StreamFlag.SNC.name])}"
@@ -403,7 +410,8 @@ class Connection:
                         [
                             runs,
                             self._max_run,
-                            self._max_runs_ahead + self._out.time - self._inp.time,
+                            self._max_runs_ahead + self._out.time -
+                            self._inp.time,
                         ]
                     )
                     if not to_run:
@@ -434,7 +442,8 @@ class Connection:
                     raise RuntimeError(
                         "Cannot send spikes to stream source without running."
                     )
-                run_dict = {inp_idx: 0 for inp_idx in range(self._network.num_inputs())}
+                run_dict = {inp_idx: 0
+                            for inp_idx in range(self._network.num_inputs())}
                 run_dict[StreamFlag.SNC.name] = False
                 run_dict[StreamFlag.CLR.name] = False
                 temp = run_dict.copy()
@@ -450,7 +459,8 @@ class Connection:
                 for r in reversed(range(runs - 1)):
                     if sync and r == 0:
                         run_dict[StreamFlag.SNC.name] = True
-                    self._interface.write(self._inp.spk_fmt.pack(run_dict)[::-1])
+                    self._interface.write(
+                            self._inp.spk_fmt.pack(run_dict)[::-1])
                     pause(1)
 
     def _set_comm_limits(self):
@@ -492,7 +502,7 @@ class Connection:
                 self._inp = InpConfig(IoType.STREAM, self._network)
             case _:
                 raise ValueError(
-                    f"Invalid input type: {self._io_type[:2]}\nExpected: (D|S)I"
+                    f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
                 )
         match self._io_type[2:]:
             case "DO":
@@ -501,6 +511,6 @@ class Connection:
                 self._out = OutConfig(IoType.STREAM, self._network)
             case _:
                 raise ValueError(
-                    f"Invalid output type: {self._io_type[2:]}\nExpected: (D|S)O"
+                    f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
                 )
         self._set_comm_limits()
