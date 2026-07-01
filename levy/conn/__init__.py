@@ -17,6 +17,12 @@ from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
 SYSTEM_BUFFER = 4096
 
+class MySpike:
+
+    def __init__(self, ident:int, time:float, value: float):
+
+        pass
+
 # we're hacking Spike to support comparison
 Spike.__lt__ = lambda self, other: self.time < other.time
 Spike.__le__ = lambda self, other: self.time <= other.time
