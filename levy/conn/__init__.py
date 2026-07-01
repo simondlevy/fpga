@@ -173,7 +173,7 @@ class Connection:
 
         self._network = None
 
-        self.clear()
+        # self.clear()
 
         self._network = net
 
@@ -249,10 +249,13 @@ class Connection:
     def apply_spikes(self, spikes: list[neuro.Spike]) -> None:
         [self.apply_spike(spike) for spike in spikes]
 
+    '''
     def clear(self) -> None:
         if self._network:
+            print('bazinga')
             self.clear_activity()
         self._network = None
+    '''
 
     def clear_activity(self) -> None:
 
