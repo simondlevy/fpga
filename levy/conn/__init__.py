@@ -396,9 +396,9 @@ class Connection:
                     if self._out.time == target:
                         break
 
-    def _hw_tx(
-        self, spikes: Iterable[neuro.Spike], runs: int, sync: bool = False
-    ) -> None:
+    def _hw_tx(self, spikes: Iterable[neuro.Spike],
+               runs: int, sync: bool = False) -> None:
+
         spike_dict = {
             self._network.get_node(s.id).input_id: int(
                 s.value * self._spike_value_factor)
