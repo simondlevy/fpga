@@ -76,7 +76,6 @@ class _IoConfig:
     def __init__(
         self,
         io_type: IoType,
-        ignore,
         num_neurons: int,
         charge_width: int,
         is_axi: bool = True,
@@ -182,18 +181,18 @@ class Connection:
 
         match self._io_type[:2]:
             case "DI":
-                self._inp = InpConfig(IoType.DISPATCH, None, num_inputs, charge_width)
+                self._inp = InpConfig(IoType.DISPATCH, num_inputs, charge_width)
             case "SI":
-                self._inp = InpConfig(IoType.STREAM, None, num_inputs, charge_width)
+                self._inp = InpConfig(IoType.STREAM, num_inputs, charge_width)
             case _:
                 raise ValueError(
                     f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
                 )
         match self._io_type[2:]:
             case "DO":
-                self._out = OutConfig(IoType.DISPATCH, None, num_outputs, charge_width)
+                self._out = OutConfig(IoType.DISPATCH, num_outputs, charge_width)
             case "SO":
-                self._out = OutConfig(IoType.STREAM, None, num_outputs, charge_width)
+                self._out = OutConfig(IoType.STREAM, num_outputs, charge_width)
             case _:
                 raise ValueError(
                     f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
