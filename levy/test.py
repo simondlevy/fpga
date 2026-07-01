@@ -29,6 +29,8 @@ elif isinstance(interface, Serial):
 else:
     raise RuntimeError("Illegal fpga Processor interface")
 
+clock_freq = target_config["parameters"]["clk_freq"]
+
 
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
