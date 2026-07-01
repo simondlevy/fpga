@@ -165,12 +165,14 @@ class Connection:
 
         self._target_name = target
 
+        target_config = None
+
         with open(resources.files(config).joinpath("targets.json")) as f:
-            self._target_config = load(f)[self._target_name]
+            target_config = load(f)[self._target_name]
 
         if interface is None or isinstance(interface, str):
             baudrate = 115200
-            cfg = self._target_config
+            cfg = target_config
             try:
                 baudrate = cfg["parameters"]["uart"]["baud_rates"][-1]
             except KeyError:
@@ -220,7 +222,7 @@ class Connection:
                 max_bytes_per_run *= self._network.num_outputs() + 1
                 self._secs_per_run += (
                     self._network.num_outputs()
-                    / self._target_config["parameters"]["clk_freq"]
+                    / target_config["parameters"]["clk_freq"]
                 )
             case IoType.STREAM:
                 pass
