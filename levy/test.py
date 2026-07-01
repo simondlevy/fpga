@@ -12,6 +12,7 @@ import fpga
 import neuro
 
 TARGET_NAME = "basys3"
+INTERFACE = "/dev/ttyUSB1"
 
 target_config = None
 
@@ -22,15 +23,12 @@ interface = None
 
 baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
 
-if isinstance(interface, str):
-    interface = Serial(interface, baudrate)
-
 clock_freq = target_config["parameters"]["clk_freq"]
 
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
 
-conn = conn.Connection(baudrate, clock_freq, net, "/dev/ttyUSB1", "DIDO")
+conn = conn.Connection(baudrate, clock_freq, net, INTERFACE, "DIDO")
 
 for _ in range(3):
 
