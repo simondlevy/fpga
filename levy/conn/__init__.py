@@ -164,6 +164,7 @@ class Connection:
             net: neuro.Network,
             num_inputs: int,
             num_outputs: int,
+            charge_width: int,
             io_type: str = "DISO"):
 
         self._interface = Serial(port_name, baudrate)

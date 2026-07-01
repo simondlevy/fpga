@@ -41,6 +41,7 @@ conn = conn.Connection(
         net,
         num_inputs,
         num_outputs,
+        charge_width,
         "DIDO")
 
 for _ in range(3):
