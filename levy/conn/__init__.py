@@ -181,6 +181,8 @@ class Connection:
 
         self._num_inputs = num_inputs
 
+        self._spike_value_factor = spike_value_factor
+
         match self._io_type[:2]:
             case "DI":
                 self._inp = InpConfig(
