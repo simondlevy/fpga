@@ -25,11 +25,15 @@ class MySpike:
         self.time=time
         self.value=value
 
-# we're hacking Spike to support comparison
 Spike.__lt__ = lambda self, other: self.time < other.time
 Spike.__le__ = lambda self, other: self.time <= other.time
 Spike.__gt__ = lambda self, other: self.time > other.time
 Spike.__ge__ = lambda self, other: self.time >= other.time
+
+MySpike.__lt__ = lambda self, other: self.time < other.time
+MySpike.__le__ = lambda self, other: self.time <= other.time
+MySpike.__gt__ = lambda self, other: self.time > other.time
+MySpike.__ge__ = lambda self, other: self.time >= other.time
 
 
 class _InpQueue(list):
