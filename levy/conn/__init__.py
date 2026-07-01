@@ -162,7 +162,6 @@ class Connection:
         *args,
         **kwargs,
     ):
-
         target_config = None
 
         with open(resources.files(config).joinpath("targets.json")) as f:
@@ -170,9 +169,8 @@ class Connection:
 
         if interface is None or isinstance(interface, str):
             baudrate = 115200
-            cfg = target_config
             try:
-                baudrate = cfg["parameters"]["uart"]["baud_rates"][-1]
+                baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
             except KeyError:
                 pass
             except IndexError:
@@ -183,6 +181,7 @@ class Connection:
             baudrate = interface.baudrate
         else:
             raise RuntimeError("Illegal fpga Processor interface")
+
         self._interface = interface
 
         self._io_type = io_type.upper()
