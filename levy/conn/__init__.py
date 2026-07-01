@@ -131,7 +131,7 @@ class InpConfig(_IoConfig):
         self.queue = _InpQueue([])
 
     def _num_net_io(self):
-        return self._network.num_inputs()
+        return self._num_neurons
 
     def _charge_width(self):
         # TODO: support fires input
