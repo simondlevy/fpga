@@ -6,8 +6,6 @@
 
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
-from importlib import resources
-from json import load
 from threading import Thread
 from time import sleep
 from typing import Iterable
@@ -16,7 +14,6 @@ import bitstruct as bs
 import neuro
 from periphery import Serial
 
-from fpga import config
 from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
 from fpga.network import charge_width, spike_value_factor
@@ -157,8 +154,8 @@ class Connection:
     def __init__(
         self,
         port_name: str,
-        baudrate : int,
-        clock_freq : float,
+        baudrate: int,
+        clock_freq: float,
         net: neuro.Network,
         io_type: str = "DISO",
         *args,
@@ -219,7 +216,6 @@ class Connection:
                 pass
             case _:
                 raise ValueError()
-
 
     def apply_spike(self, spike: neuro.Spike) -> None:
 
