@@ -4,39 +4,38 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import bitstruct as bs
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
+from periphery import Serial
 from threading import Thread
 from time import sleep
 from typing import Iterable
 
-import bitstruct as bs
-import neuro
-from periphery import Serial
-
+from neuro import Spike
 from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
 SYSTEM_BUFFER = 4096
 
 # we're hacking Spike to support comparison
-neuro.Spike.__lt__ = lambda self, other: self.time < other.time
-neuro.Spike.__le__ = lambda self, other: self.time <= other.time
-neuro.Spike.__gt__ = lambda self, other: self.time > other.time
-neuro.Spike.__ge__ = lambda self, other: self.time >= other.time
+Spike.__lt__ = lambda self, other: self.time < other.time
+Spike.__le__ = lambda self, other: self.time <= other.time
+Spike.__gt__ = lambda self, other: self.time > other.time
+Spike.__ge__ = lambda self, other: self.time >= other.time
 
 
 class _InpQueue(list):
-    def __init__(self, data: Iterable[neuro.Spike]):
+    def __init__(self, data: Iterable[Spike]):
         super().__init__(data)
         heapify(self)
 
-    def append(self, item: neuro.Spike) -> None:
+    def append(self, item: Spike) -> None:
         heappush(self, item)
 
-    def extend(self, iterable: Iterable[neuro.Spike]) -> None:
+    def extend(self, iterable: Iterable[Spike]) -> None:
         [self.append(item) for item in iterable]
 
-    def popleft(self) -> neuro.Spike:
+    def popleft(self) -> Spike:
         return heappop(self)
 
 
@@ -205,12 +204,12 @@ class Connection:
             self._max_run,
         )
 
-    def apply_spike(self, spike: neuro.Spike) -> None:
+    def apply_spike(self, spike: Spike) -> None:
 
         if spike.time < 0:
             raise RuntimeError("Spikes cannot be scheduled in the past.")
         self._inp.queue.append(
-            neuro.Spike(spike.id, spike.time + self._inp.time, spike.value)
+            Spike(spike.id, spike.time + self._inp.time, spike.value)
         )
         if self._inp.type == IoType.DISPATCH:
             spikes_now = []
@@ -220,7 +219,7 @@ class Connection:
                 spikes_now.append(self._inp.queue.popleft())
             self._hw_tx(spikes_now, 0, False)
 
-    def apply_spikes(self, spikes: list[neuro.Spike]) -> None:
+    def apply_spikes(self, spikes: list[Spike]) -> None:
         [self.apply_spike(spike) for spike in spikes]
 
     def clear_activity(self) -> None:
@@ -375,7 +374,7 @@ class Connection:
                     if self._out.time == target:
                         break
 
-    def _hw_tx(self, spikes: Iterable[neuro.Spike],
+    def _hw_tx(self, spikes: Iterable[Spike],
                runs: int, sync: bool = False) -> None:
 
         spike_dict = {
