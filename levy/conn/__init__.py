@@ -12,12 +12,11 @@ from threading import Thread
 from time import sleep
 from typing import Iterable
 
-from neuro import Spike
 from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
 SYSTEM_BUFFER = 4096
 
-class MySpike:
+class Spike:
 
     def __init__(self, ident:int, time:float, value: float):
 
@@ -29,11 +28,6 @@ Spike.__lt__ = lambda self, other: self.time < other.time
 Spike.__le__ = lambda self, other: self.time <= other.time
 Spike.__gt__ = lambda self, other: self.time > other.time
 Spike.__ge__ = lambda self, other: self.time >= other.time
-
-MySpike.__lt__ = lambda self, other: self.time < other.time
-MySpike.__le__ = lambda self, other: self.time <= other.time
-MySpike.__gt__ = lambda self, other: self.time > other.time
-MySpike.__ge__ = lambda self, other: self.time >= other.time
 
 
 class _InpQueue(list):
