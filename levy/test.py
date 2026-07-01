@@ -28,6 +28,8 @@ clock_freq = target_config["parameters"]["clk_freq"]
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
 
+charge_width = fpga.network.charge_width(net)
+
 num_inputs = net.num_inputs()
 
 num_outputs = net.num_outputs()
