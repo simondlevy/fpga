@@ -44,6 +44,7 @@ conn = conn.Connection(
         num_inputs,
         num_outputs,
         charge_width,
+        spike_value_factor,
         "DIDO")
 
 for _ in range(3):

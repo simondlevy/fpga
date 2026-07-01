@@ -166,6 +166,7 @@ class Connection:
             num_inputs: int,
             num_outputs: int,
             charge_width: int,
+            spike_value_factor: int,
             io_type: str = "DISO"):
 
         self._interface = Serial(port_name, baudrate)
