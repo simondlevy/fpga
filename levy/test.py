@@ -5,8 +5,7 @@ import conn
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
 
-conn = conn.Connection("basys3", "/dev/ttyUSB1", "DIDO")
-conn.load_network(net)
+conn = conn.Connection(net, "basys3", "/dev/ttyUSB1", "DIDO")
 
 for _ in range(3):
 

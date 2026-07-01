@@ -165,6 +165,7 @@ class OutConfig(_IoConfig):
 class Connection(neuro.Processor):
     def __init__(
         self,
+        net: neuro.Network,
         target: str,
         interface: Serial | str | None = None,
         io_type: str = "DISO",
@@ -198,8 +199,10 @@ class Connection(neuro.Processor):
         self._io_type = io_type.upper()
 
         self._network = None
-        self._programmed = False
         self.clear()
+
+        self._network = net
+        self._setup_io()
 
     def apply_spike(self, spike: neuro.Spike) -> None:
 
@@ -222,7 +225,6 @@ class Connection(neuro.Processor):
         if self._network:
             self.clear_activity()
         self._network = None
-        self._programmed = False
 
     def clear_activity(self) -> None:
 
@@ -245,12 +247,6 @@ class Connection(neuro.Processor):
 
         self._inp.clear()
         self._out.clear()
-
-    def load_network(self, net: neuro.Network) -> None:
-        self.clear()
-        self._network = net
-        self._setup_io()
-        backend = self._build_network()
 
     def output_count(self, out_idx: int) -> int:
         return len(self.output_vector(out_idx))
