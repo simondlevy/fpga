@@ -19,18 +19,16 @@ target_config = None
 with open(resources.files(fpga.config).joinpath("targets.json")) as f:
     target_config = load(f)[TARGET_NAME]
 
-baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
+params = target_config["parameters"]
 
-clock_freq = target_config["parameters"]["clk_freq"]
+baudrate = params["uart"]["baud_rates"][-1]
+
+clock_freq = params["clk_freq"]
 
 net = neuro.Network()
 net.read_from_file("../networks/simple.txt")
 
 charge_width = fpga.network.charge_width(net)
-
-num_inputs = net.num_inputs()
-
-num_outputs = net.num_outputs()
 
 spike_value_factor = fpga.network.spike_value_factor(net)
 
@@ -38,8 +36,8 @@ conn = conn.Connection(
         PORT_NAME,
         baudrate,
         clock_freq,
-        num_inputs,
-        num_outputs,
+        net.num_inputs(),
+        net.num_outputs(),
         charge_width,
         spike_value_factor,
         "DIDO")
