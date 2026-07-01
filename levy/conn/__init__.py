@@ -202,8 +202,6 @@ class Connection(neuro.Processor):
         self.clear()
 
     def apply_spike(self, spike: neuro.Spike) -> None:
-        if self._programmed is False:
-            raise RuntimeError("Cannot apply spikes before programming the target FPGA.")
 
         if spike.time < 0:
             raise RuntimeError("Spikes cannot be scheduled in the past.")
@@ -273,8 +271,6 @@ class Connection(neuro.Processor):
         ]
 
     def output_vector(self, out_idx: int) -> list[float]:
-        if self._programmed is False:
-            raise RuntimeError("Cannot get output vector before programming the target FPGA.")
 
         return [
             t - self._last_run for t in self._out.queue[out_idx] if t >= self._last_run
@@ -287,8 +283,6 @@ class Connection(neuro.Processor):
         ]
 
     def run(self, time: int) -> None:
-        if self._programmed is False:
-            raise RuntimeError("Cannot run before programming the target FPGA.")
 
         if time < 1:
             raise ValueError("It's not possible to run for less than 1 timestep")
