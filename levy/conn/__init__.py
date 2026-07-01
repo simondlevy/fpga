@@ -91,7 +91,7 @@ class _IoConfig:
                 spk_names = ["opcode"]
                 spk_fmt_str = f"u{opc_width}"
                 idx_width, operand_width = dispatch_operand_widths(
-                    opc_width, self._num_net_io(), self._charge_width(), is_axi
+                    opc_width, self._num_net_io(), self._get_charge_width(), is_axi
                 )
 
                 cmd_names = spk_names + ["operand"]
@@ -101,15 +101,15 @@ class _IoConfig:
                 if idx_width:
                     spk_names.append("idx")
                     spk_fmt_str += f"u{idx_width}"
-                if self._charge_width():
+                if self._get_charge_width():
                     spk_names.append("val")
-                    spk_fmt_str += f"s{self._charge_width()}"
+                    spk_fmt_str += f"s{self._get_charge_width()}"
             case IoType.STREAM:
                 spk_names = [flg.name for flg in StreamFlag]
                 spk_fmt_str = "b1" * len(StreamFlag)
                 spk_fmt_elem = (
-                    f"s{self._charge_width()}"
-                    if self._charge_width()
+                    f"s{self._get_charge_width()}"
+                    if self._get_charge_width()
                     else "b1"
                 )
                 for io in range(self._num_net_io()):
@@ -134,7 +134,7 @@ class InpConfig(_IoConfig):
     def _num_net_io(self):
         return self._num_neurons
 
-    def _charge_width(self):
+    def _get_charge_width(self):
         # TODO: support fires input
         return charge_width(self._network)
 
@@ -148,7 +148,7 @@ class OutConfig(_IoConfig):
     def _num_net_io(self):
         return self._num_neurons
 
-    def _charge_width(cls):
+    def _get_charge_width(cls):
         # TODO: support charges output
         return 0
 
