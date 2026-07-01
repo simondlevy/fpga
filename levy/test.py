@@ -20,14 +20,8 @@ with open(resources.files(fpga.config).joinpath("targets.json")) as f:
 
 interface = None
 
-baudrate = 115200
+baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
 
-try:
-    baudrate = target_config["parameters"]["uart"]["baud_rates"][-1]
-except KeyError:
-    pass
-except IndexError:
-    pass
 if isinstance(interface, str):
     interface = Serial(interface, baudrate)
 
