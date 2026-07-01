@@ -393,48 +393,47 @@ class Connection:
             self._inp.time += runs
             sleep(self._secs_per_run * runs)
 
-        match self._inp.type:
-            case IoType.DISPATCH:
+        [
+            self._interface.write(
+                self._inp.spk_fmt.pack(
+                    {
+                        "opcode": DispatchOpcode.SPK,
+                        "idx": idx,
+                        "val": val,
+                    }
+                )[::-1]
+            )
+            for idx, val in spike_dict.items()
+        ]
+
+        while runs:
+            to_run = min(
                 [
-                    self._interface.write(
-                        self._inp.spk_fmt.pack(
-                            {
-                                "opcode": DispatchOpcode.SPK,
-                                "idx": idx,
-                                "val": val,
-                            }
-                        )[::-1]
-                    )
-                    for idx, val in spike_dict.items()
+                    runs,
+                    self._max_run,
+                    self._max_runs_ahead + self._out.time -
+                    self._inp.time,
                 ]
-                while runs:
-                    to_run = min(
-                        [
-                            runs,
-                            self._max_run,
-                            self._max_runs_ahead + self._out.time -
-                            self._inp.time,
-                        ]
-                    )
-                    if not to_run:
-                        sleep(100e-9)
-                        continue
-                    self._interface.write(
-                        self._inp.cmd_fmt.pack(
-                            {
-                                "opcode": DispatchOpcode.RUN,
-                                "operand": to_run,
-                            }
-                        )[::-1]
-                    )
-                    pause(to_run)
-                    runs -= to_run
-                if sync:
-                    self._interface.write(
-                        self._inp.cmd_fmt.pack(
-                            {
-                                "opcode": DispatchOpcode.SNC,
-                                "operand": 0,
-                            }
-                        )[::-1]
-                    )
+            )
+            if not to_run:
+                sleep(100e-9)
+                continue
+            self._interface.write(
+                self._inp.cmd_fmt.pack(
+                    {
+                        "opcode": DispatchOpcode.RUN,
+                        "operand": to_run,
+                    }
+                )[::-1]
+            )
+            pause(to_run)
+            runs -= to_run
+        if sync:
+            self._interface.write(
+                self._inp.cmd_fmt.pack(
+                    {
+                        "opcode": DispatchOpcode.SNC,
+                        "operand": 0,
+                    }
+                )[::-1]
+            )
