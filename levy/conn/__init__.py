@@ -156,10 +156,10 @@ class Connection:
 
     def __init__(
         self,
+        interface: str,
         baudrate : int,
         clock_freq : float,
         net: neuro.Network,
-        interface: str,
         io_type: str = "DISO",
         *args,
         **kwargs,
