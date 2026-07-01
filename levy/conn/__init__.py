@@ -78,7 +78,7 @@ class _IoConfig:
         io_type: IoType,
         net: neuro.Network,
         num_neurons: int,
-        charge_width: int = 0,
+        charge_width: int,
         is_axi: bool = True,
     ):
         self._network = net
@@ -182,18 +182,18 @@ class Connection:
 
         match self._io_type[:2]:
             case "DI":
-                self._inp = InpConfig(IoType.DISPATCH, self._network, num_inputs)
+                self._inp = InpConfig(IoType.DISPATCH, self._network, num_inputs, charge_width)
             case "SI":
-                self._inp = InpConfig(IoType.STREAM, self._network, num_inputs)
+                self._inp = InpConfig(IoType.STREAM, self._network, num_inputs, charge_width)
             case _:
                 raise ValueError(
                     f"Invalid inp type: {self._io_type[:2]}\nExpected: (D|S)I"
                 )
         match self._io_type[2:]:
             case "DO":
-                self._out = OutConfig(IoType.DISPATCH, self._network, num_outputs)
+                self._out = OutConfig(IoType.DISPATCH, self._network, num_outputs, charge_width)
             case "SO":
-                self._out = OutConfig(IoType.STREAM, self._network, num_outputs)
+                self._out = OutConfig(IoType.STREAM, self._network, num_outputs, charge_width)
             case _:
                 raise ValueError(
                     f"Invalid out type: {self._io_type[2:]}\nExpected: (D|S)O"
