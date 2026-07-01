@@ -197,8 +197,7 @@ class Connection:
         match self._out.type:
             case IoType.DISPATCH:
                 max_bytes_per_run *= num_outputs + 1
-                self._secs_per_run += (
-                    self._network.num_outputs() / clock_freq)
+                self._secs_per_run += (num_outputs / clock_freq)
             case IoType.STREAM:
                 pass
             case _:
