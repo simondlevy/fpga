@@ -31,10 +31,6 @@ if interface is None or isinstance(interface, str):
         pass
     if isinstance(interface, str):
         interface = Serial(interface, baudrate)
-elif isinstance(interface, Serial):
-    baudrate = interface.baudrate
-else:
-    raise RuntimeError("Illegal fpga Processor interface")
 
 clock_freq = target_config["parameters"]["clk_freq"]
 
