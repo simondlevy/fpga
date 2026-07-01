@@ -162,7 +162,8 @@ class OutConfig(_IoConfig):
         return 0
 
 
-class Connection(neuro.Processor):
+class Connection:
+
     def __init__(
         self,
         net: neuro.Network,
@@ -172,7 +173,6 @@ class Connection(neuro.Processor):
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
 
         self._target_name = target
 
