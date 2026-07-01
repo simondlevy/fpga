@@ -269,8 +269,8 @@ class Connection:
     def output_counts(self) -> list[int]:
         return [
             self.output_count(out_idx)
-            for out_idx in range(self._network.num_outputs())
-        ]
+            for out_idx in range(self._num_outputs)]
+        
 
     def output_last_fire(self, out_idx: int) -> float:
         outs = self.output_vector(out_idx)
@@ -279,7 +279,7 @@ class Connection:
     def output_last_fires(self) -> list[float]:
         return [
             self.output_last_fire(out_idx)
-            for out_idx in range(self._network.num_outputs())
+            for out_idx in range(self._num_outputs)
         ]
 
     def output_vector(self, out_idx: int) -> list[float]:
@@ -292,7 +292,7 @@ class Connection:
     def output_vectors(self) -> list[list[float]]:
         return [
             self.output_vector(out_idx)
-            for out_idx in range(self._network.num_outputs())
+            for out_idx in range(self._num_outputs)
         ]
 
     def run(self, time: int) -> None:
