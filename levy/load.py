@@ -1,8 +1,28 @@
+#!/usr/bin/env python3
+# Copyright (c) 2024-2025 Keegan Dent, 2026 Simon D. Levy
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+import argparse
+
 import neuro
 import fpga
 
+parser = argparse.ArgumentParser()
+
+parser.add_argument('input_file')
+
+args = parser.parse_args()
+
 net = neuro.Network()
-net.read_from_file("../networks/simple.txt")
+
+try:
+    net.read_from_file(args.input_file)
+except:
+    print('Unable to read from ' + args.input_file)
+    exit(1)
 
 proc = fpga.Processor("basys3", "/dev/ttyUSB1", "DIDO")
 
