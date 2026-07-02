@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 # Copyright (c) 2024-2025 Keegan Dent, 2026 Simon D. Levy
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
