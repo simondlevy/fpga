@@ -17,7 +17,8 @@ parser.add_argument('input_file')
 
 parser.add_argument('-t', '--target', help='target board', default='basys3')
 
-parser.add_argument('-p', '--port', help='port', type=str, default='/dev/ttyUSB1')
+parser.add_argument('-p', '--port', help='port', type=str,
+                    default='/dev/ttyUSB1')
 
 args = parser.parse_args()
 
@@ -25,7 +26,7 @@ net = neuro.Network()
 
 try:
     net.read_from_file(args.input_file)
-except:
+except Exception:
     print('Unable to read from ' + args.input_file)
     exit(1)
 
