@@ -10,9 +10,25 @@ import argparse
 import neuro
 import fpga
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('input_file')
+
+'''
+parser.add_argument('-a', '--address', help='address (IP or MAC)',
+                    required=True)
+parser.add_argument('-p', '--port', help='port', type=int, required=True)
+parser.add_argument('-i', '--ids', help='neuron ids')
+parser.add_argument('-v', '--video', help='video file to save',
+                    default=None)
+parser.add_argument('-n', '--display-numbers', help='display numbers',
+                    action='store_true')
+parser.add_argument('-l', '--logarithmic', help='use logarithm of counts',
+                    action='store_true')
+parser.add_argument('-s', '--timespan', type=int, default=1000,
+                    help='Time span in milliseconds')
+'''
 
 args = parser.parse_args()
 
