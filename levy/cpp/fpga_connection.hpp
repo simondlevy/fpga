@@ -19,9 +19,10 @@
 #include "spike.hpp"
 #include "spike_heap.hpp"
 
-static void* print_message(void* arg) {
-    char* message = (char*)arg;
-    printf("%s\n", message);
+static void * receive(void* arg)
+{
+    printf("receive\n");
+
     return NULL;
 }
 
@@ -120,9 +121,7 @@ namespace neuro {
             {
                 const auto target_time = inp_config_.time + time;
 
-                char *  msg = "Hello from the custom thread!";
-
-                Thread::start(print_message, msg);
+                Thread::start(receive, this);
             }
 
             auto GetOutputCount(const int out_idx) -> int
