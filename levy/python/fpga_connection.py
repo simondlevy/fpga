@@ -194,13 +194,12 @@ class FpgaConnection:
 
     def run(self, time: int) -> None:
 
-        target_time = self._inp_config.time + time
-
-        print("target_time=%f" % target_time)
-
         rx_thread = Thread(target=self._receive)
         rx_thread.daemon = True
         rx_thread.start()
+
+        target_time = self._inp_config.time + time
+        print("target_time=%f" % target_time)
 
         self._last_run = self._inp_config.time
 
