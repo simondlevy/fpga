@@ -12,6 +12,8 @@
 #include <stdio.h>
 
 #include "serial.h"
+#include "threading.h"
+
 #include "ioconfig.hpp"
 #include "output_queue.hpp"
 #include "spike.hpp"
@@ -111,8 +113,8 @@ namespace neuro {
             void Run(const int time)
             {
                 const auto target_time = inp_config_.time + time;
-                printf("target_time=%f\n", target_time);
 
+                Thread::start();
             }
 
             auto GetOutputCount(const int out_idx) -> int
