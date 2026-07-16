@@ -35,4 +35,4 @@ for i in range(26):
 
 conn.run(50)
 
-print("\n", conn.output_count(0), conn.output_count(1))
+# print("\n", conn.output_count(0), conn.output_count(1))

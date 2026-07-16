@@ -199,7 +199,6 @@ class FpgaConnection:
         rx_thread.start()
 
         target_time = self._inp_config.time + time
-        print("target_time=%f" % target_time)
 
         self._last_run = self._inp_config.time
 
@@ -255,6 +254,8 @@ class FpgaConnection:
         self._write_byte(opcode << (8 - self._opcode_width) | operand)
 
     def _receive(self) -> None:
+
+        print("receive")
 
         num_rx_bytes = self._out_config.num_bytes
 

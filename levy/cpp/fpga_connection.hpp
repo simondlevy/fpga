@@ -112,9 +112,9 @@ namespace neuro {
 
             void Run(const int time)
             {
-                const auto target_time = inp_config_.time + time;
-
                 Thread::start(ThreadCallback, this);
+
+                const auto target_time = inp_config_.time + time;
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -180,6 +180,8 @@ namespace neuro {
 
             void Receive()
             {
+                printf("receive\n");
+
                 const auto num_rx_bytes = out_config_.num_bytes;
 
                 while (true) {
@@ -199,7 +201,8 @@ namespace neuro {
 
             static void * ThreadCallback(void * arg)
             {
-                printf("receive\n");
+                ((FpgaConnection *)arg)->Receive();
+
                 return NULL;
             }
 
