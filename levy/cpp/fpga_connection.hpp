@@ -19,13 +19,6 @@
 #include "spike.hpp"
 #include "spike_heap.hpp"
 
-static void * receive(void* arg)
-{
-    printf("receive\n");
-
-    return NULL;
-}
-
 namespace neuro {
 
     class FpgaConnection {
@@ -121,7 +114,7 @@ namespace neuro {
             {
                 const auto target_time = inp_config_.time + time;
 
-                Thread::start(receive, this);
+                Thread::start(ThreadCallback, this);
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -204,7 +197,13 @@ namespace neuro {
                 }
             }
 
-            void Dump(const Spike & spike)
+            static void * ThreadCallback(void * arg)
+            {
+                printf("receive\n");
+                return NULL;
+            }
+
+            static void Dump(const Spike & spike)
             {
                 printf("id=%d time=%f value=%f\n", spike.id, spike.time, spike.value);
 
