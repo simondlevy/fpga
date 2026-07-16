@@ -1,0 +1,314 @@
+# Copyright (c) 2024-2025 Keegan Dent, 2026 Simon D. Levy
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+from enum import IntEnum, auto
+from math import ceil, log2
+from periphery import Serial
+from threading import Thread
+from time import sleep
+from typing import Iterable
+import numpy as np
+
+from heap import Heap
+
+SYSTEM_BUFFER_SIZE_BYTES = 4096
+READ_TIMEOUT_SEC = 10.0
+MAX_INPUT_SPIKES = 1024
+MAX_OUTPUT_NEURONS = 16
+MAX_SPIKES_PER_OUTPUT_NEURON = 256
+
+
+class DispatchOpcode(IntEnum):
+    RUN = 0
+    SPK = auto()
+    SNC = auto()
+    CLR = auto()
+
+
+def clog2(value: float) -> int:
+    return int(ceil(log2(value)))
+
+
+def signed_width(value: int) -> int:
+    return clog2(abs(value) + int(value >= 0)) + 1
+
+
+def unsigned_width(value: int) -> int:
+    return signed_width(value) - 1
+
+
+def width_bytes_to_bits(bytes: int) -> int:
+    return int(bytes * 8)
+
+
+def width_bits_to_bytes(bits: int) -> int:
+    return int(ceil(bits / 8))
+
+
+def width_nearest_byte(bits: int) -> int:
+    return width_bytes_to_bits(width_bits_to_bytes(bits))
+
+
+class Spike:
+
+    def __init__(self, ident: int, time: float, value: float):
+
+        self.id = ident
+        self.time = time
+        self.value = value
+
+    def __str__(self):
+        return "id=%d time=%f value=%f" % (self.id, self.time, self.value)
+
+    def __lt__(self, other):
+        return self.time < other.time
+
+
+class IoConfig:
+
+    def __init__(
+            self,
+            num_neurons: int,
+            opcode_width: int,
+            usable_charge_width: int,
+            is_axi: bool = True):
+
+        self.idx_width = unsigned_width(num_neurons - 1)
+
+        self.usable_charge_width = usable_charge_width
+
+        spk_width = self.idx_width + usable_charge_width
+
+        self.operand_width = (
+            (width_nearest_byte(opcode_width + spk_width) -
+             opcode_width)
+            if is_axi
+            else spk_width)
+
+        self.clear()
+
+        self.num_bytes = width_bits_to_bytes(
+                opcode_width + self.idx_width + usable_charge_width)
+
+    def clear(self):
+        self.time = 0
+
+
+class OutputQueue:
+
+    def __init__(self):
+        self.times = (-1 * np.ones((MAX_OUTPUT_NEURONS,
+                                    MAX_SPIKES_PER_OUTPUT_NEURON)))
+        self.counts = [0] * MAX_OUTPUT_NEURONS
+
+    def append(self, index, time):
+        self.times[index][self.counts[index]] = time
+        self.counts[index] += 1
+
+
+class FpgaConnection:
+
+    def __init__(
+            self,
+            port_name: str,
+            baudrate: int,
+            clock_freq: float,
+            num_inputs: int,
+            num_outputs: int,
+            charge_width: int,
+            spike_value_factor: int):
+
+        self._serial = Serial(port_name, baudrate)
+
+        self._num_inputs = num_inputs
+        self._num_outputs = num_outputs
+
+        self._spike_value_factor = spike_value_factor
+
+        self._opcode_width = unsigned_width(len(DispatchOpcode) - 1)
+
+        self._inp_config = IoConfig(
+                num_inputs, self._opcode_width, charge_width)
+
+        self._out_config = IoConfig(
+                num_outputs, self._opcode_width, 0)
+
+        self._inp_queue = Heap(MAX_INPUT_SPIKES)
+
+        self._out_queue = OutputQueue()
+
+        output_size_bits = self._opcode_width + self._out_config.idx_width
+
+        max_bytes_per_run = (
+                width_bits_to_bytes(output_size_bits) * (num_outputs + 1))
+
+        self._secs_per_run = (num_outputs / clock_freq +
+                              max_bytes_per_run * 10 / baudrate)
+
+        self._max_runs_ahead = SYSTEM_BUFFER_SIZE_BYTES // max_bytes_per_run
+
+        self._max_run = min(
+                2 ** self._inp_config.operand_width - 1, self._max_runs_ahead)
+
+    def apply_spike(self, spike: Spike) -> None:
+
+        self._inp_queue.push(
+            Spike(spike.id, spike.time + self._inp_config.time, spike.value)
+        )
+
+        spikes_now = [None] * MAX_INPUT_SPIKES
+        count = 0
+
+        while (not self._inp_queue.isempty() and
+               self._inp_queue.peek().time == self._inp_config.time):
+            # send these spikes as soon as they arrive to reduce latency
+            spikes_now[count] = self._inp_queue.pop()
+            count += 1
+
+        self._prepare_to_send(spikes_now, count)
+
+    def clear_activity(self) -> None:
+
+        self._send_command(DispatchOpcode.CLR)
+
+        self._serial.flush()
+
+        self._receive()
+
+        self._inp_config.clear()
+        self._out_config.clear()
+
+        self._inp_queue = Heap(MAX_INPUT_SPIKES)
+        self._out_queue = OutputQueue()
+
+    def output_count(self, out_idx: int) -> int:
+
+        for k in range(self._out_queue.counts[out_idx]):
+            print(self._out_queue.times[out_idx][k], end=' ')
+        print()
+
+        return self._out_queue.counts[out_idx]
+
+    def run(self, time: int) -> None:
+
+        target_time = self._inp_config.time + time
+
+        print("target_time=%f" % target_time)
+
+        rx_thread = Thread(target=self._receive)
+        rx_thread.daemon = True
+        rx_thread.start()
+
+        self._last_run = self._inp_config.time
+
+        while self._inp_config.time < target_time:
+
+            spikes = [None] * MAX_INPUT_SPIKES
+            count = 0
+
+            while (not self._inp_queue.isempty() and
+                   int(self._inp_queue.peek().time) == self._inp_config.time):
+                spikes[count] = self._inp_queue.pop()
+                count += 1
+
+            run_time = (int(self._inp_queue.peek().time)
+                        if self._inp_queue and not self._inp_queue.isempty()
+                        else target_time)
+
+            self._prepare_to_send(spikes, count)
+
+            runs = run_time - self._inp_config.time
+
+            while runs:
+
+                to_run = min(
+                    [
+                        runs,
+                        self._max_run,
+                        self._max_runs_ahead + self._out_config.time -
+                        self._inp_config.time,
+                    ]
+                )
+
+                if not to_run:
+                    sleep(100e-9)
+                    continue
+
+                self._send_command(DispatchOpcode.RUN, to_run)
+
+                self._inp_config.time += runs
+
+                sleep(self._secs_per_run * runs)
+
+                runs -= to_run
+
+            if run_time == target_time:
+
+                self._send_command(DispatchOpcode.SNC)
+
+        rx_thread.join()
+
+    def _send_command(self, opcode: int, operand: int = 0) -> None:
+
+        self._write_byte(opcode << (8 - self._opcode_width) | operand)
+
+    def _receive(self) -> None:
+
+        num_rx_bytes = self._out_config.num_bytes
+
+        while True:
+
+            rx = self._serial.read(num_rx_bytes, READ_TIMEOUT_SEC,)[::-1]
+
+            byte = ord(rx)
+
+            if len(rx) != num_rx_bytes:
+                raise RuntimeError(
+                        "Did not receive coherent response from target.")
+
+            idx_width = self._out_config.idx_width
+            opcode = byte >> (8 - self._opcode_width)
+
+            operand = (((byte << self._opcode_width) >> self._opcode_width) &
+                       0XFF)
+
+            match opcode:
+
+                case DispatchOpcode.RUN:
+                    ran = operand
+                    self._out_config.time += ran
+
+                case DispatchOpcode.SPK:
+                    mask = 0xFF >> (8 - idx_width)
+                    out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
+                    time = float(self._out_config.time)
+                    self._out_queue.append(out_idx, time)
+
+                case DispatchOpcode.SNC:
+                    break
+
+                case DispatchOpcode.CLR:
+                    break
+
+                case _:
+                    raise ValueError()
+
+    def _prepare_to_send(self, spikes: Iterable[Spike], count: int) -> None:
+
+        chgwidth = self._inp_config.usable_charge_width
+
+        for k in range(count):
+
+            spike = spikes[k]
+
+            byte = (DispatchOpcode.SPK << (self._opcode_width + chgwidth - 1) |
+                    (spike.id << chgwidth) |
+                    int(spike.value*self._spike_value_factor))
+
+            self._write_byte(byte)
+
+    def _write_byte(self, byte):
+        self._serial.write(bytes([byte]))
