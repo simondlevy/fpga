@@ -12,5 +12,5 @@ class Thread {
 
     public:
 
-        static void start();
+        static void start(void *(*start_routine) (void *), void * data);
 };

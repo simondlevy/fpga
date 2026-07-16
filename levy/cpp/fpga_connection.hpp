@@ -19,6 +19,12 @@
 #include "spike.hpp"
 #include "spike_heap.hpp"
 
+static void* print_message(void* arg) {
+    char* message = (char*)arg;
+    printf("%s\n", message);
+    return NULL;
+}
+
 namespace neuro {
 
     class FpgaConnection {
@@ -114,7 +120,9 @@ namespace neuro {
             {
                 const auto target_time = inp_config_.time + time;
 
-                Thread::start();
+                char *  msg = "Hello from the custom thread!";
+
+                Thread::start(print_message, msg);
             }
 
             auto GetOutputCount(const int out_idx) -> int
