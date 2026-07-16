@@ -6,11 +6,14 @@
 
 all: test
 
-test: main.cpp serial.o *.hpp
-	g++ -o test main.cpp serial.o
+test: main.cpp serial.o threading.o *.hpp
+	g++ -o test main.cpp serial.o threading.o
 
 serial.o: serial.cpp serial.h
 	g++ -Wall -c serial.cpp
+
+threading.o: threading.cpp threading.h
+	g++ -Wall -c threading.cpp
 
 run: test
 	./test
