@@ -14,7 +14,6 @@
 #include "serial.h"
 #include "threading.h"
 
-#include "ioconfig.hpp"
 #include "output_queue.hpp"
 #include "spike.hpp"
 #include "spike_heap.hpp"
@@ -55,17 +54,28 @@ namespace neuro {
 
                 spike_value_factor_ = spike_value_factor;
 
-                opcode_width_ = IoConfig::UnsignedWidth(OPCODE_COUNT - 1);
+                opcode_width_ = UnsignedWidth(OPCODE_COUNT - 1);
 
-                inp_config_ = IoConfig(OPCODE_COUNT, num_inputs, charge_width, charge_width);
+                charge_width_ = charge_width;
 
-                out_config_ = IoConfig(OPCODE_COUNT, num_outputs, charge_width, 0);
+                const auto idx_width = UnsignedWidth(num_inputs - 1);
+
+                const auto spk_width = idx_width + charge_width;
+
+                const auto operand_width = (
+                        WidthNearestByte(opcode_width_ + spk_width) -
+                        opcode_width_);
+
+                output_time_ = 0;
+                input_time_ = 0;
+
+                output_idx_width_ = UnsignedWidth(num_outputs - 1) ;
 
                 const uint8_t output_size_bits =(
-                        out_config_.opcode_width + out_config_.idx_width);
+                        opcode_width_ + output_idx_width_);
 
                 const int max_bytes_per_run =
-                    IoConfig::WidthBitsToBytes(output_size_bits) * (num_outputs + 1);
+                    WidthBitsToBytes(output_size_bits) * (num_outputs + 1);
 
                 secs_per_run_ = ((float)num_outputs / clock_freq) +
                     max_bytes_per_run * 10.f / serial.GetBaudRate();
@@ -73,20 +83,19 @@ namespace neuro {
                 max_runs_ahead_ = kSystemBufferSizeBytes / max_bytes_per_run;
 
                 max_run_ = std::min(
-                        (1 << inp_config_.operand_width) - 1,
-                        max_runs_ahead_);
+                        (1 << operand_width) - 1, max_runs_ahead_);
             }
 
             void ApplySpike(const Spike & spike)
             {
                 inp_queue_.Push(Spike(spike.id, spike.time +
-                            inp_config_.time, spike.value));
+                            input_time_, spike.value));
 
                 static Spike spikes_now[SpikeHeap::CAPACITY];
                 int count = 0;
 
                 while (!inp_queue_.IsEmpty() &&
-                        inp_queue_.Peek().time == inp_config_.time) {
+                        inp_queue_.Peek().time == input_time_) {
                     // send these spikes as soon as they arrive to reduce latency
                     spikes_now[count] = inp_queue_.Pop();
                     count++;
@@ -103,8 +112,8 @@ namespace neuro {
 
                 Receive();
 
-                inp_config_.Clear();
-                out_config_.Clear();
+                output_time_ = 0;
+                input_time_ = 0;
 
                 inp_queue_ = SpikeHeap();
                 out_queue_ = OutputQueue();
@@ -114,7 +123,7 @@ namespace neuro {
             {
                 Thread::start(ThreadCallback, this);
 
-                const auto target_time = inp_config_.time + time;
+                const auto target_time = input_time_ + time;
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -134,6 +143,9 @@ namespace neuro {
 
             Serial serial_;
 
+            int input_time_;
+            int output_time_;
+            int output_idx_width_;
             int num_inputs_;
             int num_outputs_;
             int opcode_width_;
@@ -143,23 +155,18 @@ namespace neuro {
             int max_runs_ahead_;
             int max_run_;
 
-            IoConfig inp_config_;
-            IoConfig out_config_;
-
             SpikeHeap inp_queue_;
 
             OutputQueue out_queue_;
 
             void PrepareToSend(Spike * spikes, int count)
             {
-                const auto chgwidth = inp_config_.usable_charge_width;
-
                 for (int k=0; k<count; ++k) {
 
                     const auto spike = spikes[k];
 
-                    const uint8_t byte = (OPCODE_SPK << (opcode_width_ + chgwidth - 1) |
-                            (spike.id << chgwidth) |
+                    const uint8_t byte = (OPCODE_SPK << (opcode_width_ + charge_width_ - 1) |
+                            (spike.id << charge_width_) |
                             int(spike.value*spike_value_factor_));
 
                     WriteByte(byte);
@@ -169,7 +176,7 @@ namespace neuro {
             void SendCommand(const uint8_t opcode, const uint8_t operand=0)
             {
                 //printf("SendCommand: %d %d\n", opcode, operand);
-                WriteByte(opcode << (8 - inp_config_.opcode_width) | operand);
+                WriteByte(opcode << (8 - opcode_width_) | operand);
             }
 
             void WriteByte(const uint8_t byte)
@@ -182,24 +189,47 @@ namespace neuro {
             {
                 printf("receive\n");
 
-                const auto num_rx_bytes = out_config_.num_bytes;
-
                 while (true) {
 
-                    uint8_t msg[MAXMSG] = {};
+                    uint8_t rx = 0;
 
-                    const auto rxlen = serial_.Read(msg, num_rx_bytes);
-
-                    if (rxlen != num_rx_bytes) {
-                        printf("Did not receive coherent response from target.\n");
-                        break;
-                    }
+                    const auto rxlen = serial_.Read(&rx, 1);
 
                     break;
                 }
             }
 
-            static void * ThreadCallback(void * arg)
+            static auto UnsignedWidth(const int value) -> int
+            {
+                return SignedWidth(value) - 1;
+            }
+
+            static auto SignedWidth(const int value) -> int
+            {
+                return Clog2(abs(value) + int(value >= 0)) + 1;
+            }
+
+            static auto Clog2(float value) -> int
+            { 
+                return int(ceil(log2(value)));
+            }
+
+            static auto WidthNearestByte(const int bits) -> int
+            {
+                return WidthBytesToBits(WidthBitsToBytes(bits));
+            }
+
+            static auto WidthBitsToBytes(const int bits) -> int
+            {
+                return int(ceil(bits / 8.f));
+            }
+
+            static auto WidthBytesToBits(const int bytes) -> int
+            {
+                return bytes * 8;
+            }
+
+             static void * ThreadCallback(void * arg)
             {
                 ((FpgaConnection *)arg)->Receive();
 
