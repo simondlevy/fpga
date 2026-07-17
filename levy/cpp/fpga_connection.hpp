@@ -24,15 +24,16 @@ namespace neuro {
 
         private:
 
-            static const size_t MAX_SPIKE_TIME = 100;
-            static const size_t MAX_INPUT_NEURONS = 10;
+            static const size_t kMaxSpikeTime = 100;
+            static const size_t kMaxInputNeurons = 10;
+            static const size_t kMaxInputSpikes = 1024;
 
             enum {
-                OPCODE_RUN,
-                OPCODE_SPK,
-                OPCODE_SNC,
-                OPCODE_CLR,
-                OPCODE_COUNT
+                kOpcodeRun,
+                kOpcodeSpk,
+                kOpcodeSnc,
+                kOpcodeClr,
+                kOpcodeCount
             };
 
             static constexpr int kSystemBufferSizeBytes = 4096;
@@ -54,7 +55,7 @@ namespace neuro {
 
                 spike_value_factor_ = spike_value_factor;
 
-                opcode_width_ = UnsignedWidth(OPCODE_COUNT - 1);
+                opcode_width_ = UnsignedWidth(kOpcodeCount - 1);
 
                 charge_width_ = charge_width;
 
@@ -106,7 +107,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                SendCommand(OPCODE_CLR);
+                SendCommand(kOpcodeClr);
 
                 serial_.Flush();
 
@@ -125,7 +126,13 @@ namespace neuro {
 
                 const auto target_time = input_time_ + time;
 
-                last_run_ = input_time_;
+                while (input_time_ < target_time) {
+
+                    static Spike spikes[kMaxInputSpikes];
+
+
+                    break;
+                }
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -169,7 +176,7 @@ namespace neuro {
 
                     Dump(spike);
 
-                    const uint8_t byte = (OPCODE_SPK << (opcode_width_ + charge_width_ - 1) |
+                    const uint8_t byte = (kOpcodeSpk << (opcode_width_ + charge_width_ - 1) |
                             (spike.id << charge_width_) |
                             int(spike.value*spike_value_factor_));
 
@@ -210,11 +217,11 @@ namespace neuro {
 
                     switch (opcode) {
 
-                        case OPCODE_RUN:
+                        case kOpcodeRun:
                             output_time_ += operand;
                             break;
 
-                        case OPCODE_SPK: 
+                        case kOpcodeSpk: 
                             {
                                 const uint8_t mask = 0xFF >> (8 - idx_width);
                                 const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
@@ -222,10 +229,10 @@ namespace neuro {
                             }
                             break;
 
-                        case OPCODE_SNC:
+                        case kOpcodeSnc:
                             break;
 
-                        case OPCODE_CLR:
+                        case kOpcodeClr:
                             break;
                     }
 
