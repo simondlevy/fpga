@@ -254,8 +254,7 @@ class FpgaConnection:
             match opcode:
 
                 case DispatchOpcode.RUN:
-                    ran = operand
-                    self._output_time += ran
+                    self._output_time += operand
 
                 case DispatchOpcode.SPK:
                     mask = 0xFF >> (8 - idx_width)
