@@ -12,14 +12,18 @@
 
 #include "threading.h"
 
+static  pthread_t thread_id_;
+
 void Thread::start(void *(*routine) (void *), void * data)
 {
-    pthread_t thread_id;
-
-    if (pthread_create(&thread_id, NULL, routine, data) != 0) {
+    if (pthread_create(&thread_id_, NULL, routine, data) != 0) {
         perror("Thread creation failed");
         return;
     }
 
-    pthread_join(thread_id, NULL);
+}
+    
+void Thread::join()
+{
+    pthread_join(thread_id_, NULL);
 }

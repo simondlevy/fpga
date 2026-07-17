@@ -129,10 +129,18 @@ namespace neuro {
                 while (input_time_ < target_time) {
 
                     static Spike spikes[kMaxInputSpikes];
+                    size_t count = 0;
 
+                    while (!inp_queue_.IsEmpty() &&
+                            (int)inp_queue_.Peek().time == input_time_) {
+                        spikes[count] = inp_queue_.Pop();
+                        count++;
+                    }
 
                     break;
                 }
+
+                Thread::join();
             }
 
             auto GetOutputCount(const int out_idx) -> int

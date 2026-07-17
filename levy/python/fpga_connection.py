@@ -232,8 +232,6 @@ class FpgaConnection:
 
     def _receive(self) -> None:
 
-        print("receive")
-
         while True:
 
             rx = self._serial.read(1, READ_TIMEOUT_SEC,)[::-1]
@@ -246,8 +244,6 @@ class FpgaConnection:
 
             operand = (((byte << self._opcode_width) >> self._opcode_width) &
                        0XFF)
-
-            print("x%02X x%02X" % (opcode, operand))
 
             match opcode:
 
@@ -275,8 +271,6 @@ class FpgaConnection:
         for k in range(count):
 
             spike = spikes[k]
-
-            print(spike)
 
             byte = (DispatchOpcode.SPK << (self._opcode_width + chgwidth - 1) |
                     (spike.id << chgwidth) |
