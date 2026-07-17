@@ -76,19 +76,19 @@ class IoConfig:
             usable_charge_width: int,
             is_axi: bool = True):
 
-        self.idx_width = unsigned_width(num_neurons - 1)
+        self.idx_width = unsigned_width(num_neurons - 1)   # out
 
-        self.usable_charge_width = usable_charge_width
+        self.usable_charge_width = usable_charge_width     # inp
 
-        spk_width = self.idx_width + usable_charge_width
+        spk_width = self.idx_width + usable_charge_width   # inp
 
-        self.operand_width = (
+        self.operand_width = (                             # inp
             (width_nearest_byte(opcode_width + spk_width) -
              opcode_width)
             if is_axi
             else spk_width)
 
-        self.clear()
+        self.time = 0                                     # both
 
     def clear(self):
         self.time = 0
@@ -126,6 +126,8 @@ class FpgaConnection:
         self._spike_value_factor = spike_value_factor
 
         self._opcode_width = unsigned_width(len(DispatchOpcode) - 1)
+
+        self._charge_width = charge_width
 
         self._inp_config = IoConfig(
                 num_inputs, self._opcode_width, charge_width)
@@ -290,7 +292,7 @@ class FpgaConnection:
 
     def _prepare_to_send(self, spikes: Iterable[Spike], count: int) -> None:
 
-        chgwidth = self._inp_config.usable_charge_width
+        chgwidth = self._charge_width
 
         for k in range(count):
 
