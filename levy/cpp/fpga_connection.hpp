@@ -207,15 +207,16 @@ namespace neuro {
                     switch (opcode) {
 
                         case OPCODE_RUN:
-                            //ran = operand;
-                            //self._output_time += ran;
+                            output_time_ += operand;
                             break;
 
-                        case OPCODE_SPK:
-                            //mask = 0xFF >> (8 - idx_width);
-                            //out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0;
-                            //time = float(self._output_time);
-                            //self._out_queue.append(out_idx, time);
+                        case OPCODE_SPK: 
+                            {
+                                const uint8_t mask = 0xFF >> (8 - idx_width);
+                                const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
+                                //time = float(self._output_time);
+                                //self._out_queue.append(out_idx, time);
+                            }
                             break;
 
                         case OPCODE_SNC:

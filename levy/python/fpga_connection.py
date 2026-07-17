@@ -259,8 +259,7 @@ class FpgaConnection:
                 case DispatchOpcode.SPK:
                     mask = 0xFF >> (8 - idx_width)
                     out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
-                    time = float(self._output_time)
-                    self._out_queue.append(out_idx, time)
+                    self._out_queue.append(out_idx, float(self._output_time))
 
                 case DispatchOpcode.SNC:
                     break
