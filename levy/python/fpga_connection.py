@@ -179,8 +179,6 @@ class FpgaConnection:
 
         target_time = self._input_time + time
 
-        self._last_run = self._input_time
-
         while self._input_time < target_time:
 
             spikes = [None] * MAX_INPUT_SPIKES
@@ -277,6 +275,8 @@ class FpgaConnection:
         for k in range(count):
 
             spike = spikes[k]
+
+            print(spike)
 
             byte = (DispatchOpcode.SPK << (self._opcode_width + chgwidth - 1) |
                     (spike.id << chgwidth) |

@@ -124,6 +124,8 @@ namespace neuro {
                 Thread::start(ThreadCallback, this);
 
                 const auto target_time = input_time_ + time;
+
+                last_run_ = input_time_;
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -164,6 +166,8 @@ namespace neuro {
                 for (int k=0; k<count; ++k) {
 
                     const auto spike = spikes[k];
+
+                    Dump(spike);
 
                     const uint8_t byte = (OPCODE_SPK << (opcode_width_ + charge_width_ - 1) |
                             (spike.id << charge_width_) |
