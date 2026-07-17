@@ -86,12 +86,6 @@ class IoConfig:
             if is_axi
             else spk_width)
 
-        self.time = 0                                     # both
-
-    def clear(self):
-        self.time = 0
-
-
 class OutputQueue:
 
     def __init__(self):
@@ -131,6 +125,7 @@ class FpgaConnection:
                 num_inputs, self._opcode_width, charge_width)
 
         self._output_time = 0
+        self._input_time = 0
 
         self._inp_queue = Heap(MAX_INPUT_SPIKES)
 
@@ -154,14 +149,14 @@ class FpgaConnection:
     def apply_spike(self, spike: Spike) -> None:
 
         self._inp_queue.push(
-            Spike(spike.id, spike.time + self._inp_config.time, spike.value)
+            Spike(spike.id, spike.time + self._input_time, spike.value)
         )
 
         spikes_now = [None] * MAX_INPUT_SPIKES
         count = 0
 
         while (not self._inp_queue.isempty() and
-               self._inp_queue.peek().time == self._inp_config.time):
+               self._inp_queue.peek().time == self._input_time):
             # send these spikes as soon as they arrive to reduce latency
             spikes_now[count] = self._inp_queue.pop()
             count += 1
@@ -176,7 +171,7 @@ class FpgaConnection:
 
         self._receive()
 
-        self._inp_config.clear()
+        self._input_time = 0
         self._output_time = 0
 
         self._inp_queue = Heap(MAX_INPUT_SPIKES)
@@ -196,17 +191,17 @@ class FpgaConnection:
         rx_thread.daemon = True
         rx_thread.start()
 
-        target_time = self._inp_config.time + time
+        target_time = self._input_time + time
 
-        self._last_run = self._inp_config.time
+        self._last_run = self._input_time
 
-        while self._inp_config.time < target_time:
+        while self._input_time < target_time:
 
             spikes = [None] * MAX_INPUT_SPIKES
             count = 0
 
             while (not self._inp_queue.isempty() and
-                   int(self._inp_queue.peek().time) == self._inp_config.time):
+                   int(self._inp_queue.peek().time) == self._input_time):
                 spikes[count] = self._inp_queue.pop()
                 count += 1
 
@@ -216,7 +211,7 @@ class FpgaConnection:
 
             self._prepare_to_send(spikes, count)
 
-            runs = run_time - self._inp_config.time
+            runs = run_time - self._input_time
 
             while runs:
 
@@ -225,7 +220,7 @@ class FpgaConnection:
                         runs,
                         self._max_run,
                         self._max_runs_ahead + self._output_time -
-                        self._inp_config.time,
+                        self._input_time,
                     ]
                 )
 
@@ -235,7 +230,7 @@ class FpgaConnection:
 
                 self._send_command(DispatchOpcode.RUN, to_run)
 
-                self._inp_config.time += runs
+                self._input_time += runs
 
                 sleep(self._secs_per_run * runs)
 
