@@ -90,9 +90,6 @@ class IoConfig:
 
         self.clear()
 
-        self.num_bytes = width_bits_to_bytes(
-                opcode_width + self.idx_width + usable_charge_width)
-
     def clear(self):
         self.time = 0
 
@@ -257,19 +254,14 @@ class FpgaConnection:
 
         print("receive")
 
-        num_rx_bytes = self._out_config.num_bytes
-
         while True:
 
-            rx = self._serial.read(num_rx_bytes, READ_TIMEOUT_SEC,)[::-1]
+            rx = self._serial.read(1, READ_TIMEOUT_SEC,)[::-1]
 
             byte = ord(rx)
 
-            if len(rx) != num_rx_bytes:
-                raise RuntimeError(
-                        "Did not receive coherent response from target.")
-
             idx_width = self._out_config.idx_width
+
             opcode = byte >> (8 - self._opcode_width)
 
             operand = (((byte << self._opcode_width) >> self._opcode_width) &
