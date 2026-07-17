@@ -191,9 +191,39 @@ namespace neuro {
 
                 while (true) {
 
-                    uint8_t rx = 0;
+                    uint8_t byte = 0;
 
-                    const auto rxlen = serial_.Read(&rx, 1);
+                    const auto rxlen = serial_.Read(&byte, 1);
+
+                    const auto idx_width = output_idx_width_;
+
+                    const uint8_t opcode = byte >> (8 - opcode_width_);
+
+                    const uint8_t operand = (((byte << opcode_width_) >> opcode_width_) &
+                            0XFF);
+
+                    printf("x%02X x%02X\n" , opcode, operand);
+
+                    switch (opcode) {
+
+                        case OPCODE_RUN:
+                            //ran = operand;
+                            //self._output_time += ran;
+                            break;
+
+                        case OPCODE_SPK:
+                            //mask = 0xFF >> (8 - idx_width);
+                            //out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0;
+                            //time = float(self._output_time);
+                            //self._out_queue.append(out_idx, time);
+                            break;
+
+                        case OPCODE_SNC:
+                            break;
+
+                        case OPCODE_CLR:
+                            break;
+                    }
 
                     break;
                 }

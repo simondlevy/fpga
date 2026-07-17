@@ -249,6 +249,8 @@ class FpgaConnection:
             operand = (((byte << self._opcode_width) >> self._opcode_width) &
                        0XFF)
 
+            print("x%02X x%02X" % (opcode, operand))
+
             match opcode:
 
                 case DispatchOpcode.RUN:
