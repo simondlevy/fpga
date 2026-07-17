@@ -76,9 +76,9 @@ class IoConfig:
             usable_charge_width: int,
             is_axi: bool = True):
 
-        self.idx_width = unsigned_width(num_neurons - 1)   # out
+        idx_width = unsigned_width(num_neurons - 1)
 
-        spk_width = self.idx_width + usable_charge_width   # inp
+        spk_width = idx_width + usable_charge_width   # inp
 
         self.operand_width = (                             # inp
             (width_nearest_byte(opcode_width + spk_width) -
@@ -130,8 +130,7 @@ class FpgaConnection:
         self._inp_config = IoConfig(
                 num_inputs, self._opcode_width, charge_width)
 
-        self._out_config = IoConfig(
-                num_outputs, self._opcode_width, 0)
+        self._output_time = 0
 
         self._inp_queue = Heap(MAX_INPUT_SPIKES)
 
@@ -178,7 +177,7 @@ class FpgaConnection:
         self._receive()
 
         self._inp_config.clear()
-        self._out_config.clear()
+        self._output_time = 0
 
         self._inp_queue = Heap(MAX_INPUT_SPIKES)
         self._out_queue = OutputQueue()
@@ -225,7 +224,7 @@ class FpgaConnection:
                     [
                         runs,
                         self._max_run,
-                        self._max_runs_ahead + self._out_config.time -
+                        self._max_runs_ahead + self._output_time -
                         self._inp_config.time,
                     ]
                 )
@@ -273,12 +272,12 @@ class FpgaConnection:
 
                 case DispatchOpcode.RUN:
                     ran = operand
-                    self._out_config.time += ran
+                    self._output_time += ran
 
                 case DispatchOpcode.SPK:
                     mask = 0xFF >> (8 - idx_width)
                     out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
-                    time = float(self._out_config.time)
+                    time = float(self._output_time)
                     self._out_queue.append(out_idx, time)
 
                 case DispatchOpcode.SNC:
