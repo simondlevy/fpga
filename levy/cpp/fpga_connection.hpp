@@ -214,8 +214,7 @@ namespace neuro {
                             {
                                 const uint8_t mask = 0xFF >> (8 - idx_width);
                                 const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
-                                //time = float(self._output_time);
-                                //self._out_queue.append(out_idx, time);
+                                out_queue_.append(out_idx, (float)output_time_);
                             }
                             break;
 
