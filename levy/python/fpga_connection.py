@@ -67,25 +67,6 @@ class Spike:
         return self.time < other.time
 
 
-class IoConfig:
-
-    def __init__(
-            self,
-            num_neurons: int,
-            opcode_width: int,
-            usable_charge_width: int,
-            is_axi: bool = True):
-
-        idx_width = unsigned_width(num_neurons - 1)
-
-        spk_width = idx_width + usable_charge_width   # inp
-
-        self.operand_width = (                             # inp
-            (width_nearest_byte(opcode_width + spk_width) -
-             opcode_width)
-            if is_axi
-            else spk_width)
-
 class OutputQueue:
 
     def __init__(self):
@@ -121,8 +102,13 @@ class FpgaConnection:
 
         self._charge_width = charge_width
 
-        self._inp_config = IoConfig(
-                num_inputs, self._opcode_width, charge_width)
+        idx_width = unsigned_width(num_inputs - 1)
+
+        spk_width = idx_width + charge_width
+
+        operand_width = (
+            width_nearest_byte(self._opcode_width + spk_width) -
+             self._opcode_width)
 
         self._output_time = 0
         self._input_time = 0
@@ -144,7 +130,7 @@ class FpgaConnection:
         self._max_runs_ahead = SYSTEM_BUFFER_SIZE_BYTES // max_bytes_per_run
 
         self._max_run = min(
-                2 ** self._inp_config.operand_width - 1, self._max_runs_ahead)
+                2 ** operand_width - 1, self._max_runs_ahead)
 
     def apply_spike(self, spike: Spike) -> None:
 
