@@ -78,8 +78,6 @@ class IoConfig:
 
         self.idx_width = unsigned_width(num_neurons - 1)   # out
 
-        self.usable_charge_width = usable_charge_width     # inp
-
         spk_width = self.idx_width + usable_charge_width   # inp
 
         self.operand_width = (                             # inp
