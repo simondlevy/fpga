@@ -262,7 +262,7 @@ class FpgaConnection:
 
             byte = ord(rx)
 
-            idx_width = self._out_config.idx_width
+            idx_width = self._output_idx_width
 
             opcode = byte >> (8 - self._opcode_width)
 
