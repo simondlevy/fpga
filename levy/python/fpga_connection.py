@@ -137,7 +137,9 @@ class FpgaConnection:
 
         self._out_queue = OutputQueue()
 
-        output_size_bits = self._opcode_width + self._out_config.idx_width
+        self._output_idx_width = unsigned_width(num_outputs - 1) 
+
+        output_size_bits = self._opcode_width + self._output_idx_width
 
         max_bytes_per_run = (
                 width_bits_to_bytes(output_size_bits) * (num_outputs + 1))
