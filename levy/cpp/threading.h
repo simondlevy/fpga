@@ -17,4 +17,6 @@ class Thread {
         static void join();
 
         static void yield();
+
+        static void sleep(const float sec);
 };

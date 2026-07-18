@@ -124,6 +124,8 @@ namespace neuro {
             {
                 Thread::start(ThreadCallback, this);
 
+
+
                 const auto target_time = input_time_ + time;
 
                 while (input_time_ < target_time) {
@@ -137,8 +139,7 @@ namespace neuro {
                         count++;
                     }
 
-                    const auto run_time =
-                        inp_queue_.IsEmpty() ?
+                    const auto run_time = inp_queue_.IsEmpty() ?
                         (int)inp_queue_.Peek().time :
                         target_time;
 
@@ -155,11 +156,22 @@ namespace neuro {
 
                         if (to_run == 0) {
                             Thread::yield();
+                            continue;
                         }
 
+                        SendCommand(kOpcodeRun, to_run);
+
+                        input_time_ += runs;
+
+                        Thread::sleep(secs_per_run_ * runs);
+
+                        runs -= to_run;
                     }
 
-                    break;
+                    if (run_time == target_time) {
+
+                        SendCommand(kOpcodeSnc);
+                    }
                 }
 
                 Thread::join();

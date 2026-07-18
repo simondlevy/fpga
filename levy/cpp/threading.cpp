@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <sched.h>
+#include <time.h>
 
 #include "threading.h"
 
@@ -32,4 +33,16 @@ void Thread::join()
 void Thread::yield()
 {
     sched_yield();
+}
+
+void Thread::sleep(const float sec)
+{
+    const int tv_sec = sec;
+    const int tv_nsec = (tv_sec - sec) * 1e9;
+
+    struct timespec req = {};
+    req.tv_sec = tv_sec;
+    req.tv_nsec = tv_nsec;
+
+    nanosleep(&req, NULL);
 }
