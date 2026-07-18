@@ -153,13 +153,15 @@ namespace neuro {
 
                     }
 
-                    const auto run_time = inp_queue_.IsEmpty() ?
+                    printf("empty=%d\n", inp_queue_.IsEmpty());
+
+                    const auto run_time = !inp_queue_.IsEmpty() ?
                         (int)inp_queue_.Peek().time :
                         target_time;
 
-                    PrepareToSend(spikes, count);
-
                     printf("run_time=%d input_time=%d\n", run_time, input_time_);
+
+                    PrepareToSend(spikes, count);
 
                     auto runs = run_time - input_time_;
 
