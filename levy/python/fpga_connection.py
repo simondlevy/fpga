@@ -197,7 +197,7 @@ class FpgaConnection:
 
             runs = run_time - self._input_time
 
-            while runs:
+            while runs > 0:
 
                 to_run = min(
                     [
