@@ -33,7 +33,6 @@ for i in range(28):
 for i in range(26):
     conn.apply_spike(Spike(1, i, 1.0))
 
-# conn.run(50)
-conn.run(5)
+conn.run(50)
 
 # print("\n", conn.output_count(0), conn.output_count(1))
