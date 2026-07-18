@@ -126,7 +126,7 @@ namespace neuro {
 
             void Run(const int time)
             {
-                Thread::start(ThreadCallback, this);
+                Thread::start(ThreadedReceive, this);
 
                 const auto target_time = input_time_ + time;
 
@@ -262,33 +262,33 @@ namespace neuro {
                 serial_.Write(&byte, 1);
             }
 
-            void Receive()
+            static void * ThreadedReceive(void * arg)
             {
-                printf("\nreceive\n");
+                auto self = ((FpgaConnection *)arg);
 
                 while (true) {
 
                     uint8_t byte = 0;
 
-                    serial_.Read(&byte, 1);
+                    self->serial_.Read(&byte, 1);
 
-                    const uint8_t opcode = byte >> (8 - opcode_width_);
+                    const uint8_t opcode = byte >> (8 - self->opcode_width_);
 
                     printf("opcode=x%02X: ", opcode);
 
                     if (opcode == kOpcodeRun) {
                         printf("run\n");
                         const uint8_t operand =
-                            (((byte << opcode_width_) >> opcode_width_) & 0XFF);
+                            (((byte << self->opcode_width_) >> self->opcode_width_) & 0XFF);
                     }
 
                     else if (opcode == kOpcodeSpk) {
                         printf("spk\n");
-                        const auto idx_width = output_idx_width_;
+                        const auto idx_width = self->output_idx_width_;
                         const uint8_t mask = 0xFF >> (8 - idx_width);
                         const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
                         printf("append: %d\n", out_idx);
-                        out_queue_.append(out_idx, (float)output_time_);
+                        self->out_queue_.append(out_idx, (float)self->output_time_);
                     }
 
                     else if (opcode == kOpcodeSnc) {
@@ -305,6 +305,8 @@ namespace neuro {
                         printf("received bad opcode: x%02X\n", opcode);
                     }
                 }
+
+                return nullptr;
             }
 
             auto ReceiveByte() -> uint8_t
@@ -317,13 +319,6 @@ namespace neuro {
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {
                 return byte >> (8 - opcode_width_);
-            }
-
-            static void * ThreadCallback(void * arg)
-            {
-                ((FpgaConnection *)arg)->Receive();
-
-                return NULL;
             }
 
             static void Dump(const Spike & spike)
