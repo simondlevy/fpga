@@ -204,7 +204,7 @@ class FpgaConnection:
                     self._max_run),
                     self._max_runs_ahead + self._output_time - self._input_time)
 
-                if not to_run:
+                if to_run == 0:
                     sleep(100e-9)
                     continue
 

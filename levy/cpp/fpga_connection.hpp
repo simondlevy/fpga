@@ -146,6 +146,15 @@ namespace neuro {
 
                     auto runs = run_time - input_time_;
 
+                    while (runs > 0) {
+
+                        const auto to_run = std::min(std::min(
+                                    runs,
+                                    max_run_),
+                                    max_runs_ahead_ + output_time_ - input_time_);
+
+                    }
+
                     break;
                 }
 
