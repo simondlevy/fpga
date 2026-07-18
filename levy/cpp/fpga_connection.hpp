@@ -111,7 +111,11 @@ namespace neuro {
 
                 serial_.Flush();
 
-                Receive();
+                const auto byte = ReceiveByte();
+                const auto opcode = GetOpcode(byte);
+                if (opcode != kOpcodeClr) {
+                    printf("Failed to clear activity\n");
+                }
 
                 output_time_ = 0;
                 input_time_ = 0;
@@ -303,6 +307,33 @@ namespace neuro {
                 }
             }
 
+            auto ReceiveByte() -> uint8_t
+            {
+                uint8_t byte = 0;
+                serial_.Read(&byte, 1);
+                return byte;
+            }
+
+            auto GetOpcode(const uint8_t byte) -> uint8_t
+            {
+                return byte >> (8 - opcode_width_);
+            }
+
+            static void * ThreadCallback(void * arg)
+            {
+                ((FpgaConnection *)arg)->Receive();
+
+                return NULL;
+            }
+
+            static void Dump(const Spike & spike)
+            {
+                printf("id=%d time=%f value=%f\n", spike.id, spike.time, spike.value);
+
+            }
+
+            // Bit-twiddling -------------------------------------------------
+
             static auto UnsignedWidth(const int value) -> int
             {
                 return SignedWidth(value) - 1;
@@ -331,19 +362,6 @@ namespace neuro {
             static auto WidthBytesToBits(const int bytes) -> int
             {
                 return bytes * 8;
-            }
-
-             static void * ThreadCallback(void * arg)
-            {
-                ((FpgaConnection *)arg)->Receive();
-
-                return NULL;
-            }
-
-            static void Dump(const Spike & spike)
-            {
-                printf("id=%d time=%f value=%f\n", spike.id, spike.time, spike.value);
-
             }
 
     }; // class FpgaConnection
