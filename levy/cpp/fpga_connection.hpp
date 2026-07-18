@@ -144,6 +144,8 @@ namespace neuro {
 
                     PrepareToSend(spikes, count);
 
+                    auto runs = run_time - input_time_;
+
                     break;
                 }
 

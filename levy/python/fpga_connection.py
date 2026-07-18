@@ -199,14 +199,10 @@ class FpgaConnection:
 
             while runs > 0:
 
-                to_run = min(
-                    [
-                        runs,
-                        self._max_run,
-                        self._max_runs_ahead + self._output_time -
-                        self._input_time,
-                    ]
-                )
+                to_run = min(min(
+                    runs,
+                    self._max_run),
+                    self._max_runs_ahead + self._output_time - self._input_time)
 
                 if not to_run:
                     sleep(100e-9)
