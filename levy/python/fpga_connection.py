@@ -179,6 +179,8 @@ class FpgaConnection:
 
         target_time = self._input_time + time
 
+        print(target_time)
+
         while self._input_time < target_time:
 
             spikes = [None] * MAX_INPUT_SPIKES

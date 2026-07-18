@@ -128,6 +128,8 @@ namespace neuro {
 
                 const auto target_time = input_time_ + time;
 
+                printf("%d\n", target_time);
+
                 while (input_time_ < target_time) {
 
                     static Spike spikes[kMaxInputSpikes];
@@ -216,7 +218,7 @@ namespace neuro {
 
                     const auto spike = spikes[k];
 
-                    Dump(spike);
+                    //Dump(spike);
 
                     const uint8_t byte = (kOpcodeSpk << (opcode_width_ + charge_width_ - 1) |
                             (spike.id << charge_width_) |
@@ -240,7 +242,7 @@ namespace neuro {
 
             void Receive()
             {
-                printf("receive\n");
+                // printf("receive\n");
 
                 while (true) {
 
@@ -255,7 +257,7 @@ namespace neuro {
                     const uint8_t operand = (((byte << opcode_width_) >> opcode_width_) &
                             0XFF);
 
-                    printf("x%02X x%02X\n" , opcode, operand);
+                    // printf("x%02X x%02X\n" , opcode, operand);
 
                     switch (opcode) {
 
