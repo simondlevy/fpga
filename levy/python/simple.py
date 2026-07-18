@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from periphery import Serial
+# from periphery import Serial
+from serial import Serial
 
 PORT_NAME = "/dev/ttyUSB1"
 BAUD_RATE = 4000000
@@ -11,7 +12,7 @@ def write_byte(serial, byte):
 
 def main():
 
-    serial = Serial(PORT_NAME, BAUD_RATE)
+    serial = Serial(PORT_NAME, BAUD_RATE, timeout=READ_TIMEOUT_SEC)
 
     write_byte(serial, 0xC0)
     write_byte(serial, 0x4A)
@@ -32,7 +33,7 @@ def main():
     write_byte(serial, 0x80)
 
     while True:
-        b = serial.read(1, READ_TIMEOUT_SEC)
+        b = serial.read(1)
         if len(b) == 0:
             break
         print("x%02X" % ord(b))
