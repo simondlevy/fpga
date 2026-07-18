@@ -186,7 +186,7 @@ class FpgaConnection:
             spikes = [None] * MAX_INPUT_SPIKES
             count = 0
 
-            print('%d ===================' % len(self._inp_queue))
+            # print('%d ===================' % len(self._inp_queue))
 
             while True:
 
@@ -195,22 +195,22 @@ class FpgaConnection:
 
                 spike = self._inp_queue.peek()
 
-                print(spike)
+                # print(spike)
 
                 if spike.time != self._input_time:
-                    print("break: %f %d" % (spike.time, self._input_time))
+                    # print("break: %f %d" % (spike.time, self._input_time))
                     break
 
                 spikes[count] = self._inp_queue.pop()
                 count += 1
 
-            print("empty=%d" % self._inp_queue.isempty())
+            # print("empty=%d" % self._inp_queue.isempty())
 
             run_time = (int(self._inp_queue.peek().time)
                         if not self._inp_queue.isempty()
                         else target_time)
 
-            print("run_time=%d input_time=%d" % (run_time, self._input_time))
+            # print("run_time=%d input_time=%d" % (run_time, self._input_time))
 
             self._prepare_to_send(spikes, count)
 
@@ -256,6 +256,8 @@ class FpgaConnection:
             byte = ord(rx)
 
             opcode = byte >> (8 - self._opcode_width)
+
+            print('opcode=x%02X' % opcode)
 
             match opcode:
 

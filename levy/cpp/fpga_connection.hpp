@@ -131,7 +131,7 @@ namespace neuro {
                     static Spike spikes[kMaxInputSpikes];
                     size_t count = 0;
 
-                    printf("%d ===================\n", inp_queue_.Size());
+                    //printf("%d ===================\n", inp_queue_.Size());
 
                     while (true) {
 
@@ -141,10 +141,10 @@ namespace neuro {
 
                         const auto spike = inp_queue_.Peek();
 
-                        Dump(spike);
+                        // Dump(spike);
 
                         if (spike.time != input_time_) {
-                            printf("break: %f %d\n", spike.time, input_time_);
+                            //printf("break: %f %d\n", spike.time, input_time_);
                             break;
                         }
 
@@ -153,13 +153,13 @@ namespace neuro {
 
                     }
 
-                    printf("empty=%d\n", inp_queue_.IsEmpty());
+                    //printf("empty=%d\n", inp_queue_.IsEmpty());
 
                     const auto run_time = !inp_queue_.IsEmpty() ?
                         (int)inp_queue_.Peek().time :
                         target_time;
 
-                    printf("run_time=%d input_time=%d\n", run_time, input_time_);
+                    //printf("run_time=%d input_time=%d\n", run_time, input_time_);
 
                     PrepareToSend(spikes, count);
 
@@ -270,13 +270,16 @@ namespace neuro {
 
                     const uint8_t opcode = byte >> (8 - opcode_width_);
 
-                    const uint8_t operand = (((byte << opcode_width_) >> opcode_width_) &
-                            0XFF);
+                    printf("opcode=x%02X\n", opcode);
 
                     switch (opcode) {
 
                         case kOpcodeRun:
-                            output_time_ += operand;
+                            {
+                                const uint8_t operand =
+                                    (((byte << opcode_width_) >> opcode_width_) & 0XFF);
+                                output_time_ += operand;
+                            }
                             break;
 
                         case kOpcodeSpk: 
