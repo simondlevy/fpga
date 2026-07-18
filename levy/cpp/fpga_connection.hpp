@@ -268,11 +268,9 @@ namespace neuro {
 
                 while (true) {
 
-                    uint8_t byte = 0;
+                    const auto byte = self->ReceiveByte();
 
-                    self->serial_.Read(&byte, 1);
-
-                    const uint8_t opcode = byte >> (8 - self->opcode_width_);
+                    const auto opcode = self->GetOpcode(byte);
 
                     printf("opcode=x%02X: ", opcode);
 
