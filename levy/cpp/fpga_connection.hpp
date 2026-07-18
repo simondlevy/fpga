@@ -137,6 +137,13 @@ namespace neuro {
                         count++;
                     }
 
+                    const auto run_time =
+                        inp_queue_.IsEmpty() ?
+                        (int)inp_queue_.Peek().time :
+                        target_time;
+
+                    PrepareToSend(spikes, count);
+
                     break;
                 }
 
