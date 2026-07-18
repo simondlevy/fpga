@@ -165,9 +165,11 @@ class FpgaConnection:
 
     def output_count(self, out_idx: int) -> int:
 
+        '''
         for k in range(self._out_queue.counts[out_idx]):
             print(self._out_queue.times[out_idx][k], end=' ')
         print()
+        '''
 
         return self._out_queue.counts[out_idx]
 
@@ -245,13 +247,13 @@ class FpgaConnection:
 
     def _receive(self) -> None:
 
+        print("receive")
+
         while True:
 
             rx = self._serial.read(1, READ_TIMEOUT_SEC,)[::-1]
 
             byte = ord(rx)
-
-            idx_width = self._output_idx_width
 
             opcode = byte >> (8 - self._opcode_width)
 
@@ -264,8 +266,10 @@ class FpgaConnection:
                     self._output_time += operand
 
                 case DispatchOpcode.SPK:
+                    idx_width = self._output_idx_width
                     mask = 0xFF >> (8 - idx_width)
                     out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
+                    print("append: %d" % out_idx)
                     self._out_queue.append(out_idx, float(self._output_time))
 
                 case DispatchOpcode.SNC:

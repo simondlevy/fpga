@@ -197,10 +197,12 @@ namespace neuro {
 
             auto GetOutputCount(const int out_idx) -> int
             {
+                /*
                 for (int k=0; k<out_queue_.counts[out_idx]; ++k) {
                     printf("%f ", out_queue_.times[out_idx][k]);
                 }
                 printf("\n");
+                 */
 
                 return out_queue_.counts[out_idx];
             }
@@ -258,22 +260,18 @@ namespace neuro {
 
             void Receive()
             {
-                // printf("receive\n");
+                printf("receive\n");
 
                 while (true) {
 
                     uint8_t byte = 0;
 
-                    const auto rxlen = serial_.Read(&byte, 1);
-
-                    const auto idx_width = output_idx_width_;
+                    serial_.Read(&byte, 1);
 
                     const uint8_t opcode = byte >> (8 - opcode_width_);
 
                     const uint8_t operand = (((byte << opcode_width_) >> opcode_width_) &
                             0XFF);
-
-                    // printf("x%02X x%02X\n" , opcode, operand);
 
                     switch (opcode) {
 
@@ -283,8 +281,10 @@ namespace neuro {
 
                         case kOpcodeSpk: 
                             {
+                                const auto idx_width = output_idx_width_;
                                 const uint8_t mask = 0xFF >> (8 - idx_width);
                                 const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
+                                printf("append: %d\n", out_idx);
                                 out_queue_.append(out_idx, (float)output_time_);
                             }
                             break;
