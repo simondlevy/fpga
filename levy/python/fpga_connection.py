@@ -155,7 +155,11 @@ class FpgaConnection:
 
         self._serial.flush()
 
-        self._receive()
+        rx = self._serial.read(1, READ_TIMEOUT_SEC,)[::-1]
+        byte = ord(rx)
+        opcode = byte >> (8 - self._opcode_width)
+        if opcode != DispatchOpcode.CLR:
+            raise ValueError()
 
         self._input_time = 0
         self._output_time = 0
@@ -276,10 +280,6 @@ class FpgaConnection:
 
                 case DispatchOpcode.SNC:
                     print("snc");
-                    break
-
-                case DispatchOpcode.CLR:
-                    print("clr");
                     break
 
                 case _:
