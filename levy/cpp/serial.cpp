@@ -42,8 +42,8 @@ void Serial::Begin(const float timeout_sec)
     tty.c_lflag &= ~ECHO;          // Disable echo
     tty.c_lflag &= ~ISIG;          // Disable interpretation of INTR, QUIT, SUSP
 
-    cfsetispeed(&tty, baud_rate_);
-    cfsetospeed(&tty, baud_rate_);
+    cfsetispeed(&tty, B4000000);
+    cfsetospeed(&tty, B4000000);
 
     if (timeout_sec > 0) {
         tty.c_cc[VMIN] = 0;   // 0 means read() returns immediately if VTIME expires

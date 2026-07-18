@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# from periphery import Serial
 from serial import Serial
 
 PORT_NAME = "/dev/ttyUSB1"
