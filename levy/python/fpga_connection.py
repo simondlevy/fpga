@@ -205,7 +205,7 @@ class FpgaConnection:
                     self._max_runs_ahead + self._output_time - self._input_time)
 
                 if to_run == 0:
-                    sleep(100e-9)
+                    sleep(0) # yield to other thread
                     continue
 
                 self._send_command(DispatchOpcode.RUN, to_run)

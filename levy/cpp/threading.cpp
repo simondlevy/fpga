@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sched.h>
 
 #include "threading.h"
 
@@ -26,4 +27,9 @@ void Thread::start(void *(*routine) (void *), void * data)
 void Thread::join()
 {
     pthread_join(thread_id_, NULL);
+}
+
+void Thread::yield()
+{
+    sched_yield();
 }

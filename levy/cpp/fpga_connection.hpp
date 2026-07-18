@@ -153,6 +153,10 @@ namespace neuro {
                                     max_run_),
                                     max_runs_ahead_ + output_time_ - input_time_);
 
+                        if (to_run == 0) {
+                            Thread::yield();
+                        }
+
                     }
 
                     break;

@@ -15,4 +15,6 @@ class Thread {
         static void start(void *(*start_routine) (void *), void * data);
 
         static void join();
+
+        static void yield();
 };
