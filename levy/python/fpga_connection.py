@@ -257,12 +257,10 @@ class FpgaConnection:
 
             opcode = byte >> (8 - self._opcode_width)
 
-            operand = (((byte << self._opcode_width) >> self._opcode_width) &
-                       0XFF)
-
             match opcode:
 
                 case DispatchOpcode.RUN:
+                    operand = (((byte << self._opcode_width) >> self._opcode_width) & 0XFF)
                     self._output_time += operand
 
                 case DispatchOpcode.SPK:
