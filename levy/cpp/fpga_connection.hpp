@@ -260,7 +260,7 @@ namespace neuro {
 
             void Receive()
             {
-                printf("receive\n");
+                printf("\nreceive\n");
 
                 while (true) {
 
@@ -272,34 +272,30 @@ namespace neuro {
 
                     printf("opcode=x%02X\n", opcode);
 
-                    switch (opcode) {
-
-                        case kOpcodeRun:
-                            {
-                                const uint8_t operand =
-                                    (((byte << opcode_width_) >> opcode_width_) & 0XFF);
-                                output_time_ += operand;
-                            }
-                            break;
-
-                        case kOpcodeSpk: 
-                            {
-                                const auto idx_width = output_idx_width_;
-                                const uint8_t mask = 0xFF >> (8 - idx_width);
-                                const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
-                                printf("append: %d\n", out_idx);
-                                out_queue_.append(out_idx, (float)output_time_);
-                            }
-                            break;
-
-                        case kOpcodeSnc:
-                            break;
-
-                        case kOpcodeClr:
-                            break;
+                    if (opcode == kOpcodeRun) {
+                        const uint8_t operand =
+                            (((byte << opcode_width_) >> opcode_width_) & 0XFF);
                     }
 
-                    break;
+                    else if (opcode == kOpcodeSpk) {
+                        const auto idx_width = output_idx_width_;
+                        const uint8_t mask = 0xFF >> (8 - idx_width);
+                        const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
+                        printf("append: %d\n", out_idx);
+                        out_queue_.append(out_idx, (float)output_time_);
+                    }
+
+                    else if (opcode == kOpcodeSnc) {
+                        break;
+                    }
+
+                    else if (opcode == kOpcodeClr) {
+                        break;
+                    }
+
+                    else {
+                        printf("received bad opcode: x%02X\n", opcode);
+                    }
                 }
             }
 

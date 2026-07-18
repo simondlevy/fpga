@@ -247,7 +247,7 @@ class FpgaConnection:
 
     def _receive(self) -> None:
 
-        print("receive")
+        print("\nreceive")
 
         while True:
 
