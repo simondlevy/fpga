@@ -46,6 +46,7 @@ int main()
     }
 
     conn.Run(50);
+
     // printf("%d %d\n", conn.GetOutputCount(0), conn.GetOutputCount(1));
 
     return 0;
