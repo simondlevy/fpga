@@ -24,8 +24,7 @@ namespace neuro {
 
         private:
 
-            static const size_t kMaxSpikeTime = 100;
-            static const size_t kMaxInputNeurons = 10;
+            static constexpr int kSystemBufferSizeBytes = 4096;
             static const size_t kMaxInputSpikes = 1024;
 
             enum {
@@ -35,8 +34,6 @@ namespace neuro {
                 kOpcodeClr,
                 kOpcodeCount
             };
-
-            static constexpr int kSystemBufferSizeBytes = 4096;
 
         public:
 
@@ -133,8 +130,6 @@ namespace neuro {
                     static Spike spikes[kMaxInputSpikes];
                     size_t count = 0;
 
-                    //printf("%d ===================\n", inp_queue_.Size());
-
                     while (true) {
 
                         if (inp_queue_.IsEmpty()) {
@@ -146,7 +141,6 @@ namespace neuro {
                         // Dump(spike);
 
                         if (spike.time != input_time_) {
-                            //printf("break: %f %d\n", spike.time, input_time_);
                             break;
                         }
 
@@ -155,13 +149,9 @@ namespace neuro {
 
                     }
 
-                    //printf("empty=%d\n", inp_queue_.IsEmpty());
-
                     const auto run_time = !inp_queue_.IsEmpty() ?
                         (int)inp_queue_.Peek().time :
                         target_time;
-
-                    //printf("run_time=%d input_time=%d\n", run_time, input_time_);
 
                     PrepareToSend(spikes, count);
 
@@ -194,6 +184,8 @@ namespace neuro {
                     }
                 }
 
+                Thread::sleep(1);
+
                 Receive();
 
                 //Thread::start(ThreadedReceive, this);
@@ -202,13 +194,6 @@ namespace neuro {
 
             auto GetOutputCount(const int out_idx) -> int
             {
-                /*
-                for (int k=0; k<out_queue_.counts[out_idx]; ++k) {
-                    printf("%f ", out_queue_.times[out_idx][k]);
-                }
-                printf("\n");
-                 */
-
                 return out_queue_.counts[out_idx];
             }
 
@@ -253,7 +238,6 @@ namespace neuro {
 
             void SendCommand(const uint8_t opcode, const uint8_t operand=0)
             {
-                //printf("SendCommand: %d %d\n", opcode, operand);
                 WriteByte(opcode << (8 - opcode_width_) | operand);
             }
 
@@ -271,10 +255,9 @@ namespace neuro {
 
                     const auto opcode = GetOpcode(byte);
 
-                    printf("received opcode=x%02X: ", opcode);
+                    printf("received opcode=x%02X\n", opcode);
 
                     if (opcode == kOpcodeRun) {
-                        printf("run\n");
                         const uint8_t operand =
                             (((byte << opcode_width_) >> opcode_width_) & 0XFF);
                     }

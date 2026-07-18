@@ -14,12 +14,13 @@
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static constexpr int kBaudRate = 4000000;
+static constexpr float kReadTimeoutSec = 0.1;
+
 static constexpr int kNumInputs = 2;
 static constexpr int kNumOutputs = 2;
 static constexpr float kClockFreq = 100000000;
 static constexpr int kChargeWidth = 5;
 static constexpr int kSpikeValueFactor = 10;
-static constexpr float kReadTimeoutSec = 10.0;
 
 int main()
 {
