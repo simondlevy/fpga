@@ -190,7 +190,7 @@ class FpgaConnection:
                 count += 1
 
             run_time = (int(self._inp_queue.peek().time)
-                        if self._inp_queue and not self._inp_queue.isempty()
+                        if not self._inp_queue.isempty()
                         else target_time)
 
             self._prepare_to_send(spikes, count)
