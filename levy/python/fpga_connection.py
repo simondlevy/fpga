@@ -7,8 +7,6 @@
 from enum import IntEnum, auto
 from math import ceil, log2
 from periphery import Serial
-from threading import Thread
-from time import sleep
 from typing import Iterable
 import numpy as np
 
@@ -168,19 +166,9 @@ class FpgaConnection:
 
     def output_count(self, out_idx: int) -> int:
 
-        '''
-        for k in range(self._out_queue.counts[out_idx]):
-            print(self._out_queue.times[out_idx][k], end=' ')
-        print()
-        '''
-
         return self._out_queue.counts[out_idx]
 
     def run(self, time: int) -> None:
-
-        rx_thread = Thread(target=self._threaded_receive)
-        rx_thread.daemon = True
-        rx_thread.start()
 
         target_time = self._input_time + time
 
@@ -189,8 +177,6 @@ class FpgaConnection:
             spikes = [None] * MAX_INPUT_SPIKES
             count = 0
 
-            # print('%d ===================' % len(self._inp_queue))
-
             while True:
 
                 if self._inp_queue.isempty():
@@ -198,22 +184,15 @@ class FpgaConnection:
 
                 spike = self._inp_queue.peek()
 
-                # print(spike)
-
                 if spike.time != self._input_time:
-                    # print("break: %f %d" % (spike.time, self._input_time))
                     break
 
                 spikes[count] = self._inp_queue.pop()
                 count += 1
 
-            # print("empty=%d" % self._inp_queue.isempty())
-
             run_time = (int(self._inp_queue.peek().time)
                         if not self._inp_queue.isempty()
                         else target_time)
-
-            # print("run_time=%d input_time=%d" % (run_time, self._input_time))
 
             self._prepare_to_send(spikes, count)
 
@@ -226,15 +205,10 @@ class FpgaConnection:
                     self._max_run),
                     self._max_runs_ahead + self._output_time - self._input_time)
 
-                if to_run == 0:
-                    sleep(0) # yield to other thread
-                    continue
 
                 self._send_command(DispatchOpcode.RUN, to_run)
 
                 self._input_time += runs
-
-                sleep(self._secs_per_run * runs)
 
                 runs -= to_run
 
@@ -242,40 +216,34 @@ class FpgaConnection:
 
                 self._send_command(DispatchOpcode.SNC)
 
-        rx_thread.join()
+        self._receive()
 
     def _send_command(self, opcode: int, operand: int = 0) -> None:
 
         self._write_byte(opcode << (8 - self._opcode_width) | operand)
 
-    def _threaded_receive(self) -> None:
-
-        print("\nreceive")
+    def _receive(self) -> None:
 
         while True:
 
             byte = self._receive_byte()
             opcode = self._get_opcode(byte)
 
-            print('opcode=x%02X: ' % opcode, end='')
+            print('received opcode=x%02X: ' % opcode)
 
             match opcode:
 
                 case DispatchOpcode.RUN:
-                    print("run");
                     operand = (((byte << self._opcode_width) >> self._opcode_width) & 0XFF)
                     self._output_time += operand
 
                 case DispatchOpcode.SPK:
-                    print("spk");
                     idx_width = self._output_idx_width
                     mask = 0xFF >> (8 - idx_width)
                     out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
-                    print("append: %d" % out_idx)
                     self._out_queue.append(out_idx, float(self._output_time))
 
                 case DispatchOpcode.SNC:
-                    print("snc");
                     break
 
                 case _:

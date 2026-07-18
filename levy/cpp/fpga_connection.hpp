@@ -126,8 +126,6 @@ namespace neuro {
 
             void Run(const int time)
             {
-                Thread::start(ThreadedReceive, this);
-
                 const auto target_time = input_time_ + time;
 
                 while (input_time_ < target_time) {
@@ -177,15 +175,15 @@ namespace neuro {
                                     max_runs_ahead_ + output_time_ - input_time_);
 
                         if (to_run == 0) {
-                            Thread::yield();
-                            continue;
+                            //Thread::yield();
+                            //continue;
                         }
 
                         SendCommand(kOpcodeRun, to_run);
 
                         input_time_ += runs;
 
-                        Thread::sleep(secs_per_run_ * runs);
+                        //Thread::sleep(secs_per_run_ * runs);
 
                         runs -= to_run;
                     }
@@ -196,7 +194,10 @@ namespace neuro {
                     }
                 }
 
-                Thread::join();
+                Receive();
+
+                //Thread::start(ThreadedReceive, this);
+                //Thread::join();
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -262,6 +263,39 @@ namespace neuro {
                 serial_.Write(&byte, 1);
             }
 
+            void Receive()
+            {
+                while (true) {
+
+                    const auto byte = ReceiveByte();
+
+                    const auto opcode = GetOpcode(byte);
+
+                    printf("received opcode=x%02X: ", opcode);
+
+                    if (opcode == kOpcodeRun) {
+                        printf("run\n");
+                        const uint8_t operand =
+                            (((byte << opcode_width_) >> opcode_width_) & 0XFF);
+                    }
+
+                    else if (opcode == kOpcodeSpk) {
+                        const auto idx_width = output_idx_width_;
+                        const uint8_t mask = 0xFF >> (8 - idx_width);
+                        const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
+                        out_queue_.append(out_idx, (float)output_time_);
+                    }
+
+                    else if (opcode == kOpcodeSnc) {
+                        break;
+                    }
+
+                    else {
+                        printf("received bad opcode: x%02X\n", opcode);
+                    }
+                }
+            }
+
             static void * ThreadedReceive(void * arg)
             {
                 auto self = ((FpgaConnection *)arg);
@@ -272,7 +306,7 @@ namespace neuro {
 
                     const auto opcode = self->GetOpcode(byte);
 
-                    printf("opcode=x%02X: ", opcode);
+                    printf("received opcode=x%02X: ", opcode);
 
                     if (opcode == kOpcodeRun) {
                         printf("run\n");
@@ -281,16 +315,13 @@ namespace neuro {
                     }
 
                     else if (opcode == kOpcodeSpk) {
-                        printf("spk\n");
                         const auto idx_width = self->output_idx_width_;
                         const uint8_t mask = 0xFF >> (8 - idx_width);
                         const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
-                        printf("append: %d\n", out_idx);
                         self->out_queue_.append(out_idx, (float)self->output_time_);
                     }
 
                     else if (opcode == kOpcodeSnc) {
-                        printf("snc\n");
                         break;
                     }
 
