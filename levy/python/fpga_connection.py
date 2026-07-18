@@ -155,9 +155,8 @@ class FpgaConnection:
 
         self._serial.flush()
 
-        rx = self._serial.read(1, READ_TIMEOUT_SEC,)[::-1]
-        byte = ord(rx)
-        opcode = byte >> (8 - self._opcode_width)
+        byte = self._receive_byte()
+        opcode = self._get_opcode(byte)
         if opcode != DispatchOpcode.CLR:
             raise ValueError()
 
@@ -179,7 +178,7 @@ class FpgaConnection:
 
     def run(self, time: int) -> None:
 
-        rx_thread = Thread(target=self._receive)
+        rx_thread = Thread(target=self._threaded_receive)
         rx_thread.daemon = True
         rx_thread.start()
 
@@ -249,17 +248,14 @@ class FpgaConnection:
 
         self._write_byte(opcode << (8 - self._opcode_width) | operand)
 
-    def _receive(self) -> None:
+    def _threaded_receive(self) -> None:
 
         print("\nreceive")
 
         while True:
 
-            rx = self._serial.read(1, READ_TIMEOUT_SEC,)[::-1]
-
-            byte = ord(rx)
-
-            opcode = byte >> (8 - self._opcode_width)
+            byte = self._receive_byte()
+            opcode = self._get_opcode(byte)
 
             print('opcode=x%02X: ' % opcode, end='')
 
@@ -298,6 +294,12 @@ class FpgaConnection:
                     int(spike.value*self._spike_value_factor))
 
             self._write_byte(byte)
+
+    def _receive_byte(self):
+        return ord(self._serial.read(1, READ_TIMEOUT_SEC,)[::-1])
+
+    def _get_opcode(self, byte):
+        return byte >> (8 - self._opcode_width)
 
     def _write_byte(self, byte):
         print("WriteByte: x%02X" % byte)
