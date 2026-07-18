@@ -83,15 +83,22 @@ int main()
 
     if (select_res == -1) {
         perror("Select error");
-    } else if (select_res == 0) {
+    }
+    
+    else if (select_res == 0) {
         printf("Read timed out! No data received.\n");
-    } else {
-        // Data is available, proceed to read
+    }
+    
+    else {
+
         if (FD_ISSET(fd, &read_fds)) {
-            char buf[256];
+
+            uint8_t buf[256] = {};
+
             int n = read(fd, buf, sizeof(buf) - 1);
-            if (n > 0) {
-                printf("Received: %d bytes\n", n);
+
+            for (int k=0; k<n; ++k) {
+                printf("x%02X\n", buf[k]);
             }
         }
     }
