@@ -254,7 +254,7 @@ namespace neuro {
 
             void WriteByte(const uint8_t byte)
             {
-                //printf("WriteByte: x%02X\n", byte);
+                printf("WriteByte: x%02X\n", byte);
                 serial_.Write(&byte, 1);
             }
 
@@ -270,14 +270,16 @@ namespace neuro {
 
                     const uint8_t opcode = byte >> (8 - opcode_width_);
 
-                    printf("opcode=x%02X\n", opcode);
+                    printf("opcode=x%02X: ", opcode);
 
                     if (opcode == kOpcodeRun) {
+                        printf("run\n");
                         const uint8_t operand =
                             (((byte << opcode_width_) >> opcode_width_) & 0XFF);
                     }
 
                     else if (opcode == kOpcodeSpk) {
+                        printf("spk\n");
                         const auto idx_width = output_idx_width_;
                         const uint8_t mask = 0xFF >> (8 - idx_width);
                         const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
@@ -286,10 +288,12 @@ namespace neuro {
                     }
 
                     else if (opcode == kOpcodeSnc) {
+                        printf("snc\n");
                         break;
                     }
 
                     else if (opcode == kOpcodeClr) {
+                        printf("clr\n");
                         break;
                     }
 

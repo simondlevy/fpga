@@ -257,15 +257,17 @@ class FpgaConnection:
 
             opcode = byte >> (8 - self._opcode_width)
 
-            print('opcode=x%02X' % opcode)
+            print('opcode=x%02X: ' % opcode, end='')
 
             match opcode:
 
                 case DispatchOpcode.RUN:
+                    print("run");
                     operand = (((byte << self._opcode_width) >> self._opcode_width) & 0XFF)
                     self._output_time += operand
 
                 case DispatchOpcode.SPK:
+                    print("spk");
                     idx_width = self._output_idx_width
                     mask = 0xFF >> (8 - idx_width)
                     out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
@@ -273,9 +275,11 @@ class FpgaConnection:
                     self._out_queue.append(out_idx, float(self._output_time))
 
                 case DispatchOpcode.SNC:
+                    print("snc");
                     break
 
                 case DispatchOpcode.CLR:
+                    print("clr");
                     break
 
                 case _:
@@ -296,4 +300,5 @@ class FpgaConnection:
             self._write_byte(byte)
 
     def _write_byte(self, byte):
+        print("WriteByte: x%02X" % byte)
         self._serial.write(bytes([byte]))
