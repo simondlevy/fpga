@@ -63,6 +63,11 @@ namespace neuro {
                 return size_ == 0;
             }
 
+            auto Size() -> int
+            {
+                return size_;
+            }
+
         private:
 
             void SiftUp(int idx)

@@ -179,18 +179,27 @@ class FpgaConnection:
 
         target_time = self._input_time + time
 
-        print(target_time)
-
         while self._input_time < target_time:
 
             spikes = [None] * MAX_INPUT_SPIKES
             count = 0
 
-            while (not self._inp_queue.isempty() and
-                   int(self._inp_queue.peek().time) == self._input_time):
+            print('%d ===================' % len(self._inp_queue))
+
+            while True:
+
+                if self._inp_queue.isempty():
+                    break
+
+                spike = self._inp_queue.peek()
+
+                print(spike)
+
+                if spike.time != self._input_time:
+                    break
+
                 spikes[count] = self._inp_queue.pop()
                 count += 1
-
 
             run_time = (int(self._inp_queue.peek().time)
                         if not self._inp_queue.isempty()

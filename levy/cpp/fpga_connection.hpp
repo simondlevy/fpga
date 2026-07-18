@@ -124,21 +124,32 @@ namespace neuro {
             {
                 Thread::start(ThreadCallback, this);
 
-
-
                 const auto target_time = input_time_ + time;
-
-                printf("%d\n", target_time);
 
                 while (input_time_ < target_time) {
 
                     static Spike spikes[kMaxInputSpikes];
                     size_t count = 0;
 
-                    while (!inp_queue_.IsEmpty() &&
-                            (int)inp_queue_.Peek().time == input_time_) {
+                    printf("%d ===================\n", inp_queue_.Size());
+
+                    while (true) {
+
+                        if (inp_queue_.IsEmpty()) {
+                            break;
+                        }
+
+                        const auto spike = inp_queue_.Peek();
+
+                        Dump(spike);
+
+                        if (spike.time != input_time_) {
+                            break;
+                        }
+
                         spikes[count] = inp_queue_.Pop();
                         count++;
+
                     }
 
                     const auto run_time = inp_queue_.IsEmpty() ?
