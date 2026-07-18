@@ -196,6 +196,7 @@ class FpgaConnection:
                 print(spike)
 
                 if spike.time != self._input_time:
+                    print("break: %d %d" % (spike.time, self._input_time))
                     break
 
                 spikes[count] = self._inp_queue.pop()
@@ -206,6 +207,8 @@ class FpgaConnection:
                         else target_time)
 
             self._prepare_to_send(spikes, count)
+
+            print("run_time=%d input_time=%d" % (run_time, self._input_time))
 
             runs = run_time - self._input_time
 

@@ -144,6 +144,7 @@ namespace neuro {
                         Dump(spike);
 
                         if (spike.time != input_time_) {
+                            printf("break: %f %d\n", spike.time, input_time_);
                             break;
                         }
 
@@ -157,6 +158,8 @@ namespace neuro {
                         target_time;
 
                     PrepareToSend(spikes, count);
+
+                    printf("run_time=%d input_time=%d\n", run_time, input_time_);
 
                     auto runs = run_time - input_time_;
 
