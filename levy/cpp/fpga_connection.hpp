@@ -294,11 +294,6 @@ namespace neuro {
                         break;
                     }
 
-                    else if (opcode == kOpcodeClr) {
-                        printf("clr\n");
-                        break;
-                    }
-
                     else {
                         printf("received bad opcode: x%02X\n", opcode);
                     }
