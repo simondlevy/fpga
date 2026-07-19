@@ -9,11 +9,14 @@ all: test simple
 test: main.cpp serial.o threading.o *.hpp
 	g++ -o test main.cpp serial.o threading.o
 
-simple: simple.cpp serial.o
-	g++ -o simple simple.cpp serial.o
+simple: simple.cpp newserial.o
+	g++ -o simple simple.cpp newserial.o
 
 serial.o: serial.cpp serial.h
 	g++ -Wall -c serial.cpp
+
+newserial.o: newserial.cpp newserial.h
+	g++ -Wall -c newserial.cpp
 
 threading.o: threading.cpp threading.h
 	g++ -Wall -c threading.cpp
