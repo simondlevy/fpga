@@ -64,60 +64,30 @@ void Serial::WriteByte(const uint8_t byte)
 
 void Serial::Read()
 {
-    while (true) {
+    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
 
-        int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+    if (select_res == -1) {
+        perror("Select error");
+    }
 
-        if (select_res == -1) {
-            perror("Select error");
-        }
+    else if (select_res == 0) {
+        printf("Read timed out! No data received.\n");
+    }
 
-        else if (select_res == 0) {
-            break;
-        }
+    else {
 
-        else {
+        if (FD_ISSET(fd_, &read_fds_)) {
 
-            if (FD_ISSET(fd_, &read_fds_)) {
+            uint8_t buf[256] = {};
 
-                uint8_t byte = 0;
+            int n = read(fd_, buf, sizeof(buf) - 1);
 
-                read(fd_, &byte, 1);
-
-                printf("x%02X\n", byte);
+            for (int k=0; k<n; ++k) {
+                printf("x%02X\n", buf[k]);
             }
         }
     }
 }
-
-void Serial::NewRead()
-{
-    while (true) {
-
-        int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
-
-        if (select_res == -1) {
-            perror("Select error");
-        }
-
-        else if (select_res == 0) {
-            break;
-        }
-
-        else {
-
-            if (FD_ISSET(fd_, &read_fds_)) {
-
-                uint8_t byte = 0;
-
-                read(fd_, &byte, 1);
-
-                printf("x%02X\n", byte);
-            }
-        }
-    }
-}
-
 
 void Serial::Close()
 {
