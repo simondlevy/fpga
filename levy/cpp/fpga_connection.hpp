@@ -105,6 +105,7 @@ namespace neuro {
             {
                 SendCommand(kOpcodeClr);
 
+                /*
                 if (Serial::Available() != 1) {
                     printf("Error in ClearActivity()\n");
                     return;
@@ -114,7 +115,7 @@ namespace neuro {
                 const auto opcode = GetOpcode(byte);
                 if (opcode != kOpcodeClr) {
                     printf("Failed to clear activity\n");
-                }
+                }*/
 
                 output_time_ = 0;
                 input_time_ = 0;
@@ -243,6 +244,11 @@ namespace neuro {
 
             void Receive()
             {
+                while (Serial::Available() > 0) {
+                    printf("x%02X\n", Serial::Read());
+                }
+
+                /*
                 while (true) {
 
                     const auto byte = Serial::Read();
@@ -270,7 +276,7 @@ namespace neuro {
                     else {
                         printf("received bad opcode: x%02X\n", opcode);
                     }
-                }
+                }*/
             }
 
             auto GetOpcode(const uint8_t byte) -> uint8_t

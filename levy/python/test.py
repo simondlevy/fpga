@@ -27,7 +27,6 @@ conn = FpgaConnection(
 
 conn.clear_activity()
 
-'''
 for i in range(28):
     conn.apply_spike(Spike(0, i, 1.0))
 
@@ -36,6 +35,7 @@ for i in range(26):
 
 conn.run(5)
 
+'''
 conn.run(50)
 
 print("\n", conn.output_count(0), conn.output_count(1))
