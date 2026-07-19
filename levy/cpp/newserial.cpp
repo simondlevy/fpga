@@ -63,6 +63,11 @@ void Serial::Begin()
     timeout_.tv_usec = 0; // 0 microseconds
 }
 
+uint32_t Serial::GetBaudRate()
+{
+    return 4000000;
+}
+
 void Serial::Write(const uint8_t byte)
 {
     write(fd_, &byte, 1);

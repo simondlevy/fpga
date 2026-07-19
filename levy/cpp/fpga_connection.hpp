@@ -11,7 +11,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "serial.h"
+#include "newserial.h"
 #include "threading.h"
 
 #include "output_queue.hpp"
@@ -38,15 +38,12 @@ namespace neuro {
         public:
 
             FpgaConnection(
-                    Serial & serial,
                     const int num_inputs,
                     const int num_outputs,
                     const int charge_width,
                     const float clock_freq,
                     const int spike_value_factor)
             {
-                serial_ = serial;
-
                 num_inputs_ = num_inputs;
                 num_outputs_ = num_outputs;
 
@@ -76,7 +73,7 @@ namespace neuro {
                     WidthBitsToBytes(output_size_bits) * (num_outputs + 1);
 
                 secs_per_run_ = ((float)num_outputs / clock_freq) +
-                    max_bytes_per_run * 10.f / serial.GetBaudRate();
+                    max_bytes_per_run * 10.f / Serial::GetBaudRate();
 
                 max_runs_ahead_ = kSystemBufferSizeBytes / max_bytes_per_run;
 
@@ -106,9 +103,11 @@ namespace neuro {
             {
                 SendCommand(kOpcodeClr);
 
-                serial_.Flush();
-
-                const auto byte = ReceiveByte();
+                if (Serial::Available() != 1) {
+                    printf("Error in ClearActivity()\n");
+                    return
+                }
+                const auto byte = Serial::Read();
                 const auto opcode = GetOpcode(byte);
                 if (opcode != kOpcodeClr) {
                     printf("Failed to clear activity\n");
@@ -202,8 +201,6 @@ namespace neuro {
 
             const size_t MAXMSG = 32;
 
-            Serial serial_;
-
             int input_time_;
             int output_time_;
             int output_idx_width_;
@@ -244,7 +241,7 @@ namespace neuro {
             void WriteByte(const uint8_t byte)
             {
                 printf("WriteByte: x%02X\n", byte);
-                serial_.Write(&byte, 1);
+                Serial::Write(byte);
             }
 
             void Receive()
@@ -316,12 +313,6 @@ namespace neuro {
                 return nullptr;
             }
 
-            auto ReceiveByte() -> uint8_t
-            {
-                uint8_t byte = 0;
-                serial_.Read(&byte, 1);
-                return byte;
-            }
 
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {

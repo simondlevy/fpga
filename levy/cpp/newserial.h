@@ -4,13 +4,15 @@ class Serial {
 
     public:
 
+        static uint8_t Available();
+
         static void Begin();
 
-        static void Write(const uint8_t byte);
+        static void Close();
 
-        static uint8_t Available();
+        static uint32_t GetBaudRate();
 
         static uint8_t Read();
 
-        static void Close();
+        static void Write(const uint8_t byte);
 }; 

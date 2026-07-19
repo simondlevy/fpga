@@ -9,12 +9,7 @@
 #include <string>
 
 #include "fpga_connection.hpp"
-#include "serial.h"
 #include "spike.hpp"
-
-static const std::string kPortName = "/dev/ttyUSB1";
-static constexpr int kBaudRate = 4000000;
-static constexpr float kReadTimeoutSec = 0.1;
 
 static constexpr int kNumInputs = 2;
 static constexpr int kNumOutputs = 2;
@@ -24,12 +19,7 @@ static constexpr int kSpikeValueFactor = 10;
 
 int main()
 {
-    auto serial = Serial(kPortName, kBaudRate);
-
-    serial.Begin(kReadTimeoutSec);
-
     auto conn = neuro::FpgaConnection(
-            serial,
             kNumInputs,
             kNumOutputs,
             kChargeWidth,
