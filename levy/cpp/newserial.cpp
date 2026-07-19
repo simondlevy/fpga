@@ -90,6 +90,35 @@ void Serial::Read()
     }
 }
 
+void Serial::NewRead()
+{
+    while (true) {
+
+        int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+
+        if (select_res == -1) {
+            perror("Select error");
+        }
+
+        else if (select_res == 0) {
+            break;
+        }
+
+        else {
+
+            if (FD_ISSET(fd_, &read_fds_)) {
+
+                uint8_t byte = 0;
+
+                read(fd_, &byte, 1);
+
+                printf("x%02X\n", byte);
+            }
+        }
+    }
+}
+
+
 void Serial::Close()
 {
     close(fd_);

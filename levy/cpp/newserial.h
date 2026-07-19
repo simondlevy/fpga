@@ -10,5 +10,7 @@ class Serial {
 
         static void Read();
 
+        static void NewRead();
+
         static void Close();
 }; 

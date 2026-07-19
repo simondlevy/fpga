@@ -28,4 +28,4 @@ srun: simple
 	./simple
 
 clean:
-	rm -rf test *.o
+	rm -rf test simple *.o
