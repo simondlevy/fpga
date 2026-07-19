@@ -1,28 +1,34 @@
-/*
- * Copyright (c) 2026 Simon D. Levy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
+#include <fcntl.h>   
 #include <stdio.h>
-#include <fcntl.h>   // Contains file controls like O_RDWR
-#include <termios.h> // Contains POSIX terminal control definitions
-#include <unistd.h>  // write(), read(), close()
+#include <string.h>
+#include <termios.h> 
+#include <unistd.h>  
+#include <sys/select.h>
 
 #include "serial.h"
 
-void Serial::Begin(const float timeout_sec)
+static const char * kPortName = "/dev/ttyUSB1";
+static const speed_t kBaudRate = B4000000;
+static const size_t kMaxBuf = 256;
+
+static int fd_;
+static fd_set read_fds_;
+static struct timeval timeout_;
+static uint8_t buf_[kMaxBuf];
+static bool did_read_;
+static uint8_t available_;
+static uint8_t index_;
+
+void Serial::Begin()
 {
-    fd_ = open(port_name_.c_str(), O_RDWR);
+    fd_ = open(kPortName, O_RDWR);
 
     if (fd_ < 0) {
-        fprintf(stderr, "Unable to open port %s\n", port_name_.c_str());
+        fprintf(stderr, "Unable to open port %s\n", kPortName);
         return;
     }
 
-    struct termios tty;
+    struct termios tty = {};
 
     // Read existing settings from the port
     if(tcgetattr(fd_, &tty) != 0) {
@@ -42,37 +48,64 @@ void Serial::Begin(const float timeout_sec)
     tty.c_lflag &= ~ECHO;          // Disable echo
     tty.c_lflag &= ~ISIG;          // Disable interpretation of INTR, QUIT, SUSP
 
-    cfsetispeed(&tty, B4000000);
-    cfsetospeed(&tty, B4000000);
-
-    if (timeout_sec > 0) {
-        tty.c_cc[VMIN] = 0;   // 0 means read() returns immediately if VTIME expires
-        tty.c_cc[VTIME] = timeout_sec * 10; // Timeout in deciseconds
-    }
+    cfsetispeed(&tty, kBaudRate);
+    cfsetospeed(&tty, kBaudRate);
 
     if (tcsetattr(fd_, TCSANOW, &tty) != 0) {
         fprintf(stderr, "Error from tcsetattr\n");
+        return;
     }
+
+    FD_ZERO(&read_fds_);
+    FD_SET(fd_, &read_fds_);
+
+    timeout_.tv_sec = 1;  // 1 second
+    timeout_.tv_usec = 0; // 0 microseconds
 }
 
-void Serial::Flush()
+uint32_t Serial::GetBaudRate()
 {
-    tcflush(fd_, TCOFLUSH);
-    tcdrain(fd_);
+    return 4000000;
 }
 
-int Serial::Read(void * msg, const int size)
+void Serial::Write(const uint8_t byte)
 {
-    return read(fd_, msg, size);
+    printf("Write: x%02X\n", byte);
+    write(fd_, &byte, 1);
 }
 
-void Serial::Write(const void * msg, const int size)
+uint8_t Serial::Available()
 {
-    write(fd_, msg, sizeof(msg));
+    if (did_read_) {
+        return available_;
+    }
+
+    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+
+    if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
+
+        available_ = read(fd_, buf_, sizeof(buf_) - 1);
+
+        index_ = 0;
+
+        return available_;
+    }
+
+    did_read_ = false;
+
+    return 0;
+}
+
+uint8_t Serial::Read()
+{
+    did_read_ = true;
+    const auto byte = buf_[index_];
+    index_++;
+    available_--;
+    return byte;
 }
 
 void Serial::Close()
 {
     close(fd_);
 }
-

@@ -1,47 +1,18 @@
-/*
- * Copyright (c) 2026 Simon D. Levy
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
-#pragma once
-
-#include <string>
+#include <stdint.h>
 
 class Serial {
 
     public:
-        
-        Serial() = default;
 
-        Serial(const std::string port_name, const int baud_rate) 
-            : port_name_(port_name), baud_rate_(baud_rate) {}
+        static uint8_t Available();
 
-        Serial& operator=(const Serial& other) = default;
+        static void Begin();
 
-        void Begin(const float timeout_sec=0);
+        static void Close();
 
-        void Close();
+        static uint32_t GetBaudRate();
 
-        void Flush();
+        static uint8_t Read();
 
-        int GetBaudRate() const { 
-            return baud_rate_; 
-        }
-
-        void Write(const void * msg, const int size);
-
-        int Read(void * msg, const int size);
-
-    private:
-
-        std::string port_name_;
-
-        int baud_rate_;
-
-        int fd_;
-
-}; // class Serial
-
+        static void Write(const uint8_t byte);
+}; 

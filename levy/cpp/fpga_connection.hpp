@@ -11,7 +11,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "newserial.h"
+#include "serial.h"
 #include "threading.h"
 
 #include "output_queue.hpp"
@@ -238,7 +238,6 @@ namespace neuro {
 
             void WriteByte(const uint8_t byte)
             {
-                printf("WriteByte: x%02X\n", byte);
                 Serial::Write(byte);
             }
 

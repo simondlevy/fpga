@@ -28,7 +28,6 @@ int main()
 
     conn.ClearActivity();
 
-    /*
     for (int i=0; i<28; ++i) {
         conn.ApplySpike(neuro::Spike(0, i, 1.0));
     }
@@ -39,6 +38,7 @@ int main()
 
     conn.Run(5);
 
+    /*
     conn.Run(50);
 
     printf("%d %d\n", conn.GetOutputCount(0), conn.GetOutputCount(1));
