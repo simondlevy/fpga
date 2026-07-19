@@ -261,6 +261,7 @@ namespace neuro {
                         const auto idx_width = output_idx_width_;
                         const uint8_t mask = 0xFF >> (8 - idx_width);
                         const uint8_t out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
+                        out_queue_.Append(out_idx, (float)output_time_);
                         printf("Received SPK\n");
                     }
 

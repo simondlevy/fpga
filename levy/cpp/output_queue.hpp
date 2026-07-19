@@ -26,7 +26,7 @@ namespace neuro {
 
             OutputQueue& operator=(const OutputQueue& other) = default;
 
-            void append(const int index, const float time)
+            void Append(const int index, const float time)
             {
                 times[index][counts[index]] = time;
                 counts[index]++;
