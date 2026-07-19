@@ -44,6 +44,8 @@ namespace neuro {
                     const float clock_freq,
                     const int spike_value_factor)
             {
+                Serial::Begin();
+
                 num_inputs_ = num_inputs;
                 num_outputs_ = num_outputs;
 
