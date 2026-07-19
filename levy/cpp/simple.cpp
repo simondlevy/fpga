@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "newserial.h"
 
 int main()
@@ -22,7 +24,9 @@ int main()
     Serial::WriteByte(0x01);
     Serial::WriteByte(0x80);
 
-    Serial::Read();
+    while (Serial::Available()) {
+        printf("x%02x\n", Serial::ReadOne());
+    }
 
     Serial::Close();
 

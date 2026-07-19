@@ -8,9 +8,11 @@ class Serial {
 
         static void WriteByte(const uint8_t byte);
 
+        static uint8_t Available();
+
         static void Read();
 
-        static void NewRead();
+        static uint8_t ReadOne();
 
         static void Close();
 }; 

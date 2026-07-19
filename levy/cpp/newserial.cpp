@@ -10,6 +10,10 @@
 static int fd_;
 static fd_set read_fds_;
 static struct timeval timeout_;
+static uint8_t buf_[256];
+static bool did_read_;
+static uint8_t available_;
+static uint8_t index_;
 
 static const char * kPortName = "/dev/ttyUSB1";
 
@@ -62,6 +66,38 @@ void Serial::WriteByte(const uint8_t byte)
     write(fd_, &byte, 1);
 }
 
+uint8_t Serial::Available()
+{
+    if (did_read_) {
+        return available_;
+    }
+
+    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+
+    if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
+
+        available_ = read(fd_, buf_, sizeof(buf_) - 1);
+
+        index_ = 0;
+
+        return available_;
+    }
+
+    did_read_ = false;
+
+    return 0;
+}
+
+uint8_t Serial::ReadOne()
+{
+    did_read_ = true;
+    const auto byte = buf_[index_];
+    index_++;
+    available_--;
+    return byte;
+}
+
+
 void Serial::Read()
 {
     int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
@@ -78,12 +114,10 @@ void Serial::Read()
 
         if (FD_ISSET(fd_, &read_fds_)) {
 
-            uint8_t buf[256] = {};
-
-            int n = read(fd_, buf, sizeof(buf) - 1);
+            int n = read(fd_, buf_, sizeof(buf_) - 1);
 
             for (int k=0; k<n; ++k) {
-                printf("x%02X\n", buf[k]);
+                printf("x%02X\n", buf_[k]);
             }
         }
     }
