@@ -245,38 +245,34 @@ namespace neuro {
             void Receive()
             {
                 while (Serial::Available() > 0) {
-                    printf("x%02X\n", Serial::Read());
-                }
-
-                /*
-                while (true) {
 
                     const auto byte = Serial::Read();
 
                     const auto opcode = GetOpcode(byte);
 
-                    printf("received opcode=x%02X\n", opcode);
+                    switch (opcode) {
 
-                    if (opcode == kOpcodeRun) {
-                        const uint8_t operand =
-                            (((byte << opcode_width_) >> opcode_width_) & 0XFF);
-                    }
+                        case kOpcodeRun:
+                            printf("Received RUN\n");
+                            break;
 
-                    else if (opcode == kOpcodeSpk) {
-                        const auto idx_width = output_idx_width_;
-                        const uint8_t mask = 0xFF >> (8 - idx_width);
-                        const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
-                        out_queue_.append(out_idx, (float)output_time_);
-                    }
+                        case kOpcodeSpk:
+                            printf("Received SPK\n");
+                            break;
 
-                    else if (opcode == kOpcodeSnc) {
-                        break;
-                    }
+                        case kOpcodeSnc:
+                            printf("Received SNC\n");
+                            break;
 
-                    else {
-                        printf("received bad opcode: x%02X\n", opcode);
+                        case kOpcodeClr:
+                            printf("Received CLR\n");
+                            break;
+
+                        default:
+                            printf("Received unrecognized opcode %d\n", opcode);
+
                     }
-                }*/
+                }
             }
 
             auto GetOpcode(const uint8_t byte) -> uint8_t
