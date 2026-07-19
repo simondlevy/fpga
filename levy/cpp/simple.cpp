@@ -49,13 +49,11 @@ class Serial {
                 return;
             }
 
-            fd_set read_fds;
-            struct timeval timeout;
-            FD_ZERO(&read_fds);
-            FD_SET(fd_, &read_fds);
+            FD_ZERO(&read_fds_);
+            FD_SET(fd_, &read_fds_);
 
-            timeout.tv_sec = 1;  // 1 second
-            timeout.tv_usec = 0; // 0 microseconds
+            timeout_.tv_sec = 1;  // 1 second
+            timeout_.tv_usec = 0; // 0 microseconds
         }
 
         void WriteByte(const uint8_t byte)
@@ -64,106 +62,73 @@ class Serial {
             write(fd_, &byte, 1);
         }
 
+        void Read()
+        {
+            int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+
+            if (select_res == -1) {
+                perror("Select error");
+            }
+
+            else if (select_res == 0) {
+                printf("Read timed out! No data received.\n");
+            }
+
+            else {
+
+                if (FD_ISSET(fd_, &read_fds_)) {
+
+                    uint8_t buf[256] = {};
+
+                    int n = read(fd_, buf, sizeof(buf) - 1);
+
+                    for (int k=0; k<n; ++k) {
+                        printf("x%02X\n", buf[k]);
+                    }
+                }
+            }
+        }
+
+        void Close()
+        {
+            close(fd_);
+        }
+
     private:
 
         int fd_;
-
+        fd_set read_fds_;
+        struct timeval timeout_;
 }; 
-
-static void WriteByte(const int fd, const uint8_t byte)
-{
-    write(fd, &byte, 1);
-}
 
 
 int main()
 {
-    const int fd = open(kPortName, O_RDWR);
+    Serial serial;
 
-    if (fd < 0) {
-        fprintf(stderr, "Unable to open port %s\n", kPortName);
-        return 1;
-    }
+    serial.Begin();
 
-    struct termios tty = {};
+    serial.WriteByte(0xC0);
+    serial.WriteByte(0x4A);
+    serial.WriteByte(0x6A);
+    serial.WriteByte(0x01);
+    serial.WriteByte(0x4A);
+    serial.WriteByte(0x6A);
+    serial.WriteByte(0x01);
+    serial.WriteByte(0x4A);
+    serial.WriteByte(0x6A);
+    serial.WriteByte(0x01);
+    serial.WriteByte(0x4A);
+    serial.WriteByte(0x6A);
+    serial.WriteByte(0x01);
+    serial.WriteByte(0x4A);
+    serial.WriteByte(0x6A);
+    serial.WriteByte(0x01);
+    serial.WriteByte(0x80);
 
-    // Read existing settings from the port
-    if(tcgetattr(fd, &tty) != 0) {
-        fprintf(stderr, "Error from tcgetattr\n");
-        close(fd);
-        return 1;
-    }
+    serial.Read();
 
-    tty.c_cflag &= ~PARENB;        // Clear parity bit (No parity)
-    tty.c_cflag &= ~CSTOPB;        // Clear stop field (1 stop bit)
-    tty.c_cflag &= ~CSIZE;         // Clear bits-per-byte size
-    tty.c_cflag |= CS8;            // 8 data bits
-    tty.c_cflag &= ~CRTSCTS;       // Disable RTS/CTS hardware flow control
-    tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines
-
-    tty.c_lflag &= ~ICANON;        // Disable canonical mode (raw data mode)
-    tty.c_lflag &= ~ECHO;          // Disable echo
-    tty.c_lflag &= ~ISIG;          // Disable interpretation of INTR, QUIT, SUSP
-
-    cfsetispeed(&tty, B4000000);
-    cfsetospeed(&tty, B4000000);
-
-    if (tcsetattr(fd, TCSANOW, &tty) != 0) {
-        fprintf(stderr, "Error from tcsetattr\n");
-        return 1;
-    }
-
-    fd_set read_fds;
-    struct timeval timeout;
-    FD_ZERO(&read_fds);
-    FD_SET(fd, &read_fds);
-
-    timeout.tv_sec = 1;  // 1 second
-    timeout.tv_usec = 0; // 0 microseconds
-
-    WriteByte(fd, 0xC0);
-    WriteByte(fd, 0x4A);
-    WriteByte(fd, 0x6A);
-    WriteByte(fd, 0x01);
-    WriteByte(fd, 0x4A);
-    WriteByte(fd, 0x6A);
-    WriteByte(fd, 0x01);
-    WriteByte(fd, 0x4A);
-    WriteByte(fd, 0x6A);
-    WriteByte(fd, 0x01);
-    WriteByte(fd, 0x4A);
-    WriteByte(fd, 0x6A);
-    WriteByte(fd, 0x01);
-    WriteByte(fd, 0x4A);
-    WriteByte(fd, 0x6A);
-    WriteByte(fd, 0x01);
-    WriteByte(fd, 0x80);
-
-    int select_res = select(fd + 1, &read_fds, NULL, NULL, &timeout);
-
-    if (select_res == -1) {
-        perror("Select error");
-    }
-    
-    else if (select_res == 0) {
-        printf("Read timed out! No data received.\n");
-    }
-    
-    else {
-
-        if (FD_ISSET(fd, &read_fds)) {
-
-            uint8_t buf[256] = {};
-
-            int n = read(fd, buf, sizeof(buf) - 1);
-
-            for (int k=0; k<n; ++k) {
-                printf("x%02X\n", buf[k]);
-            }
-        }
-    }
-
-    close(fd);
+    serial.Close();
 
     return 0;
 }
