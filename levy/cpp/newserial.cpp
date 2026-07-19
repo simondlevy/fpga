@@ -7,15 +7,16 @@
 
 #include "newserial.h"
 
+static const char * kPortName = "/dev/ttyUSB1";
+static const size_t kMaxBuf = 256;
+
 static int fd_;
 static fd_set read_fds_;
 static struct timeval timeout_;
-static uint8_t buf_[256];
+static uint8_t buf_[kMaxBuf];
 static bool did_read_;
 static uint8_t available_;
 static uint8_t index_;
-
-static const char * kPortName = "/dev/ttyUSB1";
 
 void Serial::Begin()
 {
