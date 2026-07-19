@@ -230,8 +230,6 @@ class FpgaConnection:
             byte = self._receive_byte()
             opcode = self._get_opcode(byte)
 
-            print('received opcode=x%02X: ' % opcode)
-
             match opcode:
 
                 case DispatchOpcode.RUN:
@@ -265,11 +263,13 @@ class FpgaConnection:
             self._write_byte(byte)
 
     def _receive_byte(self):
-        return ord(self._serial.read(1, READ_TIMEOUT_SEC,)[::-1])
+        byte = ord(self._serial.read(1, READ_TIMEOUT_SEC,)[::-1])
+        print('0x%02X' % byte)
+        return byte
 
     def _get_opcode(self, byte):
         return byte >> (8 - self._opcode_width)
 
     def _write_byte(self, byte):
-        print("WriteByte: x%02X" % byte)
+        print("Write: x%02X" % byte)
         self._serial.write(bytes([byte]))
