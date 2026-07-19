@@ -251,7 +251,9 @@ namespace neuro {
                     const auto opcode = GetOpcode(byte);
 
                     if (opcode == kOpcodeRun) {
-                        printf("Received RUN\n");
+                        const uint8_t operand = (((byte << opcode_width_) >>
+                                    opcode_width_) & 0XFF);
+                        printf("Received RUN %d\n", operand);
                     }
 
                     else if (opcode == kOpcodeSpk) {
