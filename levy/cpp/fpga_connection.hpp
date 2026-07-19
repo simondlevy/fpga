@@ -253,10 +253,14 @@ namespace neuro {
                     if (opcode == kOpcodeRun) {
                         const uint8_t operand = (((byte << opcode_width_) >>
                                     opcode_width_) & 0XFF);
+                        output_time_ += operand;
                         printf("Received RUN %d\n", operand);
                     }
 
                     else if (opcode == kOpcodeSpk) {
+                        const auto idx_width = output_idx_width_;
+                        const uint8_t mask = 0xFF >> (8 - idx_width);
+                        const uint8_t out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
                         printf("Received SPK\n");
                     }
 

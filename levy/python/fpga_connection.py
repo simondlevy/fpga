@@ -230,12 +230,12 @@ class FpgaConnection:
             byte = self._receive_byte()
             opcode = self._get_opcode(byte)
 
-            print('received opcode=x%02X: ' % opcode)
 
             match opcode:
 
                 case DispatchOpcode.RUN:
                     operand = (((byte << self._opcode_width) >> self._opcode_width) & 0XFF)
+                    print("Received RUN %d" % operand);
                     self._output_time += operand
 
                 case DispatchOpcode.SPK:
@@ -243,8 +243,10 @@ class FpgaConnection:
                     mask = 0xFF >> (8 - idx_width)
                     out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
                     self._out_queue.append(out_idx, float(self._output_time))
+                    print("Received SPK");
 
                 case DispatchOpcode.SNC:
+                    print("Received SNC");
                     break
 
                 case _:
