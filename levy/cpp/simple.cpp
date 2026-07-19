@@ -2,31 +2,29 @@
 
 int main()
 {
-    Serial serial;
+    Serial::Begin();
 
-    serial.Begin();
+    Serial::WriteByte(0xC0);
+    Serial::WriteByte(0x4A);
+    Serial::WriteByte(0x6A);
+    Serial::WriteByte(0x01);
+    Serial::WriteByte(0x4A);
+    Serial::WriteByte(0x6A);
+    Serial::WriteByte(0x01);
+    Serial::WriteByte(0x4A);
+    Serial::WriteByte(0x6A);
+    Serial::WriteByte(0x01);
+    Serial::WriteByte(0x4A);
+    Serial::WriteByte(0x6A);
+    Serial::WriteByte(0x01);
+    Serial::WriteByte(0x4A);
+    Serial::WriteByte(0x6A);
+    Serial::WriteByte(0x01);
+    Serial::WriteByte(0x80);
 
-    serial.WriteByte(0xC0);
-    serial.WriteByte(0x4A);
-    serial.WriteByte(0x6A);
-    serial.WriteByte(0x01);
-    serial.WriteByte(0x4A);
-    serial.WriteByte(0x6A);
-    serial.WriteByte(0x01);
-    serial.WriteByte(0x4A);
-    serial.WriteByte(0x6A);
-    serial.WriteByte(0x01);
-    serial.WriteByte(0x4A);
-    serial.WriteByte(0x6A);
-    serial.WriteByte(0x01);
-    serial.WriteByte(0x4A);
-    serial.WriteByte(0x6A);
-    serial.WriteByte(0x01);
-    serial.WriteByte(0x80);
+    Serial::Read();
 
-    serial.Read();
-
-    serial.Close();
+    Serial::Close();
 
     return 0;
 }

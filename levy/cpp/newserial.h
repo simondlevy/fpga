@@ -4,11 +4,11 @@ class Serial {
 
     public:
 
-        void Begin();
+        static void Begin();
 
-        void WriteByte(const uint8_t byte);
+        static void WriteByte(const uint8_t byte);
 
-        void Read();
+        static void Read();
 
-        void Close();
+        static void Close();
 }; 
