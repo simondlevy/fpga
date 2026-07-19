@@ -105,9 +105,6 @@ namespace neuro {
             {
                 SendCommand(kOpcodeClr);
 
-                printf("avail=%d\n", Serial::Available());
-                return;
-
                 if (Serial::Available() != 1) {
                     printf("Error in ClearActivity()\n");
                     return;
