@@ -61,7 +61,7 @@ void Serial::Begin()
     timeout_.tv_usec = 0; // 0 microseconds
 }
 
-void Serial::WriteByte(const uint8_t byte)
+void Serial::Write(const uint8_t byte)
 {
     write(fd_, &byte, 1);
 }
@@ -88,39 +88,13 @@ uint8_t Serial::Available()
     return 0;
 }
 
-uint8_t Serial::ReadOne()
+uint8_t Serial::Read()
 {
     did_read_ = true;
     const auto byte = buf_[index_];
     index_++;
     available_--;
     return byte;
-}
-
-
-void Serial::Read()
-{
-    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
-
-    if (select_res == -1) {
-        perror("Select error");
-    }
-
-    else if (select_res == 0) {
-        printf("Read timed out! No data received.\n");
-    }
-
-    else {
-
-        if (FD_ISSET(fd_, &read_fds_)) {
-
-            int n = read(fd_, buf_, sizeof(buf_) - 1);
-
-            for (int k=0; k<n; ++k) {
-                printf("x%02X\n", buf_[k]);
-            }
-        }
-    }
 }
 
 void Serial::Close()

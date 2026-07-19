@@ -6,26 +6,26 @@ int main()
 {
     Serial::Begin();
 
-    Serial::WriteByte(0xC0);
-    Serial::WriteByte(0x4A);
-    Serial::WriteByte(0x6A);
-    Serial::WriteByte(0x01);
-    Serial::WriteByte(0x4A);
-    Serial::WriteByte(0x6A);
-    Serial::WriteByte(0x01);
-    Serial::WriteByte(0x4A);
-    Serial::WriteByte(0x6A);
-    Serial::WriteByte(0x01);
-    Serial::WriteByte(0x4A);
-    Serial::WriteByte(0x6A);
-    Serial::WriteByte(0x01);
-    Serial::WriteByte(0x4A);
-    Serial::WriteByte(0x6A);
-    Serial::WriteByte(0x01);
-    Serial::WriteByte(0x80);
+    Serial::Write(0xC0);
+    Serial::Write(0x4A);
+    Serial::Write(0x6A);
+    Serial::Write(0x01);
+    Serial::Write(0x4A);
+    Serial::Write(0x6A);
+    Serial::Write(0x01);
+    Serial::Write(0x4A);
+    Serial::Write(0x6A);
+    Serial::Write(0x01);
+    Serial::Write(0x4A);
+    Serial::Write(0x6A);
+    Serial::Write(0x01);
+    Serial::Write(0x4A);
+    Serial::Write(0x6A);
+    Serial::Write(0x01);
+    Serial::Write(0x80);
 
     while (Serial::Available()) {
-        printf("x%02x\n", Serial::ReadOne());
+        printf("x%02x\n", Serial::Read());
     }
 
     Serial::Close();
