@@ -7,14 +7,74 @@
 #include <sys/select.h>
 
 static const char * kPortName = "/dev/ttyUSB1";
-static const int kBaudRate = 4000000;
-static const float kReadTimeoutSec =  0.1;
+
+class Serial {
+
+    public:
+
+        void Begin()
+        {
+            fd_ = open(kPortName, O_RDWR);
+
+            if (fd_ < 0) {
+                fprintf(stderr, "Unable to open port %s\n", kPortName);
+                return;
+            }
+
+            struct termios tty = {};
+
+            // Read existing settings from the port
+            if(tcgetattr(fd_, &tty) != 0) {
+                fprintf(stderr, "Error from tcgetattr\n");
+                close(fd_);
+                return;
+            }
+
+            tty.c_cflag &= ~PARENB;        // Clear parity bit (No parity)
+            tty.c_cflag &= ~CSTOPB;        // Clear stop field (1 stop bit)
+            tty.c_cflag &= ~CSIZE;         // Clear bits-per-byte size
+            tty.c_cflag |= CS8;            // 8 data bits
+            tty.c_cflag &= ~CRTSCTS;       // Disable RTS/CTS hardware flow control
+            tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines
+
+            tty.c_lflag &= ~ICANON;        // Disable canonical mode (raw data mode)
+            tty.c_lflag &= ~ECHO;          // Disable echo
+            tty.c_lflag &= ~ISIG;          // Disable interpretation of INTR, QUIT, SUSP
+
+            cfsetispeed(&tty, B4000000);
+            cfsetospeed(&tty, B4000000);
+
+            if (tcsetattr(fd_, TCSANOW, &tty) != 0) {
+                fprintf(stderr, "Error from tcsetattr\n");
+                return;
+            }
+
+            fd_set read_fds;
+            struct timeval timeout;
+            FD_ZERO(&read_fds);
+            FD_SET(fd_, &read_fds);
+
+            timeout.tv_sec = 1;  // 1 second
+            timeout.tv_usec = 0; // 0 microseconds
+        }
+
+        void WriteByte(const uint8_t byte)
+        {
+            const uint8_t msg[1] = {byte};
+            write(fd_, &byte, 1);
+        }
+
+    private:
+
+        int fd_;
+
+}; 
 
 static void WriteByte(const int fd, const uint8_t byte)
 {
-    const uint8_t msg[1] = {byte};
-    write(fd, msg, 1);
+    write(fd, &byte, 1);
 }
+
 
 int main()
 {
