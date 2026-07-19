@@ -103,10 +103,14 @@ namespace neuro {
             {
                 SendCommand(kOpcodeClr);
 
+                printf("avail=%d\n", Serial::Available());
+                return;
+
                 if (Serial::Available() != 1) {
                     printf("Error in ClearActivity()\n");
-                    return
+                    return;
                 }
+
                 const auto byte = Serial::Read();
                 const auto opcode = GetOpcode(byte);
                 if (opcode != kOpcodeClr) {
@@ -183,12 +187,7 @@ namespace neuro {
                     }
                 }
 
-                Thread::sleep(1);
-
                 Receive();
-
-                //Thread::start(ThreadedReceive, this);
-                //Thread::join();
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -248,7 +247,7 @@ namespace neuro {
             {
                 while (true) {
 
-                    const auto byte = ReceiveByte();
+                    const auto byte = Serial::Read();
 
                     const auto opcode = GetOpcode(byte);
 
@@ -275,44 +274,6 @@ namespace neuro {
                     }
                 }
             }
-
-            static void * ThreadedReceive(void * arg)
-            {
-                auto self = ((FpgaConnection *)arg);
-
-                while (true) {
-
-                    const auto byte = self->ReceiveByte();
-
-                    const auto opcode = self->GetOpcode(byte);
-
-                    printf("received opcode=x%02X: ", opcode);
-
-                    if (opcode == kOpcodeRun) {
-                        printf("run\n");
-                        const uint8_t operand =
-                            (((byte << self->opcode_width_) >> self->opcode_width_) & 0XFF);
-                    }
-
-                    else if (opcode == kOpcodeSpk) {
-                        const auto idx_width = self->output_idx_width_;
-                        const uint8_t mask = 0xFF >> (8 - idx_width);
-                        const auto out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
-                        self->out_queue_.append(out_idx, (float)self->output_time_);
-                    }
-
-                    else if (opcode == kOpcodeSnc) {
-                        break;
-                    }
-
-                    else {
-                        printf("received bad opcode: x%02X\n", opcode);
-                    }
-                }
-
-                return nullptr;
-            }
-
 
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {

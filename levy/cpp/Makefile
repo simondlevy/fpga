@@ -6,8 +6,8 @@
 
 all: test simple
 
-test: main.cpp serial.o threading.o *.hpp
-	g++ -o test main.cpp serial.o threading.o
+test: main.cpp newserial.o *.hpp
+	g++ -o test main.cpp newserial.o
 
 simple: simple.cpp newserial.o
 	g++ -o simple simple.cpp newserial.o
