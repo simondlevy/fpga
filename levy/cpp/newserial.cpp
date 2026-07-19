@@ -8,6 +8,7 @@
 #include "newserial.h"
 
 static const char * kPortName = "/dev/ttyUSB1";
+static const speed_t kBaudRate = B4000000;
 static const size_t kMaxBuf = 256;
 
 static int fd_;
@@ -47,8 +48,8 @@ void Serial::Begin()
     tty.c_lflag &= ~ECHO;          // Disable echo
     tty.c_lflag &= ~ISIG;          // Disable interpretation of INTR, QUIT, SUSP
 
-    cfsetispeed(&tty, B4000000);
-    cfsetospeed(&tty, B4000000);
+    cfsetispeed(&tty, kBaudRate);
+    cfsetospeed(&tty, kBaudRate);
 
     if (tcsetattr(fd_, TCSANOW, &tty) != 0) {
         fprintf(stderr, "Error from tcsetattr\n");
