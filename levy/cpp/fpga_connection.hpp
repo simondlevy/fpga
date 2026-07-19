@@ -250,27 +250,24 @@ namespace neuro {
 
                     const auto opcode = GetOpcode(byte);
 
-                    switch (opcode) {
+                    if (opcode == kOpcodeRun) {
+                        printf("Received RUN\n");
+                    }
 
-                        case kOpcodeRun:
-                            printf("Received RUN\n");
-                            break;
+                    else if (opcode == kOpcodeSpk) {
+                        printf("Received SPK\n");
+                    }
 
-                        case kOpcodeSpk:
-                            printf("Received SPK\n");
-                            break;
+                    else if (opcode == kOpcodeSnc) {
+                        printf("Received SNC\n");
+                    }
 
-                        case kOpcodeSnc:
-                            printf("Received SNC\n");
-                            break;
+                    else if (opcode == kOpcodeClr) {
+                        printf("Received CLR\n");
+                    }
 
-                        case kOpcodeClr:
-                            printf("Received CLR\n");
-                            break;
-
-                        default:
-                            printf("Received unrecognized opcode %d\n", opcode);
-
+                    else {
+                        printf("Received unrecognized opcode %d\n", opcode);
                     }
                 }
             }
