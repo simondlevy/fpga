@@ -4,25 +4,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-all: test simple
+all: test
 
-test: main.cpp serial.o *.hpp
-	g++ -o test main.cpp serial.o
-
-simple: simple.cpp serial.o
-	g++ -o simple simple.cpp serial.o
-
-serial.o: serial.cpp serial.h
-	g++ -Wall -c serial.cpp
-
-threading.o: threading.cpp threading.h
-	g++ -Wall -c threading.cpp
+test: main.cpp serial.cpp *.hpp
+	g++ -Wall -o test main.cpp serial.cpp
 
 run: test
 	./test
-
-srun: simple
-	./simple
 
 clean:
 	rm -rf test simple *.o
