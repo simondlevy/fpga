@@ -42,18 +42,18 @@ namespace neuro {
                     const int num_outputs,
                     const int charge_width,
                     const float clock_freq,
-                    const int spike_value_factor)
+                    const int spike_value_factor,
+                    const bool debug=false)
             {
                 Serial::Begin();
 
                 num_inputs_ = num_inputs;
                 num_outputs_ = num_outputs;
-
+                charge_width_ = charge_width;
                 spike_value_factor_ = spike_value_factor;
+                debug_ = debug;
 
                 opcode_width_ = UnsignedWidth(kOpcodeCount - 1);
-
-                charge_width_ = charge_width;
 
                 const auto idx_width = UnsignedWidth(num_inputs - 1);
 
@@ -105,18 +105,6 @@ namespace neuro {
             {
                 SendCommand(kOpcodeClr);
 
-                /*
-                if (Serial::Available() != 1) {
-                    printf("Error in ClearActivity()\n");
-                    return;
-                }
-
-                const auto byte = Serial::Read();
-                const auto opcode = GetOpcode(byte);
-                if (opcode != kOpcodeClr) {
-                    printf("Failed to clear activity\n");
-                }*/
-
                 output_time_ = 0;
                 input_time_ = 0;
 
@@ -141,8 +129,6 @@ namespace neuro {
 
                         const auto spike = inp_queue_.Peek();
 
-                        // Dump(spike);
-
                         if (spike.time != input_time_) {
                             break;
                         }
@@ -165,7 +151,7 @@ namespace neuro {
                         const auto to_run = std::min(std::min(
                                     runs,
                                     max_run_),
-                                    max_runs_ahead_ + output_time_ - input_time_);
+                                max_runs_ahead_ + output_time_ - input_time_);
 
                         if (to_run == 0) {
                             //Thread::yield();
@@ -200,14 +186,15 @@ namespace neuro {
 
             const size_t MAXMSG = 32;
 
+            int num_inputs_;
+            int num_outputs_;
+            int charge_width_;
+            int spike_value_factor_;
+            bool debug_;
             int input_time_;
             int output_time_;
             int output_idx_width_;
-            int num_inputs_;
-            int num_outputs_;
             int opcode_width_;
-            int charge_width_;
-            int spike_value_factor_;
             float secs_per_run_;
             int max_runs_ahead_;
             int max_run_;
@@ -221,8 +208,6 @@ namespace neuro {
                 for (int k=0; k<count; ++k) {
 
                     const auto spike = spikes[k];
-
-                    //Dump(spike);
 
                     const uint8_t byte = (kOpcodeSpk << (opcode_width_ + charge_width_ - 1) |
                             (spike.id << charge_width_) |
@@ -239,7 +224,7 @@ namespace neuro {
 
             void WriteByte(const uint8_t byte)
             {
-                Serial::Write(byte);
+                Serial::Write(byte, debug_);
             }
 
             void Receive()
@@ -254,7 +239,9 @@ namespace neuro {
                         const uint8_t operand = (((byte << opcode_width_) >>
                                     opcode_width_) & 0XFF);
                         output_time_ += operand;
-                        printf("Received RUN %d\n", operand);
+                        if (debug_) {
+                            printf("Received RUN %d\n", operand);
+                        }
                     }
 
                     else if (opcode == kOpcodeSpk) {
@@ -262,19 +249,26 @@ namespace neuro {
                         const uint8_t mask = 0xFF >> (8 - idx_width);
                         const uint8_t out_idx = idx_width > 0 ? (byte >> 5) & mask : 0;
                         out_queue_.Append(out_idx, (float)output_time_);
-                        printf("Received SPK\n");
+                        if (debug_) {
+                            printf("Received SPK\n");
+                        }
                     }
 
                     else if (opcode == kOpcodeSnc) {
-                        printf("Received SNC\n");
+                        if (debug_) {
+                            printf("Received SNC\n");
+                        }
                     }
 
                     else if (opcode == kOpcodeClr) {
-                        printf("Received CLR\n");
+                        if (debug_) {
+                            printf("Received CLR\n");
+                        }
                     }
 
                     else {
-                        printf("Received unrecognized opcode %d\n", opcode);
+                        fprintf(stderr, "Received unrecognized opcode %d\n",
+                                opcode);
                     }
                 }
             }
@@ -282,12 +276,6 @@ namespace neuro {
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {
                 return byte >> (8 - opcode_width_);
-            }
-
-            static void Dump(const FpgaSpike & spike)
-            {
-                printf("id=%d time=%f value=%f\n", spike.id, spike.time, spike.value);
-
             }
 
             // Bit-twiddling -------------------------------------------------
