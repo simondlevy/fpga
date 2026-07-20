@@ -83,12 +83,12 @@ namespace neuro {
                         (1 << operand_width) - 1, max_runs_ahead_);
             }
 
-            void ApplySpike(const Spike & spike)
+            void ApplySpike(const FpgaSpike & spike)
             {
-                inp_queue_.Push(Spike(spike.id, spike.time +
+                inp_queue_.Push(FpgaSpike(spike.id, spike.time +
                             input_time_, spike.value));
 
-                static Spike spikes_now[SpikeHeap::CAPACITY];
+                static FpgaSpike spikes_now[SpikeHeap::CAPACITY];
                 int count = 0;
 
                 while (!inp_queue_.IsEmpty() &&
@@ -130,7 +130,7 @@ namespace neuro {
 
                 while (input_time_ < target_time) {
 
-                    static Spike spikes[kMaxInputSpikes];
+                    static FpgaSpike spikes[kMaxInputSpikes];
                     size_t count = 0;
 
                     while (true) {
@@ -216,7 +216,7 @@ namespace neuro {
 
             OutputQueue out_queue_;
 
-            void PrepareToSend(Spike * spikes, int count)
+            void PrepareToSend(FpgaSpike * spikes, int count)
             {
                 for (int k=0; k<count; ++k) {
 
@@ -284,7 +284,7 @@ namespace neuro {
                 return byte >> (8 - opcode_width_);
             }
 
-            static void Dump(const Spike & spike)
+            static void Dump(const FpgaSpike & spike)
             {
                 printf("id=%d time=%f value=%f\n", spike.id, spike.time, spike.value);
 

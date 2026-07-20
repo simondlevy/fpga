@@ -10,7 +10,7 @@
 
 namespace neuro {
 
-    class Spike {
+    class FpgaSpike {
 
         public:
 
@@ -18,18 +18,18 @@ namespace neuro {
             float time;
             float value;
 
-            Spike() = default;
+            FpgaSpike() = default;
 
-            Spike& operator=(const Spike& other) = default;
+            FpgaSpike& operator=(const FpgaSpike& other) = default;
 
-            Spike(int id, float time, float value)
+            FpgaSpike(int id, float time, float value)
                 :id (id), time(time), value(value) { }
 
-            auto operator<(const Spike& other) const {
+            auto operator<(const FpgaSpike& other) const {
                 return time < other.time;
             }
 
-    }; // class Spike
+    }; // class FpgaSpike
 
 } // namespace neuro
 

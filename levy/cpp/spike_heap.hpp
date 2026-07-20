@@ -20,7 +20,7 @@ namespace neuro {
 
         private:
 
-            Spike heap_[CAPACITY];
+            FpgaSpike heap_[CAPACITY];
             int size_;
 
         public:
@@ -30,7 +30,7 @@ namespace neuro {
                 size_ = 0;
             }
 
-            void Push(const Spike & spike)
+            void Push(const FpgaSpike & spike)
             {
                 // Insert at the end and sift up
                 heap_[size_] = spike;
@@ -38,7 +38,7 @@ namespace neuro {
                 SiftUp(size_ - 1);
             }
 
-            auto Pop() -> Spike
+            auto Pop() -> FpgaSpike
             {
                 const auto min_val = heap_[0];
 
@@ -53,7 +53,7 @@ namespace neuro {
                 return min_val;
             }
 
-            auto Peek() -> Spike
+            auto Peek() -> FpgaSpike
             {
                 return heap_[0];
             }

@@ -27,11 +27,11 @@ int main()
     conn.ClearActivity();
 
     for (int i=0; i<28; ++i) {
-        conn.ApplySpike(neuro::Spike(0, i, 1.0));
+        conn.ApplySpike(neuro::FpgaSpike(0, i, 1.0));
     }
 
     for (int i=0; i<26; ++i) {
-        conn.ApplySpike(neuro::Spike(1, i, 1.0));
+        conn.ApplySpike(neuro::FpgaSpike(1, i, 1.0));
     }
 
     conn.Run(50);
