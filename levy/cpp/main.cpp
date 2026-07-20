@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <string>
-
 #include "fpga_connection.hpp"
 #include "spike.hpp"
 
