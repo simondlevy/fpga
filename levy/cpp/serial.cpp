@@ -70,7 +70,8 @@ uint32_t Serial::GetBaudRate()
 
 void Serial::Write(const uint8_t byte)
 {
-    write(fd_, &byte, 1);
+    auto n = write(fd_, &byte, 1);
+    (void)n;
 }
 
 uint8_t Serial::Available()
