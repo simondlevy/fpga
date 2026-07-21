@@ -224,7 +224,11 @@ namespace neuro {
 
             void WriteByte(const uint8_t byte)
             {
-                Serial::Write(byte, debug_);
+                if (debug_) {
+                    printf("Write: x%02X\n", byte);
+                }
+
+                Serial::Write(byte);
             }
 
             void Receive()

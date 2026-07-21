@@ -68,11 +68,8 @@ uint32_t Serial::GetBaudRate()
     return 4000000;
 }
 
-void Serial::Write(const uint8_t byte, const bool debug)
+void Serial::Write(const uint8_t byte)
 {
-    if (debug) {
-        printf("Write: x%02X\n", byte);
-    }
     write(fd_, &byte, 1);
 }
 

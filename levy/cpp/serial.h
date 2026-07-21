@@ -14,5 +14,5 @@ class Serial {
 
         static uint8_t Read();
 
-        static void Write(const uint8_t byte, const bool debug);
+        static void Write(const uint8_t byte);
 }; 
