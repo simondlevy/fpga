@@ -173,7 +173,8 @@ namespace neuro {
                     }
                 }
 
-                Receive();
+                // Receive();
+                Receive2();
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -229,6 +230,11 @@ namespace neuro {
                 }
 
                 Serial::Write(byte);
+            }
+
+            void Receive2()
+            {
+                Serial::ReadBuffer();
             }
 
             void Receive()

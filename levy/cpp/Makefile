@@ -12,5 +12,8 @@ test: main.cpp serial.cpp *.hpp
 run: test
 	./test
 
+edit:
+	vim main.cpp
+
 clean:
 	rm -rf test simple *.o

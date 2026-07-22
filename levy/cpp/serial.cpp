@@ -74,9 +74,22 @@ void Serial::Write(const uint8_t byte)
     (void)n;
 }
 
+void Serial::ReadBuffer()
+{
+    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+
+    if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
+
+        printf("reading %ld bytes\n", read(fd_, buf_, sizeof(buf_) - 1));
+    }
+}
+
+ 
 uint8_t Serial::Available()
 {
+
     if (did_read_) {
+        printf("available=%d\n", available_);
         return available_;
     }
 
@@ -84,14 +97,14 @@ uint8_t Serial::Available()
 
     if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
 
+        printf("reading buffer\n");
+
         available_ = read(fd_, buf_, sizeof(buf_) - 1);
 
         index_ = 0;
 
         return available_;
     }
-
-    did_read_ = false;
 
     return 0;
 }

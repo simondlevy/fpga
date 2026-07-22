@@ -18,21 +18,24 @@ CHARGE_WIDTH = 5
 SPIKE_VALUE_FACTOR = 10
 
 conn = FpgaConnection(
-        PORT_NAME, BAUD_RATE,
+        PORT_NAME,
+        BAUD_RATE,
         CLOCK_FREQ,
         NUM_INPUTS,
         NUM_OUTPUTS,
         CHARGE_WIDTH,
         SPIKE_VALUE_FACTOR)
 
-conn.clear_activity()
+for _ in range(2):
 
-for i in range(28):
-    conn.apply_spike(Spike(0, i, 1.0))
+    conn.clear_activity()
 
-for i in range(26):
-    conn.apply_spike(Spike(1, i, 1.0))
+    for i in range(28):
+        conn.apply_spike(Spike(0, i, 1.0))
 
-conn.run(50)
+    for i in range(26):
+        conn.apply_spike(Spike(1, i, 1.0))
 
-print("\n", conn.output_count(0), conn.output_count(1))
+    conn.run(50)
+
+    print("\n", conn.output_count(0), conn.output_count(1))

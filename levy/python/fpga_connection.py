@@ -273,5 +273,5 @@ class FpgaConnection:
         return byte >> (8 - self._opcode_width)
 
     def _write_byte(self, byte):
-        print("Writ: x%02X" % byte)
+        print("Write: x%02X" % byte)
         self._serial.write(bytes([byte]))

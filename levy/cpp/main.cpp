@@ -24,19 +24,22 @@ int main()
             kClockFreq,
             kSpikeValueFactor);
 
-    conn.ClearActivity();
+    for (uint8_t k=0; k<2; ++k) {
 
-    for (int i=0; i<28; ++i) {
-        conn.ApplySpike(neuro::FpgaSpike(0, i, 1.0));
+        conn.ClearActivity();
+
+        for (int i=0; i<28; ++i) {
+            conn.ApplySpike(neuro::FpgaSpike(0, i, 1.0));
+        }
+
+        for (int i=0; i<26; ++i) {
+            conn.ApplySpike(neuro::FpgaSpike(1, i, 1.0));
+        }
+
+        conn.Run(50);
+
+        printf("%d %d\n\n", conn.GetOutputCount(0), conn.GetOutputCount(1));
     }
-
-    for (int i=0; i<26; ++i) {
-        conn.ApplySpike(neuro::FpgaSpike(1, i, 1.0));
-    }
-
-    conn.Run(50);
-
-    printf("%d %d\n", conn.GetOutputCount(0), conn.GetOutputCount(1));
 
     return 0;
 }
