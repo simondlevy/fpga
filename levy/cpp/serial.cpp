@@ -3,6 +3,7 @@
 #include <string.h>
 #include <termios.h> 
 #include <unistd.h>  
+#include <sys/ioctl.h>
 #include <sys/select.h>
 
 #include "serial.h"
@@ -15,9 +16,6 @@ static int fd_;
 static fd_set read_fds_;
 static struct timeval timeout_;
 static uint8_t buf_[kMaxBuf];
-static bool did_read_;
-static uint8_t available_;
-static uint8_t index_;
 
 void Serial::Begin()
 {
@@ -74,48 +72,23 @@ void Serial::Write(const uint8_t byte)
     (void)n;
 }
 
-void Serial::ReadBuffer()
-{
-    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
-
-    if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
-
-        printf("reading %ld bytes\n", read(fd_, buf_, sizeof(buf_) - 1));
-    }
-}
-
- 
 uint8_t Serial::Available()
 {
-
-    if (did_read_) {
-        printf("available=%d\n", available_);
-        return available_;
-    }
+    uint8_t available = 0;
 
     int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
 
     if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
 
-        printf("reading buffer\n");
-
-        available_ = read(fd_, buf_, sizeof(buf_) - 1);
-
-        index_ = 0;
-
-        return available_;
+        available = read(fd_, buf_, sizeof(buf_) - 1);
     }
 
-    return 0;
+    return available;
 }
 
-uint8_t Serial::Read()
+uint8_t Serial::Read(uint8_t index)
 {
-    did_read_ = true;
-    const auto byte = buf_[index_];
-    index_++;
-    available_--;
-    return byte;
+    return buf_[index];
 }
 
 void Serial::Close()

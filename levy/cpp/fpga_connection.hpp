@@ -173,8 +173,8 @@ namespace neuro {
                     }
                 }
 
-                // Receive();
-                Receive2();
+                //Receive();
+                 Receive2();
             }
 
             auto GetOutputCount(const int out_idx) -> int
@@ -234,11 +234,16 @@ namespace neuro {
 
             void Receive2()
             {
-                Serial::ReadBuffer();
+                const auto avail = Serial::Available();
+
+                for (uint8_t k=0; k<avail; ++k) {
+                    printf("x%02X\n", Serial::Read(k));
+                }
             }
 
             void Receive()
             {
+                /*
                 while (Serial::Available() > 0) {
 
                     const auto byte = Serial::Read();
@@ -280,7 +285,7 @@ namespace neuro {
                         fprintf(stderr, "Received unrecognized opcode %d\n",
                                 opcode);
                     }
-                }
+                }*/
             }
 
             auto GetOpcode(const uint8_t byte) -> uint8_t

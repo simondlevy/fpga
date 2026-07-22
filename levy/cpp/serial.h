@@ -12,9 +12,7 @@ class Serial {
 
         static uint32_t GetBaudRate();
 
-        static uint8_t Read();
-
-        static void ReadBuffer();
+        static uint8_t Read(uint8_t index);
 
         static void Write(const uint8_t byte);
 }; 
