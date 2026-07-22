@@ -12,7 +12,10 @@ namespace neuro {
 
     class FpgaSpike {
 
-        public:
+        friend class FpgaConnection;
+        friend class SpikeHeap;
+
+        private:
 
             int id;
             float time;

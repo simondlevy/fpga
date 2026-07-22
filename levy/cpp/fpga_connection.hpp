@@ -12,7 +12,6 @@
 #include <stdio.h>
 
 #include "serial.h"
-#include "threading.h"
 
 #include "output_queue.hpp"
 #include "spike.hpp"

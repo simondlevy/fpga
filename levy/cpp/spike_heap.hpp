@@ -14,16 +14,14 @@ namespace neuro {
 
     class SpikeHeap {
 
-        public:
-
-            static constexpr int CAPACITY = 1024;
+        friend class FpgaConnection;
 
         private:
 
+            static constexpr int CAPACITY = 1024;
+
             FpgaSpike heap_[CAPACITY];
             int size_;
-
-        public:
 
             SpikeHeap()
             {
