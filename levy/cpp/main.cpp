@@ -7,7 +7,6 @@
  */
 
 #include "fpga_connection.hpp"
-#include "spike.hpp"
 
 static constexpr int kNumInputs = 2;
 static constexpr int kNumOutputs = 2;
@@ -29,11 +28,11 @@ int main()
         conn.ClearActivity();
 
         for (int i=0; i<28; ++i) {
-            conn.ApplySpike(neuro::FpgaSpike(0, i, 1.0));
+            conn.ApplySpike(0, i, 1.0);
         }
 
         for (int i=0; i<26; ++i) {
-            conn.ApplySpike(neuro::FpgaSpike(1, i, 1.0));
+            conn.ApplySpike(1, i, 1.0);
         }
 
         conn.Run(50);

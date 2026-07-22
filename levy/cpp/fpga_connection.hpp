@@ -83,10 +83,9 @@ namespace neuro {
                         (1 << operand_width) - 1, max_runs_ahead_);
             }
 
-            void ApplySpike(const FpgaSpike & spike)
+            void ApplySpike(const int id, const float time, const float value)
             {
-                inp_queue_.Push(FpgaSpike(spike.id, spike.time +
-                            input_time_, spike.value));
+                inp_queue_.Push(FpgaSpike(id, time + input_time_, value));
 
                 static FpgaSpike spikes_now[SpikeHeap::CAPACITY];
                 int count = 0;
