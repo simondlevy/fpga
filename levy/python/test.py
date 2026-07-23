@@ -31,15 +31,12 @@ data = np.loadtxt('../spikes.txt', delimiter=' ')
 
 runtime = int(max(data[:,0])) + 1
 
-print(runtime)
-exit(0)
-
-for t in range(runtime):
+for timestep in range(runtime):
 
     fpga.clear_activity()
 
     for spike in data:
-        if int(spike[0]) == t:
+        if int(spike[0]) == timestep:
             fpga.apply_spike(Spike(int(spike[1]), spike[2], spike[3]))
 
     fpga.run(50)

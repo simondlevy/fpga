@@ -69,15 +69,6 @@ int main()
         return 1;
     }
 
-    auto fpga = neuro::FpgaConnection(
-            kNumInputs,
-            kNumOutputs,
-            kChargeWidth,
-            kClockFreq,
-            kEntryValueFactor);
-
-    (void)fpga;
-
     while (true) {
 
         std::string line;
@@ -102,7 +93,17 @@ int main()
 
     const auto runtime = data.back().step + 1;
 
-    std::cout << runtime << std::endl;
+    auto fpga = neuro::FpgaConnection(
+            kNumInputs,
+            kNumOutputs,
+            kChargeWidth,
+            kClockFreq,
+            kEntryValueFactor);
+
+    for (int timestep=0; timestep<runtime; ++timestep) {
+
+        fpga.ClearActivity();
+    }
 
     return 0;
 
