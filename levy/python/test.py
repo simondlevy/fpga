@@ -27,15 +27,17 @@ conn = FpgaConnection(
         CHARGE_WIDTH,
         SPIKE_VALUE_FACTOR)
 
-for _ in range(2):
+data = np.loadtxt('../spikes.txt', delimiter=' ')
+
+runtime = int(max(data[:,0])) + 1
+
+for t in range(runtime):
 
     conn.clear_activity()
 
-    for i in range(28):
-        conn.apply_spike(Spike(0, i, 1.0))
-
-    for i in range(26):
-        conn.apply_spike(Spike(1, i, 1.0))
+    for spike in data:
+        if int(spike[0]) == t:
+            conn.apply_spike(Spike(int(spike[1]), spike[2], spike[3]))
 
     conn.run(50)
 
