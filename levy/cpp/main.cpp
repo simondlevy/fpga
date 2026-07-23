@@ -96,12 +96,13 @@ int main()
         const auto value = parsefloat(ss);
 
         data.push_back(Entry(step, id, time, value));
-
-        std::cout << step << " " << id << " " << time << " " << value << std::endl;
-
     }
 
     file.close();
+
+    const auto runtime = data.back().step + 1;
+
+    std::cout << runtime << std::endl;
 
     return 0;
 
