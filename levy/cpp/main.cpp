@@ -103,27 +103,18 @@ int main()
     for (int timestep=0; timestep<runtime; ++timestep) {
 
         fpga.ClearActivity();
-    }
 
-    return 0;
-
-    /*
-    for (uint8_t k=0; k<2; ++k) {
-
-        fpga.ClearActivity();
-
-        for (int i=0; i<28; ++i) {
-            fpga.ApplyEntry(0, i, 1.0);
-        }
-
-        for (int i=0; i<26; ++i) {
-            fpga.ApplyEntry(1, i, 1.0);
+        for (auto entry:data) {
+            if (entry.step == timestep) {
+                fpga.ApplySpike(entry.id, entry.time, entry.value);
+            }
         }
 
         fpga.Run(50);
 
-        printf("%d %d\n\n", fpga.GetOutputCount(0), fpga.GetOutputCount(1));
-    }*/
+        std::cout << fpga.GetOutputCount(0) << " " <<
+            fpga.GetOutputCount(1) << std::endl;
+    }
 
     file.close(); 
 
