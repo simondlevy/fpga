@@ -18,7 +18,7 @@ CLOCK_FREQ = 100000000.0
 CHARGE_WIDTH = 5
 SPIKE_VALUE_FACTOR = 10
 
-conn = FpgaConnection(
+fpga = FpgaConnection(
         PORT_NAME,
         BAUD_RATE,
         CLOCK_FREQ,
@@ -33,12 +33,12 @@ runtime = int(max(data[:,0])) + 1
 
 for t in range(runtime):
 
-    conn.clear_activity()
+    fpga.clear_activity()
 
     for spike in data:
         if int(spike[0]) == t:
-            conn.apply_spike(Spike(int(spike[1]), spike[2], spike[3]))
+            fpga.apply_spike(Spike(int(spike[1]), spike[2], spike[3]))
 
-    conn.run(50)
+    fpga.run(50)
 
-    print("\n", conn.output_count(0), conn.output_count(1))
+    print(fpga.output_count(0), fpga.output_count(1))
