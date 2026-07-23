@@ -58,15 +58,15 @@ static auto parsefloat(std::stringstream & ss) -> float
     return std::stof(parse(ss));
 }
 
-int main()
+static auto loaddata(const std::string filename) -> std::vector<Entry>
 {
-    std::ifstream file("../spikes.txt"); 
+    std::ifstream file(filename);
 
     std::vector<Entry> data;             
 
     if (!file.is_open()) {
-        std::cerr << "Error opening file!" << std::endl;
-        return 1;
+        std::cerr << "Error opening file " << filename << std::endl;
+        exit(1);
     }
 
     while (true) {
@@ -90,6 +90,13 @@ int main()
     }
 
     file.close();
+
+    return data;
+}
+
+int main()
+{
+    const auto data = loaddata("../spikes.txt"); 
 
     const auto runtime = data.back().step + 1;
 
@@ -115,8 +122,6 @@ int main()
         std::cout << fpga.GetOutputCount(0) << " " <<
             fpga.GetOutputCount(1) << std::endl;
     }
-
-    file.close(); 
 
     return 0;
 }
