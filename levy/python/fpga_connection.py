@@ -88,7 +88,8 @@ class FpgaConnection:
             num_inputs: int,
             num_outputs: int,
             charge_width: int,
-            spike_value_factor: int):
+            spike_value_factor: int,
+            debug: bool = False):
 
         self._serial = Serial(port_name, baudrate)
 
@@ -96,6 +97,8 @@ class FpgaConnection:
         self._num_outputs = num_outputs
 
         self._spike_value_factor = spike_value_factor
+
+        self._debug = debug
 
         self._opcode_width = unsigned_width(len(DispatchOpcode) - 1)
 
@@ -235,7 +238,8 @@ class FpgaConnection:
 
                 case DispatchOpcode.RUN:
                     operand = (((byte << self._opcode_width) >> self._opcode_width) & 0XFF)
-                    print("Received RUN %d" % operand);
+                    if self._debug:
+                        print("Received RUN %d" % operand);
                     self._output_time += operand
 
                 case DispatchOpcode.SPK:
@@ -243,10 +247,12 @@ class FpgaConnection:
                     mask = 0xFF >> (8 - idx_width)
                     out_idx = ((byte >> 5) & mask) if idx_width > 0 else 0
                     self._out_queue.append(out_idx, float(self._output_time))
-                    print("Received SPK");
+                    if self._debug:
+                        print("Received SPK");
 
                 case DispatchOpcode.SNC:
-                    print("Received SNC");
+                    if self._debug:
+                        print("Received SNC");
                     break
 
                 case _:
@@ -273,5 +279,6 @@ class FpgaConnection:
         return byte >> (8 - self._opcode_width)
 
     def _write_byte(self, byte):
-        print("Write: x%02X" % byte)
+        if self._debug:
+            print("Write: x%02X" % byte)
         self._serial.write(bytes([byte]))

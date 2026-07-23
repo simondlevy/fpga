@@ -8,6 +8,7 @@
 
 from fpga_connection import FpgaConnection, Spike
 import neuro
+import numpy as np
 
 PORT_NAME = "/dev/ttyUSB1"
 BAUD_RATE = 4000000
