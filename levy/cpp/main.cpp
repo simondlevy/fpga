@@ -103,13 +103,14 @@ int main()
             kNumOutputs,
             kChargeWidth,
             kClockFreq,
-            kEntryValueFactor);
+            kEntryValueFactor,
+            true);
 
     const auto data = loaddata("../spikes.txt"); 
 
-    const auto runtime = data.back().step + 1;
+    // const auto runtime = data.back().step + 1;
 
-    for (int timestep=0; timestep<runtime; ++timestep) {
+    for (int timestep=0; timestep<66/*runtime*/; ++timestep) {
 
         fpga.ClearActivity();
 
@@ -121,7 +122,7 @@ int main()
 
         fpga.Run(50);
 
-        printf("%03d: %02d %02d\n",
+        printf("%03d: %02d %02d\n\n",
                 timestep, fpga.GetOutputCount(0), fpga.GetOutputCount(1));
     }
 

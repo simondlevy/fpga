@@ -25,13 +25,14 @@ fpga = FpgaConnection(
         NUM_INPUTS,
         NUM_OUTPUTS,
         CHARGE_WIDTH,
-        SPIKE_VALUE_FACTOR)
+        SPIKE_VALUE_FACTOR,
+        True)
 
 data = np.loadtxt('../spikes.txt', delimiter=' ')
 
 runtime = int(max(data[:,0])) + 1
 
-for timestep in range(runtime):
+for timestep in range(66): # runtime):
 
     fpga.clear_activity()
 
@@ -41,5 +42,5 @@ for timestep in range(runtime):
 
     fpga.run(50)
 
-    print('%03d: %02d %02d' %
+    print('%03d: %02d %02d\n' %
             (timestep, fpga.output_count(0), fpga.output_count(1)))
