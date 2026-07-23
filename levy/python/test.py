@@ -41,4 +41,5 @@ for timestep in range(runtime):
 
     fpga.run(50)
 
-    print(fpga.output_count(0), fpga.output_count(1))
+    print('%03d: %02d %02d' %
+            (timestep, fpga.output_count(0), fpga.output_count(1)))

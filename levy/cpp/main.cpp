@@ -6,6 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#include <stdio.h>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -96,16 +98,16 @@ static auto loaddata(const std::string filename) -> std::vector<Entry>
 
 int main()
 {
-    const auto data = loaddata("../spikes.txt"); 
-
-    const auto runtime = data.back().step + 1;
-
     auto fpga = neuro::FpgaConnection(
             kNumInputs,
             kNumOutputs,
             kChargeWidth,
             kClockFreq,
             kEntryValueFactor);
+
+    const auto data = loaddata("../spikes.txt"); 
+
+    const auto runtime = data.back().step + 1;
 
     for (int timestep=0; timestep<runtime; ++timestep) {
 
@@ -119,8 +121,8 @@ int main()
 
         fpga.Run(50);
 
-        std::cout << fpga.GetOutputCount(0) << " " <<
-            fpga.GetOutputCount(1) << std::endl;
+        printf("%03d: %02d %02d\n",
+                timestep, fpga.GetOutputCount(0), fpga.GetOutputCount(1));
     }
 
     return 0;
