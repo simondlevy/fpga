@@ -16,7 +16,7 @@
 
 static  pthread_t thread_id_;
 
-void Thread::start(void *(*routine) (void *), void * data)
+void Thread::Start(void *(*routine) (void *), void * data)
 {
     if (pthread_create(&thread_id_, NULL, routine, data) != 0) {
         perror("Thread creation failed");
@@ -25,17 +25,17 @@ void Thread::start(void *(*routine) (void *), void * data)
 
 }
     
-void Thread::join()
+void Thread::Join()
 {
     pthread_join(thread_id_, NULL);
 }
 
-void Thread::yield()
+void Thread::Yield()
 {
     sched_yield();
 }
 
-void Thread::sleep(const float sec)
+void Thread::Sleep(const float sec)
 {
     const int tv_sec = sec;
     const int tv_nsec = (tv_sec - sec) * 1e9;

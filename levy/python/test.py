@@ -32,7 +32,7 @@ data = np.loadtxt('../spikes.txt', delimiter=' ')
 
 runtime = int(max(data[:,0])) + 1
 
-for timestep in range(66): # runtime):
+for timestep in range(33): # runtime):
 
     fpga.clear_activity()
 

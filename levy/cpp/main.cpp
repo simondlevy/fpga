@@ -110,7 +110,7 @@ int main()
 
     // const auto runtime = data.back().step + 1;
 
-    for (int timestep=0; timestep<66/*runtime*/; ++timestep) {
+    for (int timestep=0; timestep<33/*runtime*/; ++timestep) {
 
         fpga.ClearActivity();
 

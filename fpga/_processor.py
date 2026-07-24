@@ -401,6 +401,8 @@ class Processor(neuro.Processor):
         if any(key < 0 for key in spike_dict.keys()):
             raise ValueError("Cannot send spikes to non-input node.")
 
+        print('secs_per_run=', self._secs_per_run)
+
         # TODO: magic timing will be resolved by buffers PR
         def pause(runs: int) -> None:
             self._inp.time += runs
@@ -439,6 +441,7 @@ class Processor(neuro.Processor):
                             }
                         )[::-1]
                     )
+                    print('to_run=', to_run)
                     pause(to_run)
                     runs -= to_run
                 if sync:

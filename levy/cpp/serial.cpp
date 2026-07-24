@@ -57,7 +57,7 @@ void Serial::Begin()
     FD_ZERO(&read_fds_);
     FD_SET(fd_, &read_fds_);
 
-    timeout_.tv_sec = 1;  // 1 second
+    timeout_.tv_sec = 2;  // 1 second
     timeout_.tv_usec = 0; // 0 microseconds
 }
 
@@ -77,6 +77,8 @@ uint8_t Serial::Available()
     uint8_t available = 0;
 
     int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+
+    printf("select_res=%d\n", select_res);
 
     if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
 

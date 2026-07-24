@@ -12,11 +12,11 @@ class Thread {
 
     public:
 
-        static void start(void *(*start_routine) (void *), void * data);
+        static void Start(void *(*start_routine) (void *), void * data);
 
-        static void join();
+        static void Join();
 
-        static void yield();
+        static void Yield();
 
-        static void sleep(const float sec);
+        static void Sleep(const float sec);
 };

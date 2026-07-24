@@ -216,6 +216,9 @@ class FpgaConnection:
 
                 self._input_time += runs
 
+                if self._debug:
+                    print('to_run=%d' % to_run)
+
                 runs -= to_run
 
             if run_time == target_time:

@@ -22,7 +22,7 @@ data = np.loadtxt('../spikes.txt', delimiter=' ')
 
 runtime = int(max(data[:,0])) + 1
 
-for t in range(runtime):
+for t in range(1): # runtime):
 
     proc.clear_activity()
 
@@ -32,4 +32,4 @@ for t in range(runtime):
 
     proc.run(50)
 
-    print("\n", proc.output_count(0), proc.output_count(1))
+    print(proc.output_count(0), proc.output_count(1))

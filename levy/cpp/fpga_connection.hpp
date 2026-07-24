@@ -16,6 +16,7 @@
 #include "output_queue.hpp"
 #include "spike.hpp"
 #include "spike_heap.hpp"
+#include "threading.h"
 
 namespace neuro {
 
@@ -153,16 +154,13 @@ namespace neuro {
                                     max_run_),
                                 max_runs_ahead_ + output_time_ - input_time_);
 
-                        if (to_run == 0) {
-                            //Thread::yield();
-                            //continue;
-                        }
-
                         SendCommand(kOpcodeRun, to_run);
 
                         input_time_ += runs;
 
-                        //Thread::sleep(secs_per_run_ * runs);
+                        if (debug_) {
+                            printf("to_run=%d\n", to_run);
+                        }
 
                         runs -= to_run;
                     }
@@ -234,6 +232,10 @@ namespace neuro {
             void Receive()
             {
                 const auto avail = Serial::Available();
+
+                if (debug_) {
+                    printf("available=%d\n", avail);
+                }
 
                 for (uint8_t k=0; k<avail; ++k) {
                     
