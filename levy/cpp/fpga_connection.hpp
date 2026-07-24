@@ -103,6 +103,8 @@ namespace neuro {
             {
                 SendCommand(kOpcodeClr);
 
+                Receive();
+
                 output_time_ = 0;
                 input_time_ = 0;
 

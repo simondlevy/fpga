@@ -162,6 +162,8 @@ class FpgaConnection:
         if opcode != DispatchOpcode.CLR:
             raise ValueError()
 
+        print("Received CLR");
+
         self._input_time = 0
         self._output_time = 0
 
@@ -232,7 +234,6 @@ class FpgaConnection:
 
             byte = self._receive_byte()
             opcode = self._get_opcode(byte)
-
 
             match opcode:
 
