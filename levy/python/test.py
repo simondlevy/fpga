@@ -26,7 +26,7 @@ fpga = FpgaConnection(
         NUM_OUTPUTS,
         CHARGE_WIDTH,
         SPIKE_VALUE_FACTOR,
-        True)
+        False)
 
 data = np.loadtxt('../spikes.txt', delimiter=' ')
 

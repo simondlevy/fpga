@@ -162,7 +162,8 @@ class FpgaConnection:
         if opcode != DispatchOpcode.CLR:
             raise ValueError()
 
-        print("Received CLR");
+        if (self._debug):
+            print("Received CLR");
 
         self._input_time = 0
         self._output_time = 0
