@@ -16,7 +16,6 @@
 #include "output_queue.hpp"
 #include "spike.hpp"
 #include "spike_heap.hpp"
-#include "threading.h"
 
 namespace neuro {
 

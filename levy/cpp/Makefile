@@ -6,8 +6,8 @@
 
 all: test
 
-test: main.cpp serial.cpp threading.cpp *.hpp
-	g++ -Wall -o test main.cpp serial.cpp threading.cpp
+test: main.cpp serial.cpp *.hpp
+	g++ -Wall -o test main.cpp serial.cpp
 
 run: test
 	./test
