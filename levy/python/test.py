@@ -17,6 +17,7 @@ NUM_OUTPUTS = 2
 CLOCK_FREQ = 100000000.0
 CHARGE_WIDTH = 5
 SPIKE_VALUE_FACTOR = 10
+DEBUG = False
 
 fpga = FpgaConnection(
         PORT_NAME,
@@ -26,13 +27,13 @@ fpga = FpgaConnection(
         NUM_OUTPUTS,
         CHARGE_WIDTH,
         SPIKE_VALUE_FACTOR,
-        False)
+        DEBUG)
 
 data = np.loadtxt('../spikes.txt', delimiter=' ')
 
 runtime = int(max(data[:,0])) + 1
 
-for timestep in range(33): # runtime):
+for timestep in range(runtime):
 
     fpga.clear_activity()
 
@@ -42,5 +43,7 @@ for timestep in range(33): # runtime):
 
     fpga.run(50)
 
-    print('%03d: %02d %02d\n' %
+    print('%03d: %02d %02d' %
             (timestep, fpga.output_count(0), fpga.output_count(1)))
+    if DEBUG:
+        print()

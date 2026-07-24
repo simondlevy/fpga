@@ -21,6 +21,7 @@ static constexpr int kNumOutputs = 2;
 static constexpr float kClockFreq = 100000000;
 static constexpr int kChargeWidth = 5;
 static constexpr int kEntryValueFactor = 10;
+static constexpr bool kDebug = false;
 
 class Entry {
 
@@ -104,13 +105,13 @@ int main()
             kChargeWidth,
             kClockFreq,
             kEntryValueFactor,
-            false);
+            kDebug);
 
     const auto data = loaddata("../spikes.txt"); 
 
-    // const auto runtime = data.back().step + 1;
+    const auto runtime = data.back().step + 1;
 
-    for (int timestep=0; timestep<33/*runtime*/; ++timestep) {
+    for (int timestep=0; timestep<runtime; ++timestep) {
 
         fpga.ClearActivity();
 
@@ -122,8 +123,12 @@ int main()
 
         fpga.Run(50);
 
-        printf("%03d: %02d %02d\n\n",
+        printf("%03d: %02d %02d\n",
                 timestep, fpga.GetOutputCount(0), fpga.GetOutputCount(1));
+
+        if (kDebug) {
+            printf("\n");
+        }
     }
 
     return 0;

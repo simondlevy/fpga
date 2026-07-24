@@ -76,7 +76,8 @@ uint8_t Serial::Available()
 {
     uint8_t available = 0;
 
-    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+    // int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
+    int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, NULL);
 
     if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
 
