@@ -104,7 +104,7 @@ int main()
             kChargeWidth,
             kClockFreq,
             kEntryValueFactor,
-            true);
+            false);
 
     const auto data = loaddata("../spikes.txt"); 
 

@@ -78,8 +78,6 @@ uint8_t Serial::Available()
 
     int select_res = select(fd_ + 1, &read_fds_, NULL, NULL, &timeout_);
 
-    printf("select_res=%d\n", select_res);
-
     if (select_res > 0 && FD_ISSET(fd_, &read_fds_)) {
 
         available = read(fd_, buf_, sizeof(buf_) - 1);
