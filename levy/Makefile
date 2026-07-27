@@ -10,5 +10,8 @@ load:
 newload:
 	./load.py -t newbasys3 $(fr)/cpp-apps/networks/dronepong_risp_train.txt
 
+cload:
+	./load.py -t cmod $(fr)/cpp-apps/networks/dronepong_risp_train.txt
+
 clean:
 	rm -rf ~/.cache/neuro_fpga/
