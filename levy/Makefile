@@ -7,9 +7,6 @@
 load:
 	./load.py $(fr)/cpp-apps/networks/dronepong_risp_train.txt
 
-newload:
-	./load.py -t newbasys3 $(fr)/cpp-apps/networks/dronepong_risp_train.txt
-
 cload:
 	./load.py -t cmod $(fr)/cpp-apps/networks/dronepong_risp_train.txt
 
