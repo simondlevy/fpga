@@ -9,7 +9,7 @@
 // PARTICULAR PURPOSE. Please see the CERN-OHL-W v2 for applicable conditions.
 
 module uart_top #(
-    parameter real CLK_FREQ = 100_000_000,
+    parameter real CLK_FREQ = 12_000_000,
     parameter integer BAUD_RATE = 115_200
 ) (
     input wire clk,
