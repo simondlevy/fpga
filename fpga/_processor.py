@@ -592,6 +592,8 @@ class Processor(neuro.Processor):
                     },
                 ]
             )
+        elif tool == "icestorm":
+            exit(0)
 
         edam = {
             "files": files,
