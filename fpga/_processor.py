@@ -606,6 +606,9 @@ class Processor(neuro.Processor):
             edam=edam, work_root=proj_path, verbose=True
         )
 
+        print('>>>>>>>>>>>>>>>>>>> target_config= ', self._target_config)
+        print('>>>>>>>>>>>>>>>>>>> backend = ', backend)
+
         proj_path.mkdir(parents=True, exist_ok=True)
         backend.configure()
         backend.build()
