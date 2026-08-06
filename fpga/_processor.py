@@ -14,6 +14,8 @@ from threading import Thread
 from time import sleep
 from typing import Iterable
 
+from pprint import pprint
+
 import bitstruct as bs
 import neuro
 from edalize.edatool import get_edatool
@@ -401,8 +403,6 @@ class Processor(neuro.Processor):
         if any(key < 0 for key in spike_dict.keys()):
             raise ValueError("Cannot send spikes to non-input node.")
 
-        print('secs_per_run=', self._secs_per_run)
-
         # TODO: magic timing will be resolved by buffers PR
         def pause(runs: int) -> None:
             self._inp.time += runs
@@ -441,7 +441,6 @@ class Processor(neuro.Processor):
                             }
                         )[::-1]
                     )
-                    print('to_run=', to_run)
                     pause(to_run)
                     runs -= to_run
                 if sync:
@@ -558,9 +557,13 @@ class Processor(neuro.Processor):
 
         tool = self._target_config["default_tool"]
         tool_options = self._target_config["tools"]
+
+        # --------------------------------------------------------------------
         if tool == "vivado":
+
             tool_options["vivado"]["include_dirs"] = [str(rtl_path)]
             tool_options["vivado"]["source_mgmt_mode"] = "All"
+
             files.append(
                 {
                     "name": str(
@@ -571,6 +574,8 @@ class Processor(neuro.Processor):
                     "file_type": "xdc",
                 }
             )
+
+        # --------------------------------------------------------------------
         elif tool == "quartus":
             files.extend(
                 [
@@ -592,8 +597,11 @@ class Processor(neuro.Processor):
                     },
                 ]
             )
-        elif tool == "icestorm":
-            exit(0)
+
+        # --------------------------------------------------------------------
+        elif tool == "yosys":
+            tool_options["yosys"]["arch"] = "ice40"
+            tool_options["yosys"]["output_format"] = "json"
 
         edam = {
             "files": files,
@@ -610,11 +618,12 @@ class Processor(neuro.Processor):
 
         proj_path.mkdir(parents=True, exist_ok=True)
 
+        backend.configure()
+
+        backend.build()
+
         print(backend)
         exit(0)
-
-        backend.configure()
-        backend.build()
 
         return backend        
 

@@ -9,11 +9,11 @@ NETWORK = $(HOME)/Desktop/embedded-framework-simon/fpga/networks/dronepong_risp_
 load:
 	./load.py $(NETWORK)
 
-cload:
-	./load.py -t cmod $(NETWORK)
-
 iload:
 	./load.py -t icebreaker $(NETWORK)
+
+qload:
+	./load.py -t c5g $(NETWORK)
 
 clean:
 	rm -rf ~/.cache/neuro_fpga/
