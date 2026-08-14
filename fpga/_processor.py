@@ -622,9 +622,6 @@ class Processor(neuro.Processor):
 
         backend.build()
 
-        print(backend)
-        exit(0)
-
         return backend        
 
     def _set_comm_limits(self):

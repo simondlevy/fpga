@@ -9,6 +9,9 @@ NETWORK = $(HOME)/Desktop/embedded-framework-simon/fpga/networks/dronepong_risp_
 load:
 	./load.py $(NETWORK)
 
+cload:
+	./load.py -t cmod $(NETWORK)
+
 iload:
 	./load.py -t icebreaker $(NETWORK)
 
