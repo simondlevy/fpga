@@ -1,4 +1,4 @@
-from edalize.edatool import get_edatool
+from edalize.flows.vivado import Vivado
 
 files = [
         {
@@ -85,7 +85,4 @@ edam = {
 
 proj_path = "home/levys/.cache/neuro_fpga/eda/basys3/DISO/5eba9ba2bd"
 
-backend = get_edatool("vivado")(
-    edam=edam, work_root=proj_path, verbose=True)
-
-
+backend = Vivado(edam=edam, work_root=proj_path, verbose=True)
