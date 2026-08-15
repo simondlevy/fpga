@@ -1,7 +1,6 @@
 from edalize.edatool import get_edatool
 
-edam = {
-    "files": [
+files = [
         {
             "file_type": "systemVerilogSource",
             "name": "../../../../../../Desktop/fpga/fpga/rtl/risp_neuron.sv"
@@ -54,7 +53,10 @@ edam = {
             "file_type": "xdc",
             "name": "../../../../../../Desktop/fpga/fpga/config/basys3/basys3.xdc"
         }
-    ],
+    ]
+
+edam = {
+    "files": files,
     "name": "5eba9ba2bd",
     "parameters": {
         "BAUD_RATE": {
