@@ -9,7 +9,7 @@ import sys
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
 from importlib import resources
-from json import load
+from json import load, dumps
 from threading import Thread
 from time import sleep
 from typing import Iterable
@@ -478,6 +478,7 @@ class Processor(neuro.Processor):
                     pause(1)
 
     def _build_network(self) -> type:
+
         proc = proc_name(self._network)
 
         nethash = hash_network(self._network, HASH_LEN)
@@ -597,11 +598,6 @@ class Processor(neuro.Processor):
                     },
                 ]
             )
-
-        # --------------------------------------------------------------------
-        elif tool == "yosys":
-            tool_options["yosys"]["arch"] = "ice40"
-            tool_options["yosys"]["output_format"] = "json"
 
         edam = {
             "files": files,
