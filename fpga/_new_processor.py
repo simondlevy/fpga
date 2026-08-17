@@ -9,14 +9,17 @@ import sys
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
 from importlib import resources
-from json import load
+from json import load, dumps
 from threading import Thread
 from time import sleep
 from typing import Iterable
 
+from pprint import pprint
+
 import bitstruct as bs
 import neuro
 from edalize.edatool import get_edatool
+from edalize.flows.vivado import Vivado
 from periphery import Serial
 
 import fpga
@@ -476,6 +479,7 @@ class Processor(neuro.Processor):
                     pause(1)
 
     def _build_network(self) -> type:
+
         proc = proc_name(self._network)
 
         nethash = hash_network(self._network, HASH_LEN)
@@ -555,9 +559,13 @@ class Processor(neuro.Processor):
 
         tool = self._target_config["default_tool"]
         tool_options = self._target_config["tools"]
+
+        # --------------------------------------------------------------------
         if tool == "vivado":
+
             tool_options["vivado"]["include_dirs"] = [str(rtl_path)]
             tool_options["vivado"]["source_mgmt_mode"] = "All"
+
             files.append(
                 {
                     "name": str(
@@ -568,6 +576,12 @@ class Processor(neuro.Processor):
                     "file_type": "xdc",
                 }
             )
+
+            edam = self._build_edam(files, nethash, parameters, tool_options)
+
+            backend = Vivado(edam=edam, work_root=proj_path, verbose=True)
+
+        # --------------------------------------------------------------------
         elif tool == "quartus":
             files.extend(
                 [
@@ -590,6 +604,17 @@ class Processor(neuro.Processor):
                 ]
             )
 
+            edam = self._build_edam(files, nethash, parameters, tool_options)
+
+            backend = get_edatool(self._target_config["default_tool"])(
+                edam=edam, work_root=proj_path, verbose=True
+            )
+
+        else:
+
+            print('Tool %s not currently supported' % tool)
+            exit(1)
+
         edam = {
             "files": files,
             "name": f"{nethash}",
@@ -598,16 +623,22 @@ class Processor(neuro.Processor):
             "tool_options": tool_options,
         }
 
-        # https://github.com/olofk/edalize/issues/428
-        backend = get_edatool(self._target_config["default_tool"])(
-            edam=edam, work_root=proj_path, verbose=True
-        )
-
         proj_path.mkdir(parents=True, exist_ok=True)
+
         backend.configure()
+
         backend.build()
 
         return backend        
+
+    def _build_edam(self, files, nethash, parameters, tool_options):
+        return {
+            "files": files,
+            "name": f"{nethash}",
+            "parameters": parameters,
+            "toplevel": "uart_top",
+            "tool_options": tool_options,
+        }
 
     def _set_comm_limits(self):
         self._secs_per_run = 0.0
