@@ -15,8 +15,7 @@ module uart_top #(
     input wire clk,
     input wire btnC,
     input wire RsRx,
-    output wire RsTx,
-    output wire [15:0] led
+    output wire RsTx
 );
     uart_processor #(
         .CLK_FREQ(CLK_FREQ),
@@ -25,11 +24,7 @@ module uart_top #(
         .clk(clk),
         .arstn(!btnC),
         .rxd(RsRx),
-        .txd(RsTx),
-        .rx_busy(led[0]),
-        .tx_busy(led[1]),
-        .rx_error(led[15])
+        .txd(RsTx)
     );
 
-    assign led[14:2] = 13'b0;
 endmodule
