@@ -50,8 +50,8 @@
         },
         "tools": {
             "vivado": {
-                "part": "xc7a35tcpg236-1",
-                "pgm": "vivado"
+                "part": "xc7a100tcsg324-1",
+                "pgm": "vivado" 
             }
         }
     },
