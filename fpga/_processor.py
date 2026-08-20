@@ -336,6 +336,7 @@ class Processor(neuro.Processor):
                 num_rx_bytes,
                 10.0,
             )[::-1]
+            print('>>>>>>>>>>>>> ', rx, len(rx), num_rx_bytes)
             if len(rx) != num_rx_bytes:
                 raise RuntimeError("Did not receive coherent response from target.")
 
