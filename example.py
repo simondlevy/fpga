@@ -7,8 +7,8 @@
 import neuro
 import fpga
 
-#TARGET = "basys3"
-TARGET = "nexys"
+TARGET = "basys3"
+# TARGET = "nexys"
 #TARGET = "cmod"
 
 net = neuro.Network()
