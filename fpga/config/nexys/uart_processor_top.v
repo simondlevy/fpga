@@ -13,7 +13,7 @@ module uart_top #(
     parameter integer BAUD_RATE = 115_200
 ) (
     input wire clk,
-    input wire btn,
+    input wire btnC,
     input wire RsRx,
     output wire RsTx
 );
@@ -22,7 +22,7 @@ module uart_top #(
         .BAUD_RATE(BAUD_RATE)
     ) uart_proc (
         .clk(clk),
-        .arstn(!btn),
+        .arstn(!btnC),
         .rxd(RsRx),
         .txd(RsTx)
     );
