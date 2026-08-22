@@ -7,9 +7,9 @@
 import neuro
 import fpga
 
-TARGET = "basys3"
-# TARGET = "nexys"
-#TARGET = "cmod"
+#TARGET = "basys3"
+#TARGET = "nexys"
+TARGET = "cmod"
 
 net = neuro.Network()
 net.read_from_file("networks/simple.txt")
