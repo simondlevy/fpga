@@ -58,11 +58,14 @@
     "cmod": {
         "default_tool": "vivado",
         "parameters": {
-            "clk_freq": 12000000.0,
+            "clk_freq": 96000000.0,
             "uart": {
                 "baud_rates": [
                     115200,
-                    500000
+                    500000,
+                    1000000,
+                    2000000,
+                    4000000
                 ],
                 "buffer_rx": 4096,
                 "buffer_tx": 4096

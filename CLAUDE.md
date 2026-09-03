@@ -116,15 +116,24 @@ Port names in the top module and the constraints file must agree — they differ
 
 ### UART baud rate is clock-constrained
 
-`uart_processor.sv` derives a fixed integer prescale, `CLK_FREQ / (8 * BAUD_RATE)` rounded,
-and `Processor.__init__` selects `baud_rates[-1]` — the **last** entry in the target's list.
-Low-frequency boards cannot reach high baud rates, and the failure is silent: an
-unachievable rate yields a prescale of 0 or 1 and corrupt data rather than a build error.
+`uart_processor.sv` times one bit as `8 * prescale` clocks, where
+`prescale = CLK_FREQ / (8 * BAUD_RATE)` rounded to an integer, and `Processor.__init__`
+selects `baud_rates[-1]` — the **last** entry in the target's list. A rate the clock cannot
+express fails *silently*: prescale rounds to 0 or 1 and the board returns corrupt data
+rather than failing the build.
 
-On the 12 MHz Cmod A7, for example, only 115200 (prescale 13) and 500000 (prescale 3, exact)
-are usable; 230400 and 460800 both land 8.5% off. When adding or reordering `baud_rates`,
-check the prescale arithmetic for that board's `clk_freq`, and put the intended rate last.
-`uart-loop <target> <dev>` measures what actually works and offers to rewrite the list.
+So when adding or reordering `baud_rates`, check the prescale arithmetic against that
+target's `clk_freq` and put the intended rate last. `uart-loop <target> <dev>` measures
+what actually works on hardware and offers to rewrite the list.
+
+`targets.json:clk_freq` is the **fabric** clock, which is not necessarily the board
+oscillator. The Cmod A7's 12 MHz crystal cannot express anything above ~500 kbaud
+(4 Mbaud would need prescale 0.375), so `cmod/uart_processor_top.v` instantiates an
+MMCME2_BASE to synthesize a 96 MHz fabric clock — chosen because it divides exactly for
+500k/1M/2M/4M baud — and `clk_freq` is 96e6 while `cmod.xdc` still constrains the 12 MHz
+input pin. Vivado infers the generated clock automatically; no extra constraint is needed.
+A board doing this must gate its reset on MMCM `LOCKED`. Note PLLE2 will not work here:
+its minimum input is 19 MHz, so 12 MHz requires an MMCM.
 
 ## Licensing conventions
 
