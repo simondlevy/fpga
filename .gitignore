@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Keegan Dent
+// Copyright (c) 2024 Keegan Dent, 2026 Simon D. Levy
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,3 +16,5 @@ vivado*
 *.tmp
 *.log
 *.layout
+
+*.swp
