@@ -26,10 +26,21 @@ proc = fpga.Processor(args.target, "/dev/ttyUSB1", "DIDO")
 proc.load_network(net)
 
 proc.clear_activity()
+print('input = 0,0; output = ', proc.output_counts()[0])
 
+proc.clear_activity()
 proc.apply_spike(neuro.Spike(0, 0, 1))
-
 proc.run(3)
+print('input = 1,0; output = ', proc.output_counts()[0])
 
-print('node 4(A^B) spike counts:   ', proc.output_counts()[0])
-print('node 4(A^B) last fire time: ', proc.output_last_fires()[0])
+proc.clear_activity()
+proc.apply_spike(neuro.Spike(1, 0, 1))
+proc.run(3)
+print('input = 0,1; output = ', proc.output_counts()[0])
+
+proc.clear_activity()
+proc.apply_spike(neuro.Spike(0, 0, 1))
+proc.apply_spike(neuro.Spike(1, 0, 1))
+proc.run(3)
+print('input = 1,1; output = ', proc.output_counts()[0])
+
