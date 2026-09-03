@@ -25,22 +25,18 @@ proc = fpga.Processor(args.target, "/dev/ttyUSB1", "DIDO")
 
 proc.load_network(net)
 
-proc.clear_activity()
-print('input = 0,0; output = ', proc.output_counts()[0])
 
-proc.clear_activity()
-proc.apply_spike(neuro.Spike(0, 0, 1))
-proc.run(3)
-print('input = 1,0; output = ', proc.output_counts()[0])
+def run(a, b):
+    proc.clear_activity()
+    if a:
+        proc.apply_spike(neuro.Spike(0, 0, 1))
+    if b:
+        proc.apply_spike(neuro.Spike(1, 0, 1))
+    proc.run(3)
+    print('input = %d,%d; output = %d' % (a, b, proc.output_counts()[0]))
 
-proc.clear_activity()
-proc.apply_spike(neuro.Spike(1, 0, 1))
-proc.run(3)
-print('input = 0,1; output = ', proc.output_counts()[0])
 
-proc.clear_activity()
-proc.apply_spike(neuro.Spike(0, 0, 1))
-proc.apply_spike(neuro.Spike(1, 0, 1))
-proc.run(3)
-print('input = 1,1; output = ', proc.output_counts()[0])
-
+run(0, 0)
+run(0, 1)
+run(1, 0)
+run(1, 1)
