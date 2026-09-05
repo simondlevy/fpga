@@ -5,11 +5,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 import os.path
 import pathlib as pl
+import shutil
+import subprocess
 import sys
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
 from importlib import resources
-from json import load
+from json import dump, load
 from threading import Thread
 from time import sleep
 from typing import Iterable
@@ -32,6 +34,7 @@ from fpga.network import (
 )
 
 SYSTEM_BUFFER = 4096
+TOPLEVEL = "uart_top"
 
 if not sys.version_info.major == 3 and sys.version_info.minor >= 6:
     raise RuntimeError("Python 3.6 or newer is required.")
@@ -220,6 +223,43 @@ class Processor(neuro.Processor):
     def apply_spikes(self, spikes: list[neuro.Spike]) -> None:
         [self.apply_spike(spike) for spike in spikes]
 
+    def attach_network(self, net: neuro.Network) -> None:
+        # Talk to a design already resident on the board, without rebuilding or
+        # reprogramming it. Only useful for targets that keep their design in
+        # non-volatile flash (see the "programmer" entry in targets.json); an
+        # SRAM-programmed board loses it at power-off and has nothing to attach
+        # to. The packet layouts are derived from the network, so `net` must be
+        # the network that was flashed or the two sides will not agree.
+        self.clear()
+        self._network = net
+        self._setup_io()
+
+        if not isinstance(self._interface, Serial):
+            raise RuntimeError(
+                "Cannot attach to a network without a valid serial interface."
+            )
+
+        flashed = self._flashed_record()
+        expected = {
+            "io_type": self._io_type,
+            "nethash": hash_network(self._network, HASH_LEN),
+        }
+        if flashed is None:
+            raise RuntimeError(
+                f"No record of a design flashed to '{self._target_name}' at"
+                f" {self._flashed_path()}. Run load_network() once to flash the"
+                " board, after which attach_network() can reuse it."
+            )
+        if flashed != expected:
+            raise RuntimeError(
+                f"The board was last flashed with {flashed}, but this network"
+                f" and I/O type are {expected}. Run load_network() to reflash."
+            )
+
+        self._proj_path = self._network_proj_path()
+        self._programmed = True
+        self._sync()
+
     def clear(self) -> None:
         if self._network:
             self.clear_activity()
@@ -259,12 +299,9 @@ class Processor(neuro.Processor):
             if not isinstance(self._interface, Serial):
                 raise RuntimeError("Cannot program network onto FPGA without a valid serial interface.")
 
-            backend.run()
+            self._program(backend)
             self._programmed = True
-            # hardware will sometimes send CLR on startup
-            while self._interface.poll(1):
-                self._interface.read(self._interface.input_waiting())
-            self.clear_activity()
+            self._sync()
 
     def output_count(self, out_idx: int) -> int:
         return len(self.output_vector(out_idx))
@@ -479,7 +516,8 @@ class Processor(neuro.Processor):
         proc = proc_name(self._network)
 
         nethash = hash_network(self._network, HASH_LEN)
-        proj_path = fpga.eda_build_path / self._target_name / self._io_type / nethash
+        proj_path = self._network_proj_path()
+        self._proj_path = proj_path
 
         def relative_path(p: pl.Path) -> pl.Path:
             return pl.Path(os.path.relpath(p.resolve(), start=proj_path.resolve()))
@@ -594,7 +632,7 @@ class Processor(neuro.Processor):
             "files": files,
             "name": f"{nethash}",
             "parameters": parameters,
-            "toplevel": "uart_top",
+            "toplevel": TOPLEVEL,
             "tool_options": tool_options,
         }
 
@@ -608,6 +646,106 @@ class Processor(neuro.Processor):
         backend.build()
 
         return backend        
+
+    def _design_bin(self) -> pl.Path:
+        # Edalize's Vivado run template turns on
+        # STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE, so Vivado emits a headerless
+        # <toplevel>.bin beside the .bit, but only copies the .bit back to the
+        # work root. The .bin is what goes into flash.
+        bins = sorted(self._proj_path.glob(f"*.runs/impl_1/{TOPLEVEL}.bin"))
+        if not bins:
+            raise RuntimeError(
+                f"No {TOPLEVEL}.bin under {self._proj_path}. Builds cached before"
+                " .bin generation was enabled do not have one; clear"
+                f" {fpga.eda_build_path} and rebuild."
+            )
+        return bins[0]
+
+    def _network_proj_path(self) -> pl.Path:
+        return (
+            fpga.eda_build_path
+            / self._target_name
+            / self._io_type
+            / hash_network(self._network, HASH_LEN)
+        )
+
+    def _program(self, backend) -> None:
+        # Targets without a "programmer" entry use Edalize's run stage, which
+        # sends the .bit over JTAG into configuration SRAM and is lost at
+        # power-off. openFPGALoader instead writes the .bin into the board's
+        # SPI flash, so the design survives a power cycle.
+        pgm_config = self._target_config.get("programmer")
+        if pgm_config is None:
+            backend.run()
+            return
+
+        if pgm_config["tool"] != "openfpgaloader":
+            raise ValueError(f"Unsupported programmer tool: {pgm_config['tool']}")
+
+        executable = pgm_config.get("executable", "openFPGALoader")
+        if shutil.which(executable) is None:
+            raise RuntimeError(
+                f"{executable} is not on PATH. It ships with oss-cad-suite; see"
+                " https://github.com/trabucayre/openFPGALoader for other options."
+            )
+
+        cmd = [executable, "--board", pgm_config["board"]]
+        if "freq" in pgm_config:
+            cmd.extend(["--freq", str(pgm_config["freq"])])
+
+        if pgm_config.get("flash", True):
+            # A bitstream built for CONFIG_MODE SPIx4 cannot boot until the
+            # flash's quad-enable status bit is set. Vivado's indirect
+            # programming flow sets it implicitly; openFPGALoader keeps it
+            # behind its own flag, so it needs a separate pass. The bit is
+            # non-volatile, so this is a no-op once it has taken.
+            if pgm_config.get("quad", False):
+                self._run_programmer(cmd + ["--enable-quad"], executable)
+            args = ["--write-flash"]
+            if pgm_config.get("verify", True):
+                args.append("--verify")
+        else:
+            args = ["--write-sram"]
+
+        self._run_programmer(cmd + args + [str(self._design_bin())], executable)
+
+        if pgm_config.get("flash", True):
+            # Note what went into non-volatile storage so a later
+            # attach_network() can tell whether the board still holds it. Only
+            # tracks what this class flashed; programming the board by any
+            # other means leaves this stale.
+            path = self._flashed_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "w") as f:
+                dump(
+                    {
+                        "io_type": self._io_type,
+                        "nethash": hash_network(self._network, HASH_LEN),
+                    },
+                    f,
+                )
+        else:
+            self._flashed_path().unlink(missing_ok=True)
+
+    def _flashed_path(self) -> pl.Path:
+        return fpga.eda_build_path / self._target_name / "flashed.json"
+
+    def _flashed_record(self) -> dict | None:
+        try:
+            with open(self._flashed_path()) as f:
+                return load(f)
+        except (FileNotFoundError, ValueError):
+            return None
+
+    def _run_programmer(self, cmd: list, executable: str) -> None:
+        print(" ".join(cmd))
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                f"{executable} exited {e.returncode}. Check that the board is"
+                " connected and that udev rules grant access to it."
+            ) from e
 
     def _set_comm_limits(self):
         self._secs_per_run = 0.0
@@ -660,3 +798,9 @@ class Processor(neuro.Processor):
                     f"Invalid output type: {self._io_type[2:]}\nExpected: (D|S)O"
                 )
         self._set_comm_limits()
+
+    def _sync(self) -> None:
+        # hardware will sometimes send CLR on startup
+        while self._interface.poll(1):
+            self._interface.read(self._interface.input_waiting())
+        self.clear_activity()

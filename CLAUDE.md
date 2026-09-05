@@ -114,6 +114,45 @@ A target needs an entry in `fpga/config/targets.json` (schema documented in
 Port names in the top module and the constraints file must agree — they differ per board
 (`btn` vs `btnC`, some boards wire status LEDs, some don't).
 
+A target may also carry an optional `programmer` block, which replaces Edalize's run stage
+(a JTAG download into configuration SRAM, lost at power-off) with an external tool —
+see `_program()` in `fpga/_processor.py`. `cmod` uses it to write the design into the
+board's Quad-SPI flash with openFPGALoader, so the board reloads itself at power-up with
+no host attached. Three things have to line up for that to work:
+
+- `cmod.xdc` sets `CONFIG_MODE SPIx4` and the `BITSTREAM.CONFIG.*` properties. Without
+  them the FPGA will not read the flash at boot.
+- Flash wants a headerless image, not a `.bit`. Edalize's Vivado run template already sets
+  `STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE`, so Vivado emits one, but the template only copies
+  the `.bit` back to the work root — hence `_design_bin()` globbing
+  `<nethash>.runs/impl_1/uart_top.bin`. A build cached before this was enabled has no
+  `.bin`; clear the cache and rebuild.
+- `openFPGALoader` must be on PATH (it ships with oss-cad-suite).
+- The Cmod's flash (a Macronix MX25L3233F) will not serve an `SPIx4` bitstream until its
+  quad-enable status bit is set. Vivado's indirect programming sets it implicitly, but
+  openFPGALoader keeps it behind `--enable-quad`, hence `programmer.quad`. Symptom when
+  it is missing: the flash write verifies clean, and the board then says nothing at all
+  ("Did not receive coherent response from target"). The bit is non-volatile.
+
+Note this rewrites flash on **every** `load_network()` that misses the build cache. Set
+`programmer.flash` to `false` in `targets.json` for a volatile load while iterating.
+
+### Talking to a board without rebuilding
+
+`attach_network(net)` is `load_network(net)` minus the build and the programming: it sets
+up the host-side packet layouts, marks the processor programmed, and syncs with whatever
+the board is already running. Useful for iterating on host code, or on the runtime
+protocol, without paying a Vivado run per change (~2 min vs ~1 s). `examples/simple.py -n`
+uses it. Note `load_network(net, should_program=False)` is *not* this — it still runs the
+full build and leaves the processor unusable.
+
+It only makes sense against a flashed target, since an SRAM-programmed board has nothing
+left to attach to. Because the packet layouts come from `net`, attaching the wrong network
+would silently produce garbage on the wire, so `_program()` records what it flashed in
+`<cache>/eda/<target>/flashed.json` and `attach_network()` refuses to proceed unless the
+network hash and I/O type match. That record only tracks what this class flashed —
+programming the board by any other means leaves it stale.
+
 ### UART baud rate is clock-constrained
 
 `uart_processor.sv` times one bit as `8 * prescale` clocks, where

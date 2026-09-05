@@ -74,8 +74,15 @@
         "tools": {
             "vivado": {
                 "part": "xc7a35tcpg236-1",
-                "pgm": "vivado" 
+                "pgm": "none"
             }
+        },
+        "programmer": {
+            "tool": "openfpgaloader",
+            "board": "cmoda7_35t",
+            "flash": true,
+            "quad": true,
+            "verify": true
         }
     },
     "c5g": {

@@ -16,6 +16,9 @@ argparser = argparse.ArgumentParser(
         formatter_class=ArgumentDefaultsHelpFormatter)
 argparser.add_argument("-t", "--target", type=str, required=False,
                        default="basys3", help="Target board")
+argparser.add_argument("-n", "--no-load", action="store_true",
+                       help="Talk to the design already in the board's flash "
+                            "instead of rebuilding and reprogramming it")
 args = argparser.parse_args()
 
 net = neuro.Network()
@@ -23,7 +26,10 @@ net.read_from_file("../networks/simple.txt")
 
 proc = fpga.Processor(args.target, "/dev/ttyUSB1", "DIDO")
 
-proc.load_network(net)
+if args.no_load:
+    proc.attach_network(net)
+else:
+    proc.load_network(net)
 
 proc.apply_spikes([neuro.Spike(0, i, 1.0) for i in range(3)])
 proc.run(6)
