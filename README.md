@@ -148,7 +148,7 @@ If the passing baud rates do not match the [hardware configuration "database"](/
 
 ## 🎈 Usage <a name="usage"></a>
 
-The API for using the FPGA neuroprocessor is extremely similar to the standard Framework API. This is an [example](/example.py) using a simple two-neuron network.
+The API for using the FPGA neuroprocessor is extremely similar to the standard Framework API. This is an [example](examples/simple.py) using a simple two-neuron network.
 
 ```python
 import neuro

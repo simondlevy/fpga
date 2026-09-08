@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2024 Keegan Dent, 2026 Simon D. Levy
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -15,15 +17,21 @@ argparser = argparse.ArgumentParser(
 argparser.add_argument("-t", "--target", type=str, required=False,
                        choices=("basys3", "nexys_a7_100", "cmoda7_35t"),
                        default="basys3", help="Target board")
+argparser.add_argument("-n", "--no-load", action="store_true",
+                       help="Talk to the design already in the board's flash "
+                            "instead of rebuilding and reprogramming it")
 args = argparser.parse_args()
+
+net = neuro.Network()
+net.read_from_file("../networks/simple.txt")
 
 proc = fpga.Processor(args.target, "/dev/ttyUSB1", "DIDO")
 
-net = neuro.Network()
+if args.no_load:
+    proc.attach_network(net)
+else:
+    proc.load_network(net)
 
-net.read_from_file("networks/simple.txt")
-
-proc.load_network(net)
 proc.apply_spikes([neuro.Spike(0, i, 1.0) for i in range(3)])
 proc.run(6)
 print(proc.output_last_fire(0))

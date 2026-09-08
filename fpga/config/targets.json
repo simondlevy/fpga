@@ -74,8 +74,12 @@
         "tools": {
             "vivado": {
                 "part": "xc7a35tcpg236-1",
-                "pgm": "vivado" 
+                "pgm": "vivado"
             }
+        },
+        "openfpgaloader": {
+            "flash": true,
+            "quad": true
         }
     },
     "c5g": {

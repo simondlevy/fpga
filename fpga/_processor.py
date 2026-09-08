@@ -1,15 +1,17 @@
-# Copyright (c) 2024-2025 Keegan Dent
+# Copyright (c) 2024-2025 Keegan Dent, 2026 Simon D. Levy
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 import os.path
 import pathlib as pl
+import shutil
+import subprocess
 import sys
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
 from importlib import resources
-from json import load
+from json import dump, load
 from threading import Thread
 from time import sleep
 from typing import Iterable
@@ -32,6 +34,7 @@ from fpga.network import (
 )
 
 SYSTEM_BUFFER = 4096
+TOPLEVEL = "uart_top"
 
 if not sys.version_info.major == 3 and sys.version_info.minor >= 6:
     raise RuntimeError("Python 3.6 or newer is required.")
@@ -126,6 +129,8 @@ class _IoConfig:
                     spk_fmt_str += spk_fmt_elem
             case _:
                 raise ValueError()
+
+        #print('>>>>>>>>> ', idx_width, spk_fmt_str, spk_names)
         self.spk_fmt = bs.compile(spk_fmt_str, spk_names)
 
         self.clear()
@@ -168,10 +173,13 @@ class Processor(neuro.Processor):
         target: str,
         interface: Serial | str | None = None,
         io_type: str = "DISO",
+        debug: bool = False,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
+
+        self._debug = debug
 
         self._target_name = target
 
@@ -191,7 +199,8 @@ class Processor(neuro.Processor):
         elif isinstance(interface, Serial):
             baudrate = interface.baudrate
         else:
-            raise RuntimeError("fpga Processor interface must be a periphery.Serial or str or None object.")
+            raise RuntimeError("fpga Processor interface must be a " +
+                               "periphery.Serial or str or None object.")
         self._interface = interface
         self._baudrate = baudrate
 
@@ -200,6 +209,9 @@ class Processor(neuro.Processor):
         self._network = None
         self._programmed = False
         self.clear()
+
+    def _ignore(self, _):
+        return
 
     def apply_spike(self, spike: neuro.Spike) -> None:
         if self._programmed is False:
@@ -215,10 +227,30 @@ class Processor(neuro.Processor):
             while self._inp.queue and self._inp.queue[0].time == self._inp.time:
                 # send these spikes as soon as they arrive to reduce latency
                 spikes_now.append(self._inp.queue.popleft())
+            #print('apply_spike: %d' % len(spikes_now))
             self._hw_tx(spikes_now, 0, False)
 
     def apply_spikes(self, spikes: list[neuro.Spike]) -> None:
         [self.apply_spike(spike) for spike in spikes]
+
+    def attach_network(self, net: neuro.Network) -> None:
+        # Talk to a design already resident on the board, without rebuilding or
+        # reprogramming it. Only useful for targets that keep their design in
+        # non-volatile flash (see the "programmer" entry in targets.json); an
+        # SRAM-programmed board loses it at power-off and has nothing to attach
+        # to. The packet layouts are derived from the network, so `net` must be
+        # the network that was flashed or the two sides will not agree.
+        self.clear()
+        self._network = net
+        self._setup_io()
+
+        if not isinstance(self._interface, Serial):
+            raise RuntimeError(
+                "Cannot attach to a network without a valid serial interface."
+            )
+        self._proj_path = self._network_proj_path()
+        self._programmed = True
+        self._sync()
 
     def clear(self) -> None:
         if self._network:
@@ -228,18 +260,18 @@ class Processor(neuro.Processor):
 
     def clear_activity(self) -> None:
         if self._programmed is False:
-            raise RuntimeError("Cannot clear network activity before programming the target FPGA.")
-
+            raise RuntimeError("Cannot clear network activity before " +
+                               "programming the target FPGA.")
         if self._inp.type == IoType.DISPATCH:
-            self._interface.write(
+            self._write(
                 self._inp.cmd_fmt.pack(
                     {
                         "opcode": DispatchOpcode.CLR,
                         "operand": 0,
                     }
-                )[::-1]
+                )[::-1] 
             )
-        self._interface.flush()
+        self._flush()
         match (self._inp.type, self._out.type):
             case (IoType.DISPATCH, IoType.DISPATCH):
                 self._hw_rx(self._max_run, True)
@@ -250,21 +282,67 @@ class Processor(neuro.Processor):
         self._inp.clear()
         self._out.clear()
 
-    def load_network(self, net: neuro.Network, should_program: bool = True) -> None:
-        self.clear()
-        self._network = net
-        self._setup_io()
-        backend = self._build_network()
-        if should_program:
-            if not isinstance(self._interface, Serial):
-                raise RuntimeError("Cannot program network onto FPGA without a valid serial interface.")
+    def load_network(self, net: neuro.Network) -> None:
 
-            backend.run()
-            self._programmed = True
-            # hardware will sometimes send CLR on startup
-            while self._interface.poll(1):
-                self._interface.read(self._interface.input_waiting())
-            self.clear_activity()
+        self._prepare_backend(net).run()
+        self._finish_load()
+
+    def load_network_nonvolatile(self, net: neuro.Network) -> None:
+
+        if not "openfpgaloader" in self._target_config:
+            raise RuntimeError("no openFPGALoader config found for " +
+                               self._target_name)
+
+        backend = self._prepare_backend(net)
+
+        pgm_config = self._target_config.get("openfpgaloader")
+
+        executable = pgm_config.get("executable", "openFPGALoader")
+
+        if shutil.which(executable) is None:
+            raise RuntimeError(
+                f"{executable} is not on PATH. It ships with oss-cad-suite; see"
+                " https://github.com/trabucayre/openFPGALoader for other options."
+            )
+
+        cmd = [executable, "--board", self._target_name]
+
+        if "freq" in pgm_config:
+            cmd.extend(["--freq", str(pgm_config["freq"])])
+
+        if pgm_config.get("flash", True):
+            # A bitstream built for CONFIG_MODE SPIx4 cannot boot until the
+            # flash's quad-enable status bit is set. Vivado's indirect
+            # programming flow sets it implicitly; openFPGALoader keeps it
+            # behind its own flag, so it needs a separate pass. The bit is
+            # non-volatile, so this is a no-op once it has taken.
+            if pgm_config.get("quad", False):
+                self._run_programmer(cmd + ["--enable-quad"], executable)
+            args = ["--write-flash", "--verify"]
+        else:
+            args = ["--write-sram"]
+
+        self._run_programmer(cmd + args + [str(self._design_bin())], executable)
+
+        if pgm_config.get("flash", True):
+            # Note what went into non-volatile storage so a later
+            # attach_network() can tell whether the board still holds it. Only
+            # tracks what this class flashed; programming the board by any
+            # other means leaves this stale.
+            path = self._flashed_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "w") as f:
+                dump(
+                    {
+                        "io_type": self._io_type,
+                        "nethash": hash_network(self._network, HASH_LEN),
+                    },
+                    f,
+                )
+        else:
+            self._flashed_path().unlink(missing_ok=True)
+
+        self._finish_load()
 
     def output_count(self, out_idx: int) -> int:
         return len(self.output_vector(out_idx))
@@ -321,6 +399,40 @@ class Processor(neuro.Processor):
             )
         rx_thread.join()
 
+    def _prepare_backend(self, net: neuro.Network) -> type:
+
+        self.clear()
+        self._network = net
+        self._setup_io()
+        backend = self._build_network()
+
+        if not isinstance(self._interface, Serial):
+            raise RuntimeError("Cannot program network onto FPGA " +
+                               "without a valid serial interface.")
+
+        return backend
+
+    def _finish_load(self):
+
+        self._programmed = True
+        self._sync()
+
+    def _flush(self):
+        self._interface.flush()
+
+    def _write(self, msg):
+        self._do_debug('write: 0x%02X' % msg[0])
+        self._interface.write(msg)
+
+    def _read(self, size, timeout=None):
+        rx = self._interface.read( size, timeout)
+        self._do_debug('read:  0x%02X' % rx[0])
+        return rx
+
+    def _do_debug(self, msg):
+        if self._debug:
+            print('DEBUG: ' + msg)
+
     def _hw_rx(self, target: int, seek_clr: bool = False) -> None:
         num_rx_bytes = width_bits_to_bytes(self._out.spk_fmt.calcsize())
 
@@ -332,10 +444,7 @@ class Processor(neuro.Processor):
             ):
                 sleep(100e-9)
                 continue
-            rx = self._interface.read(
-                num_rx_bytes,
-                10.0,
-            )[::-1]
+            rx = self._read(num_rx_bytes, 10.0)[::-1]
             if len(rx) != num_rx_bytes:
                 raise RuntimeError("Did not receive coherent response from target.")
 
@@ -407,19 +516,27 @@ class Processor(neuro.Processor):
             sleep(self._secs_per_run * runs)
 
         match self._inp.type:
+
             case IoType.DISPATCH:
-                [
-                    self._interface.write(
+
+                for idx, val in spike_dict.items():
+                    '''
+                    print('opcode=', int(DispatchOpcode.SPK),
+                          '|idx=', idx,
+                          '|val=', val,
+                          '|charge_width=', self._inp._charge_width(),
+                          '|spike_value_factor=', spike_value_factor(self._network))
+                    '''
+                    self._write(
                         self._inp.spk_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SPK,
                                 "idx": idx,
                                 "val": val,
                             }
-                        )[::-1]
+                        )[::-1],
                     )
-                    for idx, val in spike_dict.items()
-                ]
+
                 while runs:
                     to_run = min(
                         [
@@ -431,18 +548,18 @@ class Processor(neuro.Processor):
                     if not to_run:
                         sleep(100e-9)
                         continue
-                    self._interface.write(
+                    self._write(
                         self._inp.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.RUN,
                                 "operand": to_run,
                             }
-                        )[::-1]
+                        )[::-1],
                     )
                     pause(to_run)
                     runs -= to_run
                 if sync:
-                    self._interface.write(
+                    self._write(
                         self._inp.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SNC,
@@ -466,20 +583,21 @@ class Processor(neuro.Processor):
                 spike_dict[StreamFlag.SNC.name] = sync and (runs == 1)
                 if self._inp.time == 0:
                     spike_dict[StreamFlag.CLR.name] = True
-                self._interface.write(self._inp.spk_fmt.pack(spike_dict)[::-1])
+                self._write(self._inp.spk_fmt.pack(spike_dict)[::-1], 'E')
                 pause(1)
 
                 for r in reversed(range(runs - 1)):
                     if sync and r == 0:
                         run_dict[StreamFlag.SNC.name] = True
-                    self._interface.write(self._inp.spk_fmt.pack(run_dict)[::-1])
+                    self._write(self._inp.spk_fmt.pack(run_dict)[::-1], 'F')
                     pause(1)
 
     def _build_network(self) -> type:
         proc = proc_name(self._network)
 
         nethash = hash_network(self._network, HASH_LEN)
-        proj_path = fpga.eda_build_path / self._target_name / self._io_type / nethash
+        proj_path = self._network_proj_path()
+        self._proj_path = proj_path
 
         def relative_path(p: pl.Path) -> pl.Path:
             return pl.Path(os.path.relpath(p.resolve(), start=proj_path.resolve()))
@@ -594,7 +712,7 @@ class Processor(neuro.Processor):
             "files": files,
             "name": f"{nethash}",
             "parameters": parameters,
-            "toplevel": "uart_top",
+            "toplevel": TOPLEVEL,
             "tool_options": tool_options,
         }
 
@@ -607,7 +725,49 @@ class Processor(neuro.Processor):
         backend.configure()
         backend.build()
 
-        return backend        
+        return backend
+
+    def _design_bin(self) -> pl.Path:
+        # Edalize's Vivado run template turns on
+        # STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE, so Vivado emits a headerless
+        # <toplevel>.bin beside the .bit, but only copies the .bit back to the
+        # work root. The .bin is what goes into flash.
+        bins = sorted(self._proj_path.glob(f"*.runs/impl_1/{TOPLEVEL}.bin"))
+        if not bins:
+            raise RuntimeError(
+                f"No {TOPLEVEL}.bin under {self._proj_path}. Builds cached before"
+                " .bin generation was enabled do not have one; clear"
+                f" {fpga.eda_build_path} and rebuild."
+            )
+        return bins[0]
+
+    def _network_proj_path(self) -> pl.Path:
+        return (
+            fpga.eda_build_path
+            / self._target_name
+            / self._io_type
+            / hash_network(self._network, HASH_LEN)
+        )
+
+    def _flashed_path(self) -> pl.Path:
+        return fpga.eda_build_path / self._target_name / "flashed.json"
+
+    def _flashed_record(self) -> dict | None:
+        try:
+            with open(self._flashed_path()) as f:
+                return load(f)
+        except (FileNotFoundError, ValueError):
+            return None
+
+    def _run_programmer(self, cmd: list, executable: str) -> None:
+        print(" ".join(cmd))
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                f"{executable} exited {e.returncode}. Check that the board is"
+                " connected and that udev rules grant access to it."
+            ) from e
 
     def _set_comm_limits(self):
         self._secs_per_run = 0.0
@@ -643,6 +803,7 @@ class Processor(neuro.Processor):
     def _setup_io(self):
         match self._io_type[:2]:
             case "DI":
+                #print('inp=', end='')
                 self._inp = InpConfig(IoType.DISPATCH, self._network)
             case "SI":
                 self._inp = InpConfig(IoType.STREAM, self._network)
@@ -652,6 +813,7 @@ class Processor(neuro.Processor):
                 )
         match self._io_type[2:]:
             case "DO":
+                #print('out=', end='')
                 self._out = OutConfig(IoType.DISPATCH, self._network)
             case "SO":
                 self._out = OutConfig(IoType.STREAM, self._network)
@@ -660,3 +822,9 @@ class Processor(neuro.Processor):
                     f"Invalid output type: {self._io_type[2:]}\nExpected: (D|S)O"
                 )
         self._set_comm_limits()
+
+    def _sync(self) -> None:
+        # hardware will sometimes send CLR on startup
+        while self._interface.poll(1):
+            self._read(self._interface.input_waiting())
+        self.clear_activity()
