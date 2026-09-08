@@ -27,7 +27,7 @@
             }
         }
     },
-    "nexys": {
+    "nexys_a7_100": {
         "default_tool": "vivado",
         "parameters": {
             "clk_freq": 100000000.0,
@@ -55,7 +55,7 @@
             }
         }
     },
-    "cmod": {
+    "cmoda7_35t": {
         "default_tool": "vivado",
         "parameters": {
             "clk_freq": 96000000.0,

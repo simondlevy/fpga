@@ -13,6 +13,7 @@ import fpga
 argparser = argparse.ArgumentParser(
         formatter_class=ArgumentDefaultsHelpFormatter)
 argparser.add_argument("-t", "--target", type=str, required=False,
+                       choices=("basys3", "nexys_a7_100", "cmoda7_35t"),
                        default="basys3", help="Target board")
 args = argparser.parse_args()
 
