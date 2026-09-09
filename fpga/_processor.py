@@ -285,7 +285,8 @@ class Processor(neuro.Processor):
     def load_network(self, net: neuro.Network) -> None:
 
         self._prepare_backend(net).run()
-        self._finish_load()
+        self._programmed = True
+        self._sync()
 
     def load_network_nonvolatile(self, net: neuro.Network) -> None:
 
@@ -342,7 +343,7 @@ class Processor(neuro.Processor):
         else:
             self._flashed_path().unlink(missing_ok=True)
 
-        self._finish_load()
+        self._programmed = True
 
     def output_count(self, out_idx: int) -> int:
         return len(self.output_vector(out_idx))
@@ -411,11 +412,6 @@ class Processor(neuro.Processor):
                                "without a valid serial interface.")
 
         return backend
-
-    def _finish_load(self):
-
-        self._programmed = True
-        self._sync()
 
     def _flush(self):
         self._interface.flush()
