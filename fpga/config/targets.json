@@ -51,7 +51,7 @@
         "tools": {
             "vivado": {
                 "part": "xc7a100tcsg324-1",
-                "pgm": "vivado" 
+                "pgm": "vivado"
             }
         }
     },
@@ -78,6 +78,35 @@
             }
         },
         "openfpgaloader": {
+            "board":"cmoda7_35t",
+            "flash": true,
+            "quad": true
+        }
+    },
+    "cmoda7_35t_pmod": {
+        "default_tool": "vivado",
+        "parameters": {
+            "clk_freq": 96000000.0,
+            "uart": {
+                "baud_rates": [
+                    115200,
+                    500000,
+                    1000000,
+                    2000000,
+                    4000000
+                ],
+                "buffer_rx": 4096,
+                "buffer_tx": 4096
+            }
+        },
+        "tools": {
+            "vivado": {
+                "part": "xc7a35tcpg236-1",
+                "pgm": "vivado"
+            }
+        },
+        "openfpgaloader": {
+            "board":"cmoda7_35t",
             "flash": true,
             "quad": true
         }

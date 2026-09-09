@@ -26,3 +26,29 @@
 | programmer.quad            | bool      | false    | ignored unless `flash`; required when the design sets `CONFIG_MODE SPIx4`                                                         | Set the flash's quad-enable status bit, without which an x4 bitstream will not boot                    |
 | programmer.freq            | int       | Optional | >0                                                                                                                                | JTAG clock in Hertz                                                                                    |
 | programmer.executable      | string    | "openFPGALoader" |                                                                                                                           | Program name or path                                                                                   |
+
+## Targets
+
+Most target names map to a board. `cmoda7_35t_pmod` is the exception: it is the
+same Cmod A7-35T design as `cmoda7_35t`, but with the UART routed to the Pmod
+JA header instead of the board's FTDI USB bridge, for wiring the neuroprocessor
+to a microcontroller or other external 3.3V device rather than to a host PC.
+
+| JA pin | FPGA pin | Signal                                |
+|--------|----------|---------------------------------------|
+| 1      | G17      | `uart_rxd`, driven by the peer's TX   |
+| 2      | G19      | `uart_txd`, drives the peer's RX      |
+| 5      | --       | GND                                   |
+
+`uart_rxd` is given a pull-up, since a header pin left unwired floats where the
+USB bridge would have driven it. The header is 3.3V LVCMOS and the Artix-7 is
+not 5V tolerant, so a 5V peer needs level shifting.
+
+Note that `baud_rates` is inherited from `cmoda7_35t` and tops out at 4 Mbaud,
+which is also what a `Processor` picks when given no explicit rate. Few
+microcontrollers keep up with that; pass one that does, e.g.
+
+```python
+proc = fpga.Processor("cmoda7_35t_pmod", Serial("/dev/ttyUSB1", 115200), "DIDO")
+```
+

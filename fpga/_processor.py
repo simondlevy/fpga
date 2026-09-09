@@ -306,7 +306,7 @@ class Processor(neuro.Processor):
                 " https://github.com/trabucayre/openFPGALoader for other options."
             )
 
-        cmd = [executable, "--board", self._target_name]
+        cmd = [executable, "--board", pgm_config["board"]]
 
         if "freq" in pgm_config:
             cmd.extend(["--freq", str(pgm_config["freq"])])
