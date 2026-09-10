@@ -14,11 +14,11 @@ SRC = $(LIB)/src
 
 NET = $(ROOT)/networks/xor.txt
 
-test: main.cpp xor.hpp ../posix.cpp $(SRC)/*.hpp
-	g++ -Wall -I$(SRC) -I.. -o test main.cpp ../posix.cpp
+test: main.cpp decl.hpp $(SRC)/*.hpp
+	g++ -Wall -I$(SRC) -I.. -o test main.cpp
 
-xor.hpp: $(NET)
-	$(LIB)/utils/mkhdr.py $(NET) -o ./xor.hpp -d
+decl.hpp: $(NET)
+	$(LIB)/utils/mkhdr.py $(NET) -o ./decl.hpp -d
 
 run: test
 	./test
@@ -27,4 +27,4 @@ edit:
 	vim main.cpp
 
 clean:
-	rm -rf test xor.hpp
+	rm -rf test decl.hpp
