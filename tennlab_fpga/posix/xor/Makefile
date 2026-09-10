@@ -6,9 +6,11 @@
 
 all: test
 
-ROOT = ../..
+ROOT = ../../..
 
-SRC = $(ROOT)/src
+LIB = $(ROOT)/tennlab_fpga/
+
+SRC = $(LIB)/src
 
 NET = $(ROOT)/networks/xor.txt
 
@@ -16,7 +18,7 @@ test: main.cpp xor.hpp ../posix.cpp $(SRC)/*.hpp
 	g++ -Wall -I$(SRC) -I.. -o test main.cpp ../posix.cpp
 
 xor.hpp: $(NET)
-	$(ROOT)/utils/mkhdr.py $(NET) -o ./xor.hpp -d
+	$(LIB)/utils/mkhdr.py $(NET) -o ./xor.hpp -d
 
 run: test
 	./test
