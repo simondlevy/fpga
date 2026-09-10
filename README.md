@@ -236,8 +236,10 @@ and [Installing](#installing) and run the `packet-vis` command.
 
 ### Microcontroller / C++ support <a name = "cpp"></a>
 
-The [tennlab\_fpga](tennlab_fpga) directory contains support for communicating with FPGAs from a microcontroller like Arduino,
-and from an ordinary host computer using C++.  See the [README](README.md) in that directory to get started.
+The [tennlab\_fpga](tennlab_fpga) directory contains support for communicating
+with FPGAs from a microcontroller like Arduino, and from an ordinary host
+computer using C++.  See the [README](tennlab_fpga/README.md) in that directory
+to get started.
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 
