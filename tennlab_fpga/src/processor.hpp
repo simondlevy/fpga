@@ -26,6 +26,9 @@ namespace neuro {
 
         public:
 
+            static const uint32_t kBaudRate = 4'000'000; // Based on FPGA
+            static const uint32_t kDelayUsec = 10;       // Based on trial-and-error 
+
             Processor(
                     const int num_inputs,
                     const int num_outputs,

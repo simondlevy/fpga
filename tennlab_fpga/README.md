@@ -12,4 +12,4 @@ folder (e.g., ```$HOME/Arduino/libraries```) if you prefer to use the Arduino
 IDE.
 
 To get started, follow the directions in the [Getting Started](../README.md#getting_started)
-section of the main repo README.
+section of the main repo README for installing the FPGA Python library.
