@@ -6,9 +6,11 @@
 
 SKETCH = $(shell basename "`pwd`")
 
-ROOT = ../..
+ROOT = ../../..
 
-SRC = $(ROOT)/src
+LIB = $(ROOT)/tennlab_fpga/
+
+SRC = $(LIB)/src
 
 FQBN = teensy:avr:teensy40
 
@@ -23,7 +25,7 @@ build: $(SKETCH).ino decl.hpp $(SRC)/*.hpp
 		--fqbn $(FQBN) $(SKETCH).ino
 
 decl.hpp: $(NET)
-	$(ROOT)/utils/mkhdr.py -d $(NET) -o ./decl.hpp
+	$(LIB)/utils/mkhdr.py -d $(NET) -o ./decl.hpp
 
 flash:
 	arduino-cli upload -p $(PORT) --fqbn $(FQBN) .
