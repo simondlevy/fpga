@@ -11,4 +11,12 @@ this directory can be copied into your Arduino libraries folder (e.g.,
 ```$HOME/Arduino/libraries```) if you prefer to use the Arduino IDE.
 
 To get started, follow the directions in the [Getting Started](../README.md#getting_started)
-section of the main repo README for installing the FPGA Python library.
+section of the main repo README for installing the FPGA Python library.  Then try out the
+examples below:
+
+## POSIX example
+
+As you already need a POSIX environment for the main repo, it's probably easiest to start here,
+before you attempt to run on Arduino or another microcontroller.
+
+## Arduino example
