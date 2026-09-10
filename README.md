@@ -187,6 +187,12 @@ To run it, simply follow the instructions in [Framework (required)](#framework) 
 
 See also the list of [contributors](https://github.com/TENNLab-UTK/fpga/graphs/contributors) who participated in this project.
 
+### Microcontroller / C++ support
+
+The [tennlab\_fpga](tennlab_fpga) directory contains support for communicating with FPGAs from a microcontroller like Arduino,
+and from an ordinary host computer using C++.  See the [README](README.md) in that directory to get started.
+
+
 ## 🎉 Acknowledgements <a name = "acknowledgement"></a>
 
 - [UTK TENNLab](https://neuromorphic.eecs.utk.edu) researchers for the top-level API and fundamental neromorphic processing behavior, including but not limited to:
