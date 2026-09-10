@@ -25,58 +25,102 @@ Points of Contact: [Keegan Dent](https://github.com/keegandent), and
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Usage](#usage)
+- [Microcontroller / C++ Support](#cpp)
 - [Built Using](#built_using)
 - [Authors](#authors)
 - [Acknowledgments](#acknowledgement)
 
 ## 🧐 About <a name = "about"></a>
 
-This project is aimed at providing a simple and minimalist—but highly scalable—Field-Programmable Gate Array implementation of neuromorphic computing defined by Univeristy of Tennesse Knoxville (UTK) TENNLab research.
+This project is aimed at providing a simple and minimalist—but highly
+scalable—Field-Programmable Gate Array implementation of neuromorphic computing
+defined by Univeristy of Tennesse Knoxville (UTK) TENNLab research.
 
 ### Why?
 
-The reasoning for this repository may seem unclear at first. TENNLab already maintains multiple neuroprocessors in HDL and more in simulation.
-However, those approaches are optimized for ASIC implementation and thus incorporate the following primary drawbacks when implemented on FPGAs.
+The reasoning for this repository may seem unclear at first. TENNLab already
+maintains multiple neuroprocessors in HDL and more in simulation.  However,
+those approaches are optimized for ASIC implementation and thus incorporate the
+following primary drawbacks when implemented on FPGAs.
 
-1. They cannot take advantage of the "FP" aspects of FPGAs. ASIC neuroprocessors must accomodate dynamic network sizes and topologies at **run-time**. This significantly increases the complexity and overhead of those designs.
-1. ASICs have more granular logic building blocks, and designs targeting them are not optimized for FPGA logic elements (LEs). This often means that the designs have slower timing and more LE usage on FPGAs than in targeted implementations.
+1. They cannot take advantage of the "FP" aspects of FPGAs. ASIC
+neuroprocessors must accomodate dynamic network sizes and topologies at
+**run-time**. This significantly increases the complexity and overhead of those
+designs.
 
-The ground-up FPGA implementation of neuromorphic networks and processors in this project allows for efficient utilization of hardware resources and communication bandwidth. A particular focus of this project is the "directive" versus "stream" spike processing which allows users to select the bandwidth usage paradigm that best suits their applications. This implementation does, however, have its own drawbacks compared to the ASIC design.
+1. ASICs have more granular logic building blocks, and designs targeting them
+are not optimized for FPGA logic elements (LEs). This often means that the
+designs have slower timing and more LE usage on FPGAs than in targeted
+implementations.
 
-1. Relying on the EDA toolchain to map networks onto the FPGA means that it becomes a bottleneck for HWIL network training. As such, training is not a recommended application for this extension to the neuromorphic computing framework, compared to training in simulations or on ASIC implementations.
-1. Dynamic network interchanges require either writing a new bitstream (time sacrifice) or increasing utilization to host multiple networks in fabric at once (area sacrifice). However, considering how resource-efficient the neuromorphic networks in this implementation are, this implementation may still outperform the ASIC designs when hosting multiple networks in fabric.
+The ground-up FPGA implementation of neuromorphic networks and processors in
+this project allows for efficient utilization of hardware resources and
+communication bandwidth. A particular focus of this project is the "directive"
+versus "stream" spike processing which allows users to select the bandwidth
+usage paradigm that best suits their applications. This implementation does,
+however, have its own drawbacks compared to the ASIC design.
+
+1. Relying on the EDA toolchain to map networks onto the FPGA means that it
+becomes a bottleneck for HWIL network training. As such, training is not a
+recommended application for this extension to the neuromorphic computing
+framework, compared to training in simulations or on ASIC implementations.
+
+1. Dynamic network interchanges require either writing a new bitstream (time
+sacrifice) or increasing utilization to host multiple networks in fabric at
+once (area sacrifice). However, considering how resource-efficient the
+neuromorphic networks in this implementation are, this implementation may still
+outperform the ASIC designs when hosting multiple networks in fabric.
 
 ### License
 
-The licenses for both hardware and software are **weakly reciprocal**, meaning users of this project need not distribute their larger works under the same license, but the full source, **including modifications**, of the code included in this repository must be made available according to the license terms described below.
+The licenses for both hardware and software are **weakly reciprocal**, meaning
+users of this project need not distribute their larger works under the same
+license, but the full source, **including modifications**, of the code included
+in this repository must be made available according to the license terms
+described below.
 
 #### Software
 
-Usage of software in this repository is to be consistent with the included [license](/LICENSE): [MPL](https://opensource.org/license/mpl-2-0/).
+Usage of software in this repository is to be consistent with the included
+[license](/LICENSE): [MPL](https://opensource.org/license/mpl-2-0/).
 
 #### Hardware
 
-Usage of hardware description sources in this repository is to be consistent with the included [license](/fpga/rtl/LICENSE): [CERN-OHL-W](https://opensource.org/license/cern-ohl-w/).
+Usage of hardware description sources in this repository is to be consistent
+with the included [license](/fpga/rtl/LICENSE):
+[CERN-OHL-W](https://opensource.org/license/cern-ohl-w/).
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will get you a copy of the project up and running on your
+local machine for development and testing purposes.
 
 ### Prerequisites
 
-The TENNLab Neuromorphic Framework only works on Unix-like systems. Vivado only works on x86-64 Windows and Linux Systems. By extension, only Linux systems on x86-64 processors are supported. This project has been tested on an Ubuntu 22.04 LTS system.
+The TENNLab Neuromorphic Framework only works on Unix-like systems. Vivado only
+works on x86-64 Windows and Linux Systems. By extension, only Linux systems on
+x86-64 processors are supported. This project has been tested on an Ubuntu
+22.04 LTS system.
 
 #### Simulations (optional)
 
 Install any simulators you wish to use which are [compatible with cocotb](https://docs.cocotb.org/en/stable/simulator_support.html).
 
-**NOTE:** This project uses valid SystemVerilog that is currently incompatible with Icarus (iverilog). As a consequence, we are currently only running testbenches with Verilator. Even there, compatibility between the simulator and cocotb can be fragile, so we are currently using v5.024.
+**NOTE:** This project uses valid SystemVerilog that is currently incompatible
+with Icarus (iverilog). As a consequence, we are currently only running
+testbenches with Verilator. Even there, compatibility between the simulator and
+cocotb can be fragile, so we are currently using v5.024.
 
 If you wish to see waveform outputs from the sims, install gtkwave.
 
 #### EDA Toolchains
 
-The EDA toolchains you require will depend on which devices you are targetting. For example, the Basys3 board as configured so far in this repository, requires the Vivado software by AMD/Xilinx. Open-source toolchains are available but are not the primary focus of this project. Theoretically [any EDA tool compatible with Edalize](https://edalize.readthedocs.io/en/latest/edalize.html) can be used in this project.
+The EDA toolchains you require will depend on which devices you are targetting.
+For example, the Basys3 board as configured so far in this repository, requires
+the Vivado software by AMD/Xilinx. Open-source toolchains are available but are
+not the primary focus of this project. Theoretically [any EDA tool compatible
+with Edalize](https://edalize.readthedocs.io/en/latest/edalize.html) can be
+used in this project.
 
 #### Framework (required) <a name = "framework"></a>
 
@@ -88,7 +132,8 @@ cd framework-open/
 ```
 
 It is recommended, but perhaps not mandatory, to create the environment
-according to the Framework [documentation](https://github.com/TENNLab-UTK/framework-open/blob/main/markdown/python_build.md):
+according to the Framework
+[documentation](https://github.com/TENNLab-UTK/framework-open/blob/main/markdown/python_build.md):
 
 ```bash
 bash scripts/create_env.sh
@@ -110,7 +155,9 @@ git clone git@github.com:TENNLab-UTK/fpga.git ./fpga
 cd fpga
 ```
 
-Install the FPGA tools in editable mode. You can swap `[test,dev]` for `[test]` below to add the linting and formatting tools. **(zsh may require escaping the brackets!)**
+Install the FPGA tools in editable mode. You can swap `[test,dev]` for `[test]`
+below to add the linting and formatting tools. **(zsh may require escaping the
+brackets!)**
 
 ```bash
 pip install -e .[test]
@@ -134,21 +181,28 @@ find tb -iname "*.fst" -exec sh -c "gtkwave {} >/dev/null 2>&1 &" \;
 
 ### Hardware Communications
 
-You should verify your host can reliably communicate with the hardware over serial UART.
-There is a built-in "loopback" test that attempts communicating with standard baud rates ascending from 115,200 baud.
+You should verify your host can reliably communicate with the hardware over
+serial UART.  There is a built-in "loopback" test that attempts communicating
+with standard baud rates ascending from 115,200 baud.
 
-Below is an example of using the loopback test for a Digilent Basys3 board. Your cdev path will depend on your machine, and make sure your user is in the `dialout` group or has other permissions to access it.
+Below is an example of using the loopback test for a Digilent Basys3 board.
+Your cdev path will depend on your machine, and make sure your user is in the
+`dialout` group or has other permissions to access it.
 
 ```bash
 uart-loop basys3 /dev/ttyUSB1
 ```
 
-If the passing baud rates do not match the [hardware configuration "database"](/fpga/config/targets.json) then it will prompt you to update the rates.
-*It is particularly good to do this if some of the existing rates in the configuration do not pass when you run it.*
+If the passing baud rates do not match the [hardware configuration
+"database"](/fpga/config/targets.json) then it will prompt you to update the
+rates.  *It is particularly good to do this if some of the existing rates in
+the configuration do not pass when you run it.*
 
 ## 🎈 Usage <a name="usage"></a>
 
-The API for using the FPGA neuroprocessor is extremely similar to the standard Framework API. This is an [example](examples/simple.py) using a simple two-neuron network.
+The API for using the FPGA neuroprocessor is extremely similar to the standard
+Framework API. This is an [example](examples/simple.py) using a simple
+two-neuron network.
 
 ```python
 import neuro
@@ -165,19 +219,32 @@ proc.run(6)
 print(proc.output_last_fire(0))
 ```
 
-Support for additional FPGA targets can be accomplished by adding entries to the [targets config file](fpga/config/targets.json) and an accompanying folder containing relevant files, e.g. the top-level module and contraints files.
+Support for additional FPGA targets can be accomplished by adding entries to
+the [targets config file](fpga/config/targets.json) and an accompanying folder
+containing relevant files, e.g. the top-level module and contraints files.
 
 ### Creating Your Own Runtime Front-End
 
-There a scenarios where using the Python API for processor runtime is not feasible or optimal. For those users who wish to still use the FPGA framework for building the networks and processors, but write a separate front-end to suit their platforms, this package includes a web-based interactive visualization for processor packets.
+There a scenarios where using the Python API for processor runtime is not
+feasible or optimal. For those users who wish to still use the FPGA framework
+for building the networks and processors, but write a separate front-end to
+suit their platforms, this package includes a web-based interactive
+visualization for processor packets.
 
-To run it, simply follow the instructions in [Framework (required)](#framework) and [Installing](#installing) and run the `packet-vis` command.
+To run it, simply follow the instructions in [Framework (required)](#framework)
+and [Installing](#installing) and run the `packet-vis` command.
+
+### Microcontroller / C++ support <a name = "cpp"></a>
+
+The [tennlab\_fpga](tennlab_fpga) directory contains support for communicating with FPGAs from a microcontroller like Arduino,
+and from an ordinary host computer using C++.  See the [README](README.md) in that directory to get started.
 
 ## ⛏️ Built Using <a name = "built_using"></a>
 
 - [cocotb](https://www.cocotb.org) - HDL Testbench Framework
 - [Edalize](https://github.com/olofk/edalize) - Python API for EDA Toolchains
-- [Plotly Dash](https://dash.plotly.com/) & [Dash Bootstrap Components](https://dash-bootstrap-components.opensource.faculty.ai/) - Used in the Packet Visualization app.
+- [Plotly Dash](https://dash.plotly.com/) & [Dash Bootstrap Components](https://dash-bootstrap-components.opensource.faculty.ai/)
+- Used in the Packet Visualization app.
 
 ## ✍️ Authors <a name = "authors"></a>
 
@@ -187,20 +254,19 @@ To run it, simply follow the instructions in [Framework (required)](#framework) 
 
 See also the list of [contributors](https://github.com/TENNLab-UTK/fpga/graphs/contributors) who participated in this project.
 
-### Microcontroller / C++ support
-
-The [tennlab\_fpga](tennlab_fpga) directory contains support for communicating with FPGAs from a microcontroller like Arduino,
-and from an ordinary host computer using C++.  See the [README](README.md) in that directory to get started.
-
 
 ## 🎉 Acknowledgements <a name = "acknowledgement"></a>
 
-- [UTK TENNLab](https://neuromorphic.eecs.utk.edu) researchers for the top-level API and fundamental neromorphic processing behavior, including but not limited to:
+- [UTK TENNLab](https://neuromorphic.eecs.utk.edu) researchers for the
+  top-level API and fundamental neromorphic processing behavior, including but not limited to:
     - Dr. James Plank
     - Dr. Catherine Schuman
     - Dr. Garrett Rose
     - Dr. Charles Rizzo
     - Bryson Gullett
     - Anna Weis
-- [@alexforencich](https://github.com/alexforencich) for great examples of designs using using cocotb as well as various AXI4-Stream components modified for use in this project
-- [@WillGreen](https://github.com/WillGreen) for his amazing tutorials on [projectf.io](https://projectf.io/tutorials/)
+- [@alexforencich](https://github.com/alexforencich) for great examples of
+  designs using using cocotb as well as various AXI4-Stream components modified
+for use in this project
+- [@WillGreen](https://github.com/WillGreen) for his amazing tutorials on
+  [projectf.io](https://projectf.io/tutorials/)
