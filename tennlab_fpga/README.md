@@ -23,8 +23,8 @@ section of the main repo README for installing the FPGA Python library.
 
 2. Install [openFPGALoader](https://trabucayre.github.io/openFPGALoader/guide/install.html)
 
-3. Once you've set up the main repo (including the Python environment and
-conected the board to your host computer), try one of the following examples:
+3. Once you've set up the main repo, activated the Python environment and
+conected the board to your host computer, try one of the following examples:
 
 ## POSIX XOR example
 
