@@ -16,7 +16,7 @@
 
 #include <processor.hpp>
 
-#include "xor.hpp"
+#include "decl.hpp"
 
 static void run(const uint8_t a, const uint8_t b)
 {
