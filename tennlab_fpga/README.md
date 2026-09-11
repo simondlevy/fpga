@@ -49,4 +49,18 @@ input = 1,1; output = 0
 ```bash
 rm -rf ~/.cache/neuro_fpga # optional but recommended
 python3 tennlab_fpga/utils/load.py -t cmoda7_35t_pmod networks/xor.txt # may take several minutes
+cd tennlab_fpga/examples/xor/
+make && make flash
+make listen
 ```
+
+If everything goes well you should see this output over and over:
+
+```
+input = 0,0; output = 0
+input = 0,1; output = 1
+input = 1,0; output = 1
+input = 1,1; output = 0
+```
+
+

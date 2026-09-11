@@ -235,7 +235,7 @@ namespace neuro {
                 const auto avail = Available();
 
                 if (debug_) {
-                    printf("DEBUG: avail %u\n", avail);
+                    printf("DEBUG: avail %d\n", (int)avail);
                 }
 
                 for (size_t k=0; k<avail; ++k) {
