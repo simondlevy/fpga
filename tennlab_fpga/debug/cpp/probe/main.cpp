@@ -25,13 +25,8 @@ static constexpr size_t kMaxMessageSize = 4096;
 static constexpr uint32_t kDefaultTimeoutMsec = 100;
 
 static int fd_;
-
-#if 0
-auto Read() -> uint8_t
-{
-    return buf[index_++];
-}
-#endif
+static uint8_t buf_[kMaxMessageSize];
+static size_t index_;
 
 static void Open()
 {
@@ -70,14 +65,14 @@ static void Open()
 
 static void Write(const uint8_t byte)
 {
+    printf("write: x%02X\n", byte);
+
     const auto ignore = write(fd_, &byte, 1);
     (void)ignore;
 }
 
 static auto Available() -> size_t
 {
-    uint8_t buf[kMaxMessageSize] = {};
-
     size_t got = 0;
 
     // Read until the line has been quiet for kDefaultTimeoutMsec, or buf is full
@@ -95,7 +90,7 @@ static auto Available() -> size_t
         if (r == 0)
             break;
 
-        int n = read(fd_, buf + got, kMaxMessageSize - got);
+        int n = read(fd_, buf_ + got, kMaxMessageSize - got);
         if (n < 0) {
             if (errno == EINTR || errno == EAGAIN)
                 continue;
@@ -108,9 +103,15 @@ static auto Available() -> size_t
         got += (size_t)n;
     }
 
+    index_ = 0;
+
     return got;
 }
 
+auto Read() -> uint8_t
+{
+    return buf_[index_++];
+}
 
 int main()
 {
