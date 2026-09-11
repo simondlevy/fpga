@@ -45,3 +45,8 @@ input = 1,1; output = 0
 ```
 
 ## Arduino XOR example
+
+```bash
+rm -rf ~/.cache/neuro_fpga # optional but recommended
+python3 tennlab_fpga/utils/load.py -t cmoda7_35t_pmod networks/xor.txt # may take several minutes
+```

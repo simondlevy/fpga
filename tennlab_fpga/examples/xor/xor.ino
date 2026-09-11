@@ -28,18 +28,8 @@ static void Run(const uint8_t a, const uint8_t b)
     printf("input = %d,%d; output = %d\n", a, b, proc_.GetOutputCount(0));
 }
 
-static void BlinkLed()
-{
-    static bool led_on_;
-    digitalWrite(LED_BUILTIN, led_on_);
-    led_on_ = !led_on_;
-}
-
-
 void setup()
 {
-    pinMode(LED_BUILTIN, OUTPUT);
-
     delay(5000);
 
     proc_.Connect();
@@ -54,10 +44,4 @@ void setup()
 
 void loop() 
 {
-    static uint32_t msec_prev_;
-    const auto msec_curr = millis();
-    if (msec_curr - msec_prev_ > 1000) {
-        msec_prev_ = msec_curr;
-        BlinkLed();
-    }
 }
