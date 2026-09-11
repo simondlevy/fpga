@@ -26,6 +26,10 @@ parser.add_argument('-p', '--port', help='target port',
 parser.add_argument('-i', '--io_type', help='IO type',
                     default='DIDO')
 
+parser.add_argument('-s', '--spi_flash', action='store_true',
+                    help='load to non-volatile SPI flash')
+                    
+
 args = parser.parse_args()
 
 net = neuro.Network()
@@ -33,4 +37,7 @@ net.read_from_file(args.input_file)
 
 proc = fpga.Processor(args.target, args.port, args.io_type)
 
-proc.load_network_nonvolatile(net)
+if args.spi_flash:
+    proc.load_network_nonvolatile(net)
+else:
+    proc.load_network(net)

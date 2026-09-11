@@ -4,12 +4,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-SRC = ../../src
-
 all: test
 
-test: main.cpp ../serial.cpp $(SRC)/*.h*
-	g++ -Wall -I$(SRC) -o test main.cpp ../serial.cpp
+ROOT = ..
+
+SRC = $(ROOT)/src
+
+NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt
+
+test: main.cpp $(SRC)/*.hpp
+	g++ -Wall -I$(SRC) -I.. -o test main.cpp
 
 run: test
 	./test
@@ -18,4 +22,5 @@ edit:
 	vim main.cpp
 
 clean:
-	rm -rf test simple *.o
+	rm -rf test decl.hpp
+

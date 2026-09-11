@@ -14,8 +14,7 @@
 #include <string>
 #include <vector>
 
-#include "connection.hpp"
-#include "serial.h"
+#include <comms/posix.hpp>
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static const std::string kTestData = "spikes.txt";
@@ -102,16 +101,14 @@ static auto loaddata() -> std::vector<Entry>
 
 int main()
 {
-    neuro::Serial::Begin(kPortName);
+    const auto data = loaddata(); 
 
-    auto proc = neuro::Connection(
+    auto proc = neuro::Processor(
             kNumInputs,
             kNumOutputs,
             kChargeWidth,
             kEntryValueFactor,
             kDebug);
-
-    const auto data = loaddata(); 
 
     const auto runtime = data.back().step + 1;
 
@@ -119,6 +116,7 @@ int main()
 
         proc.ClearActivity();
 
+#if 0
         for (auto entry:data) {
             if (entry.step == timestep) {
                 proc.ApplySpike(entry.id, entry.time, entry.value);
@@ -133,7 +131,7 @@ int main()
         if (kDebug) {
             printf("\n");
         }
+#endif
     }
-
     return 0;
 }
