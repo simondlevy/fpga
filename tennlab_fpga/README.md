@@ -50,10 +50,10 @@ input = 1,1; output = 0
 1. Wire your Arduino-compatible micrcontroller to the PMOD pins on the Cmod as shown in the 
 image above:
 
-* Arduino 5V to Cmod 5V
-* Arduino GND to Cmod GND
-* Arduino TX1 to Cmod G17
-* Arduino RX1 to Cmod G19
+* Arduino 5V to PMOD V
+* Arduino GND to PMOD G
+* Arduino TX1 to PMOD G17
+* Arduino RX1 to PMOD G19
 
 2. Run the following commands from wherever you installed the main repo:
 
