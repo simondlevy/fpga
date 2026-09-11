@@ -46,6 +46,8 @@ input = 1,1; output = 0
 
 ## Arduino XOR example
 
+<img src="media/pmod.png" width=200>
+
 1. Wire your Arduino-compatible micrcontroller to the PMOD pins on the Cmod as follows:
 
 * Arduino 5V to Cmod 5V
