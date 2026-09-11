@@ -22,11 +22,14 @@ section of the main repo README for installing the FPGA Python library.
 As you already need a POSIX environment for the main repo, it's probably easiest to start here,
 before you attempt to run on Arduino or another microcontroller.  
 
-First, you'll need a Xlilinx Cmod A7-35T FPGA, as this is currently the only FPGA supported
-by the example we'll be using.  Once you've set up the main repo (including the Python environment,
-do the following from wherever you installed the main repo:
+First, you'll need a
+[Xlilinx Cmod A7-35T FPGA](https://digilent.com/shop/cmod-a7-35t-breadboardable-artix-7-fpga-module/),
+as this is currently the only FPGA supported by the example we'll be using.
+Once you've set up the main repo (including the Python environment, do the
+following from wherever you installed the main repo:
 
 ```bash
+rm -rf ~/.cache/neuro_fpga # optional but recommended
 python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/xor.txt
 ```
 
