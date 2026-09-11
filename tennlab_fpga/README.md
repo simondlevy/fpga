@@ -49,12 +49,13 @@ input = 1,1; output = 0
 ```bash
 rm -rf ~/.cache/neuro_fpga # optional but recommended
 python3 tennlab_fpga/utils/load.py -t cmoda7_35t_pmod networks/xor.txt # may take several minutes
-cd tennlab_fpga/examples/xor/
-make && make flash
-make listen
+cp -r tennlab_fpga $(HOME)/Arduino/libraries # or wherever you keep your Arduino libraries
 ```
 
-If everything goes well you should see this output over and over:
+Next, open the Arduino IDE, find the <b>TeNLabFPGA/xor</b> example sketch in
+the <b>File/Examples</b> menu, and compile and flash the sketch in the usual
+way.  If everything goes well you should see this output over and over in the
+Serial Monitor:
 
 ```
 input = 0,0; output = 0
