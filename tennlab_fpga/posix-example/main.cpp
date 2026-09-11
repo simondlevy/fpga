@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include <processor.hpp>
+#include <comms/posix.hpp>
 
 #include "decl.hpp"
 
