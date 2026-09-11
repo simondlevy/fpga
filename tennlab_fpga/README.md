@@ -5,10 +5,7 @@
 This directory contains support code for communicating between a microntroller
 like Arduino and an FPGA programmed as described in the [README](../README.md),
 as well as support for those who wish to use C++ instead of Python for 
-writing such programs on an ordinary Linux host computer.  Although it's
-probably easiest to use a [makefile](examples/xor/Makefile) for all such work,
-this directory can be copied into your Arduino libraries folder (e.g.,
-```$HOME/Arduino/libraries```) if you prefer to use the Arduino IDE.
+writing such programs on an ordinary Linux host computer. 
 
 ## Supported FPGAs
 
@@ -34,7 +31,7 @@ from wherever you installed the main repo:
 
 ```bash
 rm -rf ~/.cache/neuro_fpga # optional but recommended
-python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/xor.txt # may take several minutes
+python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/Xor.txt # may take several minutes
 cd tennlab_fpga/posix-example
 make run
 ```
