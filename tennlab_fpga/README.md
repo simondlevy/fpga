@@ -17,7 +17,7 @@ section of the main repo README for installing the FPGA Python library.
 
 2. Install [openFPGALoader](https://trabucayre.github.io/openFPGALoader/guide/install.html)
 
-## POSIX example
+## POSIX XOR example
 
 As you already need a POSIX environment for the main repo, it's probably easiest to start here,
 before you attempt to run on Arduino or another microcontroller.  
@@ -44,4 +44,4 @@ input = 1,0; output = 1
 input = 1,1; output = 0
 ```
 
-## Arduino example
+## Arduino XOR example
