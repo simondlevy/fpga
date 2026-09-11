@@ -105,12 +105,18 @@ static auto Available() -> size_t
 
     index_ = 0;
 
+    printf("avail: %d\n", (int)got);
+
     return got;
 }
 
 auto Read() -> uint8_t
 {
-    return buf_[index_++];
+    const auto byte = buf_[index_++];
+
+    printf("read : x%02X\n", byte);
+
+    return byte;
 }
 
 int main()
@@ -119,7 +125,11 @@ int main()
 
     Write(0xC0);
 
-    printf("%d\n", (int)Available());
+    const auto avail = Available();
+
+    for (size_t k=0; k<avail; ++k) {
+        Read();
+    }
 
     return 0;
 }
