@@ -6,14 +6,14 @@
 
 all: test
 
-ROOT = ../..
+ROOT = ..
 
 SRC = $(ROOT)/src
 
 NET = $(ROOT)/networks/xor.txt
 
-test: main.cpp decl.hpp ../posix.cpp $(SRC)/*.hpp
-	g++ -Wall -I$(SRC) -I.. -o test main.cpp ../posix.cpp
+test: main.cpp decl.hpp posix.cpp $(SRC)/*.hpp
+	g++ -Wall -I$(SRC) -I.. -o test main.cpp posix.cpp
 
 decl.hpp: $(NET)
 	$(ROOT)/utils/mkhdr.py $(NET) -o ./decl.hpp
