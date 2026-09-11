@@ -30,8 +30,9 @@ following from wherever you installed the main repo:
 
 ```bash
 rm -rf ~/.cache/neuro_fpga # optional but recommended
-python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/xor.txt
+python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/xor.txt # may take several minutes
+cd tennlab_fpga/posix/xor
+make run
 ```
-
 
 ## Arduino example

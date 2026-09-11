@@ -15,9 +15,8 @@
 #include <vector>
 
 #include <processor.hpp>
-#include <comms/posix.hpp>
 
-#include "decl.hpp"
+#include "xor.hpp"
 
 static void run(const uint8_t a, const uint8_t b)
 {

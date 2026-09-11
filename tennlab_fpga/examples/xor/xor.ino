@@ -7,7 +7,6 @@
  */
 
 #include <processor.hpp>
-#include <comms/serial1.hpp>
 
 #include "decl.hpp"
 

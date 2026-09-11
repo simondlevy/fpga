@@ -6,19 +6,17 @@
 
 all: test
 
-ROOT = ../../..
+ROOT = ../..
 
-LIB = $(ROOT)/tennlab_fpga/
-
-SRC = $(LIB)/src
+SRC = $(ROOT)/src
 
 NET = $(ROOT)/networks/xor.txt
 
-test: main.cpp decl.hpp $(SRC)/*.hpp
-	g++ -Wall -I$(SRC) -I.. -o test main.cpp
+test: main.cpp xor.hpp ../posix.cpp $(SRC)/*.hpp
+	g++ -Wall -I$(SRC) -I.. -o test main.cpp ../posix.cpp
 
-decl.hpp: $(NET)
-	$(LIB)/utils/mkhdr.py $(NET) -o ./decl.hpp -d
+xor.hpp: $(NET)
+	$(ROOT)/utils/mkhdr.py $(NET) -o ./xor.hpp -d
 
 run: test
 	./test
@@ -27,4 +25,4 @@ edit:
 	vim main.cpp
 
 clean:
-	rm -rf test decl.hpp
+	rm -rf test xor.hpp

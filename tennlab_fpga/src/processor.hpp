@@ -26,9 +26,6 @@ namespace neuro {
 
         public:
 
-            static const uint32_t kBaudRate = 4'000'000; // Based on FPGA
-            static const uint32_t kDelayUsec = 10;       // Based on trial-and-error 
-
             Processor(
                     const int num_inputs,
                     const int num_outputs,
@@ -238,7 +235,7 @@ namespace neuro {
                 const auto avail = Available();
 
                 if (debug_) {
-                    printf("DEBUG: avail %d\n", (int)avail);
+                    printf("DEBUG: avail %u\n", avail);
                 }
 
                 for (size_t k=0; k<avail; ++k) {

@@ -17,7 +17,6 @@ parser = argparse.ArgumentParser(
 parser.add_argument('input_file')
 
 parser.add_argument('-t', '--target', help='target board',
-                    choices=('cmoda7_35t', 'cmoda7_35t_pmod'), 
                     default='cmoda7_35t_pmod')
 
 parser.add_argument('-p', '--port', help='target port',
