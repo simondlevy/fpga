@@ -61,7 +61,7 @@ python3 tennlab_fpga/utils/load.py -t cmoda7_35t_pmod networks/xor.txt # may tak
 cp -r tennlab_fpga $(HOME)/Arduino/libraries # or wherever you keep your Arduino libraries
 ```
 
-3. Open the Arduino IDE, find the <b>TeNLabFPGA/xor</b> example sketch in
+3. Open the Arduino IDE, find the <b>TeNLabFPGA/Xor</b> example sketch in
 the <b>File/Examples</b> menu, and compile and flash the sketch in the usual
 way.  If everything goes well you should see this output over and over in the
 Serial Monitor:
@@ -72,3 +72,5 @@ input = 0,1; output = 1
 input = 1,0; output = 1
 input = 1,1; output = 0
 ```
+
+## How it works
