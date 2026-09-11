@@ -6,11 +6,9 @@
 
 all: test
 
-ROOT = ..
+ROOT = ../../..
 
 SRC = $(ROOT)/src
-
-NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt
 
 test: main.cpp $(SRC)/*.hpp
 	g++ -Wall -I$(SRC) -I.. -o test main.cpp
@@ -20,7 +18,3 @@ run: test
 
 edit:
 	vim main.cpp
-
-clean:
-	rm -rf test decl.hpp
-
