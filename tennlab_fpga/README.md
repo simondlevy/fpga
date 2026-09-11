@@ -12,10 +12,9 @@ this directory can be copied into your Arduino libraries folder (e.g.,
 
 ## Supported FPGAs
 
-Currently the 
+Currently the
 [Xlilinx Cmod A7-35T FPGA](https://digilent.com/shop/cmod-a7-35t-breadboardable-artix-7-fpga-module/),
-is currently the only FPGA supported.  Once you've set up the main repo
-(including the Python environment and conected the board to your host computer.
+is the only FPGA supported.  
 
 ## Installation
 
@@ -23,6 +22,9 @@ is currently the only FPGA supported.  Once you've set up the main repo
 section of the main repo README for installing the FPGA Python library. 
 
 2. Install [openFPGALoader](https://trabucayre.github.io/openFPGALoader/guide/install.html)
+
+3. Once you've set up the main repo (including the Python environment and
+conected the board to your host computer), try one of the following examples:
 
 ## POSIX XOR example
 
