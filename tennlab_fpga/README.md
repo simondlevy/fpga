@@ -10,13 +10,25 @@ probably easiest to use a [makefile](examples/xor/Makefile) for all such work,
 this directory can be copied into your Arduino libraries folder (e.g.,
 ```$HOME/Arduino/libraries```) if you prefer to use the Arduino IDE.
 
-To get started, follow the directions in the [Getting Started](../README.md#getting_started)
-section of the main repo README for installing the FPGA Python library.  Then try out the
-examples below:
+## Installation
+
+1. Follow the directions in the [Getting Started](../README.md#getting_started)
+section of the main repo README for installing the FPGA Python library. 
+
+2. Install [openFPGALoader](https://trabucayre.github.io/openFPGALoader/guide/install.html)
 
 ## POSIX example
 
 As you already need a POSIX environment for the main repo, it's probably easiest to start here,
-before you attempt to run on Arduino or another microcontroller.
+before you attempt to run on Arduino or another microcontroller.  
+
+First, you'll need a Xlilinx Cmod A7-35T FPGA, as this is currently the only FPGA supported
+by the example we'll be using.  Once you've set up the main repo (including the Python environment,
+do the following from wherever you installed the main repo:
+
+```bash
+python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/xor.txt
+```
+
 
 ## Arduino example
