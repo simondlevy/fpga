@@ -6,7 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#pragma once
 
 #include <errno.h>
 #include <fcntl.h>
@@ -20,30 +19,30 @@
 
 #include <string>
 
-#include <processor.hpp>
-
 static const char * kPort = "/dev/ttyUSB1";
 static constexpr speed_t kBaudRate = B4000000;
 static constexpr size_t kMaxMessageSize = 4096;
 static constexpr uint32_t kDefaultTimeoutMsec = 100;
 
-std::string port_;
-int fd_;
-uint8_t buf_[kMaxMessageSize] = {};
-size_t index_;
-
-void neuro::Processor::Connect()
+#if 0
+auto Read() -> uint8_t
 {
-    fd_ = open(kPort, O_RDWR | O_NOCTTY | O_NONBLOCK);
-    if (fd_ < 0) {
+    return buf[index_++];
+}
+#endif
+
+static auto Open() -> int
+{
+    auto fd = open(kPort, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    if (fd < 0) {
         fprintf(stderr, "open %s: %s\n", kPort, strerror(errno));
         exit(1);
     }
 
     struct termios tio;
-    if (tcgetattr(fd_, &tio) != 0) {
+    if (tcgetattr(fd, &tio) != 0) {
         perror("tcgetattr");
-        close(fd_);
+        close(fd);
         exit(1);
     }
 
@@ -55,32 +54,37 @@ void neuro::Processor::Connect()
 
     if (cfsetispeed(&tio, kBaudRate) != 0 || cfsetospeed(&tio, kBaudRate) != 0) {
         perror("cfsetspeed");
-        close(fd_);
+        close(fd);
         exit(1);
     }
-    if (tcsetattr(fd_, TCSANOW, &tio) != 0) {
+    if (tcsetattr(fd, TCSANOW, &tio) != 0) {
         perror("tcsetattr");
-        close(fd_);
+        close(fd);
         exit(1);
     }
 
-    tcflush(fd_, TCIOFLUSH);
+    tcflush(fd, TCIOFLUSH);
+
+    return fd;
+
 }
 
-void neuro::Processor::Write(const uint8_t byte)
+static void Write(const int fd, const uint8_t byte)
 {
-    const auto ignore = write(fd_, &byte, 1);
+    const auto ignore = write(fd, &byte, 1);
     (void)ignore;
 }
 
-auto neuro::Processor::Available() -> size_t
+static auto Available(const int fd) -> size_t
 {
+    uint8_t buf[kMaxMessageSize] = {};
+
     size_t got = 0;
 
     // Read until the line has been quiet for kDefaultTimeoutMsec, or buf is full
     while (got < kMaxMessageSize) {
 
-        struct pollfd pfd = { .fd = fd_, .events = POLLIN, .revents = 0 };
+        struct pollfd pfd = { .fd = fd, .events = POLLIN, .revents = 0 };
 
         int r = poll(&pfd, 1, kDefaultTimeoutMsec);
         if (r < 0) {
@@ -92,7 +96,7 @@ auto neuro::Processor::Available() -> size_t
         if (r == 0)
             break;
 
-        int n = read(fd_, buf_ + got, kMaxMessageSize - got);
+        int n = read(fd, buf + got, kMaxMessageSize - got);
         if (n < 0) {
             if (errno == EINTR || errno == EAGAIN)
                 continue;
@@ -105,12 +109,17 @@ auto neuro::Processor::Available() -> size_t
         got += (size_t)n;
     }
 
-    index_ = 0;
-
     return got;
 }
 
-auto neuro::Processor::Read() -> uint8_t
+
+int main()
 {
-    return buf_[index_++];
+    auto fd  = Open();
+
+    Write(fd, 0xC0);
+
+    printf("%d\n", (int)Available(fd));
+
+    return 0;
 }

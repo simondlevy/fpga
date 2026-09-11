@@ -23,7 +23,7 @@ static constexpr int kNumInputs = 2;
 static constexpr int kNumOutputs = 2;
 static constexpr int kChargeWidth = 5;
 static constexpr int kEntryValueFactor = 10;
-static constexpr bool kDebug = false;
+static constexpr bool kDebug = true;
 
 class Entry {
 

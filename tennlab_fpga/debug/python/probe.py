@@ -8,6 +8,7 @@
 
 import argparse
 from periphery import serial
+from time import sleep
 
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -22,4 +23,8 @@ args = parser.parse_args()
 with serial.Serial(args.port, args.baud) as ser:
 
     ser.write(b'\xC0')
+    
+    sleep(0.05)
+
+    print(ser.input_waiting())
 
