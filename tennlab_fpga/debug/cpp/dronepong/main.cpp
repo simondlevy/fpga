@@ -18,8 +18,9 @@
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static const std::string kTestData = "spikes.txt";
+static const bool kDebug = false;
 
-static auto proc_ = neuro::Processor(2, 2, 2, 1, true);
+static auto proc_ = neuro::Processor(2, 2, 2, 1, kDebug);
 
 class Entry {
 
@@ -99,9 +100,6 @@ int main()
 {
     proc_.Connect();
 
-    proc_.ClearActivity();
-
-#if 0
     const auto data = loaddata(); 
 
     const auto runtime = data.back().step + 1;
@@ -112,19 +110,19 @@ int main()
 
         for (auto entry:data) {
             if (entry.step == timestep) {
-                proc.ApplySpike(entry.id, entry.time, entry.value);
+                proc_.ApplySpike(entry.id, entry.time, entry.value);
             }
         }
 
-        proc.Run(50);
+        proc_.Run(50);
 
         printf("%03d: %02d %02d\n",
-                timestep, proc.GetOutputCount(0), proc.GetOutputCount(1));
+                timestep, proc_.GetOutputCount(0), proc_.GetOutputCount(1));
 
         if (kDebug) {
             printf("\n");
         }
     }
-#endif
+
     return 0;
 }
