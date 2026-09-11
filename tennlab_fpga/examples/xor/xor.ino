@@ -30,18 +30,21 @@ static void Run(const uint8_t a, const uint8_t b)
 
 void setup()
 {
-    delay(5000);
+    Serial.begin(115200);
 
     proc_.Connect();
 
     proc_.ClearActivity();
-
-    Run(0, 0);
-    Run(0, 1);
-    Run(1, 0);
-    Run(1, 1);
 }
 
 void loop() 
 {
+    Run(0, 0);
+    Run(0, 1);
+    Run(1, 0);
+    Run(1, 1);
+
+    Serial.println();
+
+    delay(1000);
 }
