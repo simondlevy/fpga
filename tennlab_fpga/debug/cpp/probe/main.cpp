@@ -24,6 +24,8 @@ static constexpr speed_t kBaudRate = B4000000;
 static constexpr size_t kMaxMessageSize = 4096;
 static constexpr uint32_t kDefaultTimeoutMsec = 100;
 
+static int fd_;
+
 #if 0
 auto Read() -> uint8_t
 {
@@ -31,18 +33,18 @@ auto Read() -> uint8_t
 }
 #endif
 
-static auto Open() -> int
+static void Open()
 {
-    auto fd = open(kPort, O_RDWR | O_NOCTTY | O_NONBLOCK);
-    if (fd < 0) {
+    fd_ = open(kPort, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    if (fd_ < 0) {
         fprintf(stderr, "open %s: %s\n", kPort, strerror(errno));
         exit(1);
     }
 
     struct termios tio;
-    if (tcgetattr(fd, &tio) != 0) {
+    if (tcgetattr(fd_, &tio) != 0) {
         perror("tcgetattr");
-        close(fd);
+        close(fd_);
         exit(1);
     }
 
@@ -54,28 +56,25 @@ static auto Open() -> int
 
     if (cfsetispeed(&tio, kBaudRate) != 0 || cfsetospeed(&tio, kBaudRate) != 0) {
         perror("cfsetspeed");
-        close(fd);
+        close(fd_);
         exit(1);
     }
-    if (tcsetattr(fd, TCSANOW, &tio) != 0) {
+    if (tcsetattr(fd_, TCSANOW, &tio) != 0) {
         perror("tcsetattr");
-        close(fd);
+        close(fd_);
         exit(1);
     }
 
-    tcflush(fd, TCIOFLUSH);
-
-    return fd;
-
+    tcflush(fd_, TCIOFLUSH);
 }
 
-static void Write(const int fd, const uint8_t byte)
+static void Write(const uint8_t byte)
 {
-    const auto ignore = write(fd, &byte, 1);
+    const auto ignore = write(fd_, &byte, 1);
     (void)ignore;
 }
 
-static auto Available(const int fd) -> size_t
+static auto Available() -> size_t
 {
     uint8_t buf[kMaxMessageSize] = {};
 
@@ -84,7 +83,7 @@ static auto Available(const int fd) -> size_t
     // Read until the line has been quiet for kDefaultTimeoutMsec, or buf is full
     while (got < kMaxMessageSize) {
 
-        struct pollfd pfd = { .fd = fd, .events = POLLIN, .revents = 0 };
+        struct pollfd pfd = { .fd = fd_, .events = POLLIN, .revents = 0 };
 
         int r = poll(&pfd, 1, kDefaultTimeoutMsec);
         if (r < 0) {
@@ -96,7 +95,7 @@ static auto Available(const int fd) -> size_t
         if (r == 0)
             break;
 
-        int n = read(fd, buf + got, kMaxMessageSize - got);
+        int n = read(fd_, buf + got, kMaxMessageSize - got);
         if (n < 0) {
             if (errno == EINTR || errno == EAGAIN)
                 continue;
@@ -115,11 +114,11 @@ static auto Available(const int fd) -> size_t
 
 int main()
 {
-    auto fd  = Open();
+    Open();
 
-    Write(fd, 0xC0);
+    Write(0xC0);
 
-    printf("%d\n", (int)Available(fd));
+    printf("%d\n", (int)Available());
 
     return 0;
 }
