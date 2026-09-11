@@ -69,7 +69,8 @@ void neuro::Processor::Connect()
 
 void neuro::Processor::Write(const uint8_t byte)
 {
-    write(fd_, &byte, 1);
+    const auto ignore = write(fd_, &byte, 1);
+    (void)ignore;
 }
 
 auto neuro::Processor::Available() -> size_t
@@ -91,7 +92,7 @@ auto neuro::Processor::Available() -> size_t
         if (r == 0)
             break;
 
-        size_t n = read(fd_, buf_ + got, kMaxMessageSize - got);
+        int n = read(fd_, buf_ + got, kMaxMessageSize - got);
         if (n < 0) {
             if (errno == EINTR || errno == EAGAIN)
                 continue;
