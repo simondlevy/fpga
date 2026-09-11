@@ -25,7 +25,12 @@ static void Run(const uint8_t a, const uint8_t b)
 
     proc_.Run(3);
 
-    printf("input = %d,%d; output = %d\n", a, b, proc_.GetOutputCount(0));
+    Serial.print("input=");
+    Serial.print(a);
+    Serial.print(",");
+    Serial.print(b);
+    Serial.print(" output=");
+    Serial.println(proc_.GetOutputCount(0));
 }
 
 void setup()
