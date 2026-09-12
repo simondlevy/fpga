@@ -284,66 +284,13 @@ class Processor(neuro.Processor):
 
     def load_network(self, net: neuro.Network) -> None:
 
-        self._prepare_backend(net).run()
-        self._programmed = True
-        self._sync()
+        if "openfpgaloader" in self._target_config:
+            self._load_network_nonvolatile(net)
 
-    def load_network_nonvolatile(self, net: neuro.Network) -> None:
-
-        if not "openfpgaloader" in self._target_config:
-            raise RuntimeError("no openFPGALoader config found for " +
-                               self._target_name)
-
-        backend = self._prepare_backend(net)
-
-        pgm_config = self._target_config.get("openfpgaloader")
-
-        executable = pgm_config.get("executable", "openFPGALoader")
-
-        if shutil.which(executable) is None:
-            raise RuntimeError(
-                f"{executable} is not on PATH. It ships with oss-cad-suite; see"
-                " https://github.com/trabucayre/openFPGALoader for other options."
-            )
-
-        cmd = [executable, "--board", pgm_config["board"]]
-
-        if "freq" in pgm_config:
-            cmd.extend(["--freq", str(pgm_config["freq"])])
-
-        if pgm_config.get("flash", True):
-            # A bitstream built for CONFIG_MODE SPIx4 cannot boot until the
-            # flash's quad-enable status bit is set. Vivado's indirect
-            # programming flow sets it implicitly; openFPGALoader keeps it
-            # behind its own flag, so it needs a separate pass. The bit is
-            # non-volatile, so this is a no-op once it has taken.
-            if pgm_config.get("quad", False):
-                self._run_programmer(cmd + ["--enable-quad"], executable)
-            args = ["--write-flash", "--verify"]
         else:
-            args = ["--write-sram"]
-
-        self._run_programmer(cmd + args + [str(self._design_bin())], executable)
-
-        if pgm_config.get("flash", True):
-            # Note what went into non-volatile storage so a later
-            # attach_network() can tell whether the board still holds it. Only
-            # tracks what this class flashed; programming the board by any
-            # other means leaves this stale.
-            path = self._flashed_path()
-            path.parent.mkdir(parents=True, exist_ok=True)
-            with open(path, "w") as f:
-                dump(
-                    {
-                        "io_type": self._io_type,
-                        "nethash": hash_network(self._network, HASH_LEN),
-                    },
-                    f,
-                )
-        else:
-            self._flashed_path().unlink(missing_ok=True)
-
-        self._programmed = True
+            self._prepare_backend(net).run()
+            self._programmed = True
+            self._sync()
 
     def output_count(self, out_idx: int) -> int:
         return len(self.output_vector(out_idx))
@@ -400,6 +347,68 @@ class Processor(neuro.Processor):
             )
         rx_thread.join()
 
+    ##########################################################################
+
+    def _load_network(self, net: neuro.Network) -> None:
+
+        self._prepare_backend(net).run()
+        self._programmed = True
+        self._sync()
+
+    def _load_network_nonvolatile(self, net: neuro.Network) -> None:
+
+        backend = self._prepare_backend(net)
+
+        pgm_config = self._target_config.get("openfpgaloader")
+
+        executable = pgm_config.get("executable", "openFPGALoader")
+
+        if shutil.which(executable) is None:
+            raise RuntimeError(
+                f"{executable} is not on PATH. It ships with oss-cad-suite; see"
+                " https://github.com/trabucayre/openFPGALoader for other options."
+            )
+
+        cmd = [executable, "--board", pgm_config["board"]]
+
+        if "freq" in pgm_config:
+            cmd.extend(["--freq", str(pgm_config["freq"])])
+
+        if pgm_config.get("flash", True):
+            # A bitstream built for CONFIG_MODE SPIx4 cannot boot until the
+            # flash's quad-enable status bit is set. Vivado's indirect
+            # programming flow sets it implicitly; openFPGALoader keeps it
+            # behind its own flag, so it needs a separate pass. The bit is
+            # non-volatile, so this is a no-op once it has taken.
+            if pgm_config.get("quad", False):
+                self._run_programmer(cmd + ["--enable-quad"], executable)
+            args = ["--write-flash", "--verify"]
+        else:
+            args = ["--write-sram"]
+
+        self._run_programmer(cmd + args + [str(self._design_bin())], executable)
+
+        if pgm_config.get("flash", True):
+            # Note what went into non-volatile storage so a later
+            # attach_network() can tell whether the board still holds it. Only
+            # tracks what this class flashed; programming the board by any
+            # other means leaves this stale.
+            path = self._flashed_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "w") as f:
+                dump(
+                    {
+                        "io_type": self._io_type,
+                        "nethash": hash_network(self._network, HASH_LEN),
+                    },
+                    f,
+                )
+        else:
+            self._flashed_path().unlink(missing_ok=True)
+
+        self._programmed = True
+
+ 
     def _prepare_backend(self, net: neuro.Network) -> type:
 
         self.clear()

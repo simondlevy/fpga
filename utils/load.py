@@ -39,7 +39,4 @@ net.read_from_file(args.input_file)
 
 proc = fpga.Processor(args.target, args.port, args.io_type)
 
-if use_spi_flash[args.target]:
-    proc.load_network_nonvolatile(net)
-else:
-    proc.load_network(net)
+proc.load_network(net)
