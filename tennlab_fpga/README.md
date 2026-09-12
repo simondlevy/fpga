@@ -33,7 +33,7 @@ from wherever you installed the main repo:
 
 ```bash
 rm -rf ~/.cache/neuro_fpga # optional but recommended
-python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/Xor.txt # may take several minutes
+python3 tennlab_fpga/utils/load.py -t cmoda7_35t networks/xor.txt # may take several minutes
 cd tennlab_fpga/posix-example
 make run
 ```
