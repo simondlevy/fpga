@@ -262,6 +262,12 @@ namespace neuro {
                 }
             }
 
+            void Write(const uint8_t byte)
+            {
+                Serial1.write(byte);
+                delayMicroseconds(10);
+            }
+
              // Bit-twiddling -------------------------------------------------
 
             static auto WidthNearestByte(const int bits) -> int
@@ -279,8 +285,6 @@ namespace neuro {
                 return bytes * 8;
             }
 
-            // Hardware-dependent implementation
-            void Write(const uint8_t byte);
             auto Available() -> size_t;
             auto Read() -> uint8_t;
 

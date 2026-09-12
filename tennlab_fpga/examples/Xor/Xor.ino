@@ -20,11 +20,6 @@ namespace neuro {
 
     class ArduinoUart : public Uart {
 
-        void Write(const uint8_t byte) 
-        {
-            Serial1.write(byte);
-        }
-
         auto Available() -> size_t 
         {
             return Serial1.available();
@@ -35,13 +30,6 @@ namespace neuro {
             return Serial1.read();
         }
     };
-}
-
-void neuro::Processor::Write(const uint8_t byte)
-{
-    Serial1.write(byte);
-
-    delayMicroseconds(kDelayUsec);
 }
 
 auto neuro::Processor::Available() -> size_t
