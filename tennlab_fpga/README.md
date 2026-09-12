@@ -79,4 +79,7 @@ input = 1,1; output = 0
 
 ## How it works
 
-
+The [src](src/) directory contains a header-only [Processor](src/Processor.hpp)
+that provides equivalent functionality to the Python [Processor](../fpga/_processor.py)
+class in the main part of the repository, with the exception that the C++ code
+cannot load a network onto the FPGA.
