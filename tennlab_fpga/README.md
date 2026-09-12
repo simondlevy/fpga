@@ -92,7 +92,7 @@ class that provides equivalent functionality to the Python [Processor](../fpga/_
 class in the main part of the repository, with the exception that the C++ code
 cannot load a network onto the FPGA.  The Processor class virtualizes the UART methods
 to be used by the board (make connection, read, write, get number of bytes available),
-which are implemented in the ```uart.cpp``` class in each of the examples.
+which are implemented in the ```uart.cpp``` code in each of the examples.
 
 ## Exploring further
 
