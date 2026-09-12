@@ -11,7 +11,7 @@ import sys
 
 import neuro
 
-from fpga.network import charge_width, spike_value_factor
+from fpga.network import charge_width, spike_value_factor, sim_time
 
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -39,9 +39,16 @@ outfile = (sys.stdout if args.output_file is None
 outfile.write('// AUTO-GENERATED: DO NOT EDIT\n\n')
 outfile.write('#pragma once\n\n')
 outfile.write('#include <processor.hpp>\n\n')
-outfile.write('static auto proc_ = neuro::Processor(')
-outfile.write('%d, ' % net.num_inputs())
-outfile.write('%d, ' % net.num_outputs())
-outfile.write('%d, ' % charge_width(net))
-outfile.write('%d, %s);\n' % (spike_value_factor(net), 'true'
-                              if args.debug else 'false'))
+outfile.write('static const int kNumInputs = %d;\n' % net.num_inputs())
+outfile.write('static const int kNumOutputs = %d;\n' % net.num_outputs())
+outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
+outfile.write('static const int kSpikeValueFactor = %d;\n' % spike_value_factor(net))
+outfile.write('static const int kSimTime = %d;\n' % sim_time(net))
+outfile.write('static const bool kDebug = %s;\n\n' %
+              ('true' if args.debug else 'false'))
+outfile.write('static neuro::Processor proc_(\n')
+outfile.write('    kNumInputs,\n')
+outfile.write('    kNumOutputs,\n')
+outfile.write('    kChargeWidth,\n')
+outfile.write('    kSpikeValueFactor,\n')
+outfile.write('    kDebug);\n')

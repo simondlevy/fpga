@@ -69,6 +69,12 @@ def proc_name(net: neuro.Network) -> str:
     return other_data["proc_name"]
 
 
+def sim_time(net: neuro.Network) -> str:
+    other_data = net.get_data("other")
+    if type(other_data) is not dict:
+        other_data = other_data.to_python()
+    return other_data["sim_time"]
+
 def _num_inp_ports(node: neuro.Node) -> int:
     return len(node.incoming) + (1 if (node.input_id > -1) else 0)
 
