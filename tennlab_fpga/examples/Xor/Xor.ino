@@ -14,6 +14,34 @@
 static const uint32_t kBaudRate = 4'000'000; // Based on FPGA
 static const uint32_t kDelayUsec = 10;       // Based on trial-and-error 
 
+static auto proc_ = neuro::Processor(2, 1, 2, 1, true);
+
+namespace neuro {
+
+    class ArduinoUart : public Uart {
+
+        void Begin() 
+        {
+            Serial1.begin(kBaudRate);
+        }
+
+        void Write(const uint8_t byte) 
+        {
+            Serial1.write(byte);
+        }
+
+        auto Available() -> size_t 
+        {
+            return Serial1.available();
+        }
+
+        auto Read() -> uint8_t 
+        {
+            return Serial1.read();
+        }
+    };
+}
+
 void neuro::Processor::Connect()
 {
     Serial1.begin(kBaudRate);
@@ -35,8 +63,6 @@ auto neuro::Processor::Read() -> uint8_t
 {
     return Serial1.read();
 }
-
-static auto proc_ = neuro::Processor(2, 1, 2, 1, false);
 
 static void Run(const uint8_t a, const uint8_t b)
 {
