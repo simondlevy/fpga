@@ -16,11 +16,6 @@ static const uint32_t kDelayUsec = 10;       // Based on trial-and-error
 
 static auto proc_ = neuro::Processor(2, 1, 2, 1, false);
 
-auto neuro::Processor::Read() -> uint8_t
-{
-    return Serial1.read();
-}
-
 static void Run(const uint8_t a, const uint8_t b)
 {
     // proc_ is declared in auto-generated xor.hpp

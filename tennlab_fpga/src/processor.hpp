@@ -268,6 +268,11 @@ namespace neuro {
                 delayMicroseconds(10);
             }
 
+            auto Read() -> uint8_t
+            {
+                return Serial1.read();
+            }
+
             auto Available() -> size_t
             {
                 return Serial1.available();
@@ -289,8 +294,6 @@ namespace neuro {
             {
                 return bytes * 8;
             }
-
-            auto Read() -> uint8_t;
 
 
     }; // class Processor
