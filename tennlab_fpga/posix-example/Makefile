@@ -12,11 +12,11 @@ SRC = $(ROOT)/src
 
 NET = $(ROOT)/networks/xor.txt
 
-test: main.cpp decl.hpp $(SRC)/*.hpp $(SRC)/uarts/posix.hpp
-	g++ -Wall -I$(SRC) -I.. -o test main.cpp
+test: main.cpp uart.cpp decl.hpp $(SRC)/*.hpp
+	g++ -Wall -I$(SRC) -I.. -o test main.cpp uart.cpp
 
 decl.hpp: $(NET)
-	$(ROOT)/utils/new-mkhdr.py $(NET) -o ./decl.hpp
+	$(ROOT)/utils/mkhdr.py $(NET) -o ./decl.hpp
 
 run: test
 	./test

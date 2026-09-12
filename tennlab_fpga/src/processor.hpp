@@ -9,6 +9,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdint.h>
 
 #include "output_queue.hpp"
 #include "message_parser.hpp"
