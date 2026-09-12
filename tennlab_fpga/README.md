@@ -4,7 +4,7 @@
 
 Point of Contact: [Simon D. Levy](https://github.com/simondlevy)
 
-This directory contains support code for communicating between a microntroller (MCU)
+This directory contains support code for communicating between a microcontroller (MCU)
 like Arduino and an FPGA programmed as described in the top-level
 [README](../README.md), as well as support for those who wish to use C++
 instead of Python for writing such programs on an ordinary Linux host computer. 
@@ -31,12 +31,12 @@ section of the main repo README for installing the FPGA Python library.
 2. Install [openFPGALoader](https://trabucayre.github.io/openFPGALoader/guide/install.html)
 
 3. Once you've set up the main repo, activated the Python environment and
-conected the board to your host computer, try one of the following examples:
+connected the board to your host computer, try one of the following examples:
 
 ## POSIX XOR example
 
 As you already need a POSIX environment for the main repo, it's probably easiest to start here,
-before you attempt to run on Arduino or another microcontroller.  Run the following commands
+before you attempt to run on Arduino or another MCU.  Run the following commands
 from wherever you installed the main repo:
 
 ```bash
@@ -57,7 +57,7 @@ input = 1,1; output = 0
 ## Arduino XOR example
 
 <img src="media/pmod.png" width=400>
-1. Wire your Arduino-compatible micrcontroller to the PMOD pins on the Cmod as shown in the 
+1. Wire your Arduino-compatible MCU to the PMOD pins on the Cmod as shown in the 
 image above:
 
 * Arduino 5V to PMOD V
@@ -91,5 +91,15 @@ The [src](src/) directory contains a header-only C++ [Processor](src/processor.h
 that provides equivalent functionality to the Python [Processor](../fpga/_processor.py)
 class in the main part of the repository, with the exception that the C++ code
 cannot load a network onto the FPGA.  The Processor class virtualizes the UART methods
-to be used by the board (make connection, read, write, report number of bytes avaiable),
+to be used by the board (make connection, read, write, get number of bytes available),
 which are implemented in the ```uart.cpp``` class in each of the examples.
+
+## Exploring further
+
+The [utils/mkdir.py](utils/mkdir.py) script allows you to auto-generate a constructor
+invocation for the ```Processor``` class based on the standard TeNNLab JSON specification
+for networks.  You can try this out for the XOR network by doing:
+
+```bash
+python3 tennlab_fpga/utils/mkhdr.py networks/xor.txt
+```
