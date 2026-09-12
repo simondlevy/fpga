@@ -6,10 +6,37 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <processor.hpp>
-#include <comms/serial1.hpp>
+#include <stdint.h>
 
-#include "decl.hpp"
+#include <processor.hpp>
+
+
+static const uint32_t kBaudRate = 4'000'000; // Based on FPGA
+static const uint32_t kDelayUsec = 10;       // Based on trial-and-error 
+
+void neuro::Processor::Connect()
+{
+    Serial1.begin(kBaudRate);
+}
+
+void neuro::Processor::Write(const uint8_t byte)
+{
+    Serial1.write(byte);
+
+    delayMicroseconds(kDelayUsec);
+}
+
+auto neuro::Processor::Available() -> size_t
+{
+    return Serial1.available();
+}
+
+auto neuro::Processor::Read() -> uint8_t
+{
+    return Serial1.read();
+}
+
+static auto proc_ = neuro::Processor(2, 1, 2, 1, false);
 
 static void Run(const uint8_t a, const uint8_t b)
 {
