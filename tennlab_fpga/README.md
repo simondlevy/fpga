@@ -96,8 +96,8 @@ which are implemented in the ```uart.cpp``` code in each of the examples.
 
 ## Exploring further
 
-The [utils/mkdir.py](utils/mkdir.py) script allows you to auto-generate a constructor
-invocation for the ```Processor``` class based on the standard TeNNLab JSON specification
+The [utils/mkdir.py](utils/mkhdr.py) script allows you to auto-generate a declaration
+header for the ```Processor``` class based on the standard TeNNLab JSON specification
 for networks.  You can try this out for the XOR network by doing:
 
 ```bash
