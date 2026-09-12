@@ -18,18 +18,12 @@ NET = $(ROOT)/networks/xor.txt
 
 LIBS = $(HOME)/Documents/Arduino/libraries
 
-build: $(SKETCH).ino decl.hpp $(SRC)/*.hpp
+build: $(SKETCH).ino $(SRC)/*.hpp
 	arduino-cli compile --libraries $(LIBS) --libraries $(ROOT) \
 		--fqbn $(FQBN) $(SKETCH).ino
 
-decl.hpp: $(NET)
-	$(ROOT)/utils/mkhdr.py $(NET) -o ./decl.hpp
-
 flash:
 	arduino-cli upload -p $(PORT) --fqbn $(FQBN) .
-
-clean:
-	rm -rf decl.hpp
 
 edit:
 	vim $(SKETCH).ino

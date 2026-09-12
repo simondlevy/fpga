@@ -87,7 +87,9 @@ input = 1,1; output = 0
 
 ## How it works
 
-The [src](src/) directory contains a header-only [Processor](src/processor.hpp)
+The [src](src/) directory contains a header-only C++ [Processor](src/processor.hpp)
 that provides equivalent functionality to the Python [Processor](../fpga/_processor.py)
 class in the main part of the repository, with the exception that the C++ code
-cannot load a network onto the FPGA.
+cannot load a network onto the FPGA.  The Processor class virtualizes the UART methods
+to be used by the board (make connection, read, write, report number of bytes avaiable),
+which are implemented in the ```uart.cpp``` class in each of the examples.
