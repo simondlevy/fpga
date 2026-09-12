@@ -7,6 +7,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
+from pathlib import Path
 
 import neuro
 import fpga
@@ -31,6 +32,10 @@ parser.add_argument('-s', '--spi_flash', action='store_true',
                     
 
 args = parser.parse_args()
+
+if not Path(args.input_file).is_file():
+    print('File %s not found' % args.input_file)
+    exit(1)
 
 net = neuro.Network()
 net.read_from_file(args.input_file)
