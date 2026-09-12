@@ -8,14 +8,12 @@
 
 #pragma once
 
-#include <Arduino.h>
 #include <stdio.h>
 
 #include "output_queue.hpp"
 #include "message_parser.hpp"
 #include "spike.hpp"
 #include "spike_heap.hpp"
-#include "uart.hpp"
 
 namespace neuro {
 
@@ -164,7 +162,7 @@ namespace neuro {
 
             void Connect()
             {
-                Serial1.begin(4'000'000);
+                UartBegin();
             }
 
         private:
@@ -188,8 +186,6 @@ namespace neuro {
             SpikeHeap inp_queue_;
 
             OutputQueue out_queue_;
-
-            Uart * uart_;
 
             void PrepareToSend(LevySpike * spikes, int count)
             {
@@ -222,12 +218,12 @@ namespace neuro {
                     printf("DEBUG: write x%02X\n", byte);
                 }
 
-                Write(byte);
+                UartWrite(byte);
             }
 
             auto ReadByte() -> uint8_t
             {
-                const auto byte = Read();
+                const auto byte = UartRead();
 
                 if (debug_) {
                     printf("DEBUG: read  x%02X\n", byte);
@@ -238,7 +234,7 @@ namespace neuro {
 
             void Receive()
             {
-                const auto avail = Available();
+                const auto avail = UartAvailable();
 
                 if (debug_) {
                     printf("DEBUG: avail %d\n", (int)avail);
@@ -262,23 +258,14 @@ namespace neuro {
                 }
             }
 
-            void Write(const uint8_t byte)
-            {
-                Serial1.write(byte);
-                delayMicroseconds(10);
-            }
+            // Hardware-dependent --------------------------------------------
 
-            auto Read() -> uint8_t
-            {
-                return Serial1.read();
-            }
+            void UartBegin();
+            void UartWrite(const uint8_t byte);
+            auto UartAvailable() -> size_t;
+            auto UartRead() -> uint8_t;
 
-            auto Available() -> size_t
-            {
-                return Serial1.available();
-            }
-
-             // Bit-twiddling -------------------------------------------------
+            // Bit-twiddling -------------------------------------------------
 
             static auto WidthNearestByte(const int bits) -> int
             {
