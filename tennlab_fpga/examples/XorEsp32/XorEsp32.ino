@@ -10,10 +10,6 @@
 
 #include <processor.hpp>
 
-
-static const uint32_t kBaudRate = 4'000'000; // Based on FPGA
-static const uint32_t kDelayUsec = 10;       // Based on trial-and-error 
-
 static auto proc_ = neuro::Processor(2, 1, 2, 1, false);
 
 static void Run(const uint8_t a, const uint8_t b)
