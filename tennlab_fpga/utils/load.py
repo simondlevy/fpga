@@ -12,21 +12,21 @@ from pathlib import Path
 import neuro
 import fpga
 
-use_spi_flash = {'cmoda7_35t':False, 'cmoda7_35t_pmod':True}
 
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('input_file')
 
-parser.add_argument('-t', '--target', help='target board',
-                    choices=use_spi_flash.keys())
+parser.add_argument('-t', '--target',
+                    choices=('cmoda7_35t', 'cmoda7_35t_pmod'),
+                    help='target board')
 
-parser.add_argument('-p', '--port', help='target port',
-                    default='/dev/ttyUSB1')
+parser.add_argument('-p', '--port', default='/dev/ttyUSB1', help='target port')
 
-parser.add_argument('-i', '--io_type', help='IO type',
-                    default='DIDO')
+parser.add_argument('-s', '--spi_flash', action='store_true', help='flash SPI')
+
+parser.add_argument('-i', '--io_type', default='DIDO', help='IO type')
 
 args = parser.parse_args()
 
@@ -39,4 +39,4 @@ net.read_from_file(args.input_file)
 
 proc = fpga.Processor(args.target, args.port, args.io_type)
 
-proc.load_network(net)
+proc.load_network(net, args.spi_flash)

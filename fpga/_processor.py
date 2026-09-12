@@ -282,9 +282,9 @@ class Processor(neuro.Processor):
         self._inp.clear()
         self._out.clear()
 
-    def load_network(self, net: neuro.Network) -> None:
+    def load_network(self, net: neuro.Network, use_spiflash: bool = False) -> None:
 
-        if "openfpgaloader" in self._target_config:
+        if use_spiflash:
             self._load_network_spiflash(net)
 
         else:

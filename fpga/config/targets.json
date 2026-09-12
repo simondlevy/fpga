@@ -76,6 +76,11 @@
                 "part": "xc7a35tcpg236-1",
                 "pgm": "vivado"
             }
+        },
+        "openfpgaloader": {
+            "board":"cmoda7_35t",
+            "flash": true,
+            "quad": true
         }
     },
     "cmoda7_35t_pmod": {

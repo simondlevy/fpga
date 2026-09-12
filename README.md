@@ -201,8 +201,8 @@ the configuration do not pass when you run it.*
 ## 🎈 Usage <a name="usage"></a>
 
 The API for using the FPGA neuroprocessor is extremely similar to the standard
-Framework API. This is an [example](examples/simple.py) using a simple
-two-neuron network.
+Framework API. This is an [example](simple.py) using a simple two-neuron
+network.
 
 ```python
 import neuro
