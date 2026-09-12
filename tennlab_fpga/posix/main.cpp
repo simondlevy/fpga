@@ -10,7 +10,7 @@
 
 #include <processor.hpp>
 
-#include "decl.hpp"
+static auto proc_ = neuro::Processor(2, 1, 2, 1, false);
 
 static void run(const uint8_t a, const uint8_t b)
 {
