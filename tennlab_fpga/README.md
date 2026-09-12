@@ -4,16 +4,24 @@
 
 Point of Contact: [Simon D. Levy](https://github.com/simondlevy)
 
-This directory contains support code for communicating between a microntroller
-like Arduino and an FPGA programmed as described in the [README](../README.md),
-as well as support for those who wish to use C++ instead of Python for 
-writing such programs on an ordinary Linux host computer. 
+This directory contains support code for communicating between a microntroller (MCU)
+like Arduino and an FPGA programmed as described in the top-level
+[README](../README.md), as well as support for those who wish to use C++
+instead of Python for writing such programs on an ordinary Linux host computer. 
 
 ## Supported FPGAs
 
 Currently the
 [Xlilinx Cmod A7-35T FPGA](https://digilent.com/shop/cmod-a7-35t-breadboardable-artix-7-fpga-module/),
 is the only FPGA supported.  
+
+## Supported MCUs
+
+The only Arduino-compatible MCUs I am aware of that support the 4MB baud rate that I'm using on the
+Cmod FPGA are the [Teensy](https://www.pjrc.com/teensy/) boards from PJRC, and
+the [ESP32](https://www.espressif.com/en/products/socs/esp32) line from Espressif Systems,
+of which there are many development boards available.  If you get an example working on
+another MCU, please commit it and do a pull request.
 
 ## Installation
 
@@ -66,9 +74,9 @@ cp -r tennlab_fpga $(HOME)/Arduino/libraries # or wherever you keep your Arduino
 ```
 
 3. Open the Arduino IDE, find the <b>TeNLabFPGA/Xor</b> example sketch in
-the <b>File/Examples</b> menu, and compile and flash the sketch in the usual
-way.  If everything goes well you should see this output over and over in the
-Serial Monitor:
+the <b>File/Examples</b> menu for your board, and compile and flash the sketch
+in the usual way.  If everything goes well you should see this output over and
+over in the Serial Monitor:
 
 ```
 input = 0,0; output = 0
