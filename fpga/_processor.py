@@ -349,12 +349,6 @@ class Processor(neuro.Processor):
 
     ##########################################################################
 
-    def _load_network(self, net: neuro.Network) -> None:
-
-        self._prepare_backend(net).run()
-        self._programmed = True
-        self._sync()
-
     def _load_network_nonvolatile(self, net: neuro.Network) -> None:
 
         backend = self._prepare_backend(net)
