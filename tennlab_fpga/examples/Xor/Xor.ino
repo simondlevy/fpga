@@ -20,11 +20,6 @@ namespace neuro {
 
     class ArduinoUart : public Uart {
 
-        void Begin() 
-        {
-            Serial1.begin(kBaudRate);
-        }
-
         void Write(const uint8_t byte) 
         {
             Serial1.write(byte);
@@ -40,11 +35,6 @@ namespace neuro {
             return Serial1.read();
         }
     };
-}
-
-void neuro::Processor::Connect()
-{
-    Serial1.begin(kBaudRate);
 }
 
 void neuro::Processor::Write(const uint8_t byte)

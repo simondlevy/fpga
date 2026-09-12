@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <Arduino.h>
 #include <stdio.h>
 
 #include "output_queue.hpp"
@@ -67,12 +68,6 @@ namespace neuro {
                 opc_shift_ = 8 - parser_.OpcodeWidth();
                 idx_shift_ = opc_shift_ - idx_width_;
                 val_shift_ = idx_shift_ - charge_width;
-            }
-
-            void Connect(Uart * uart)
-            {
-                uart_ = uart;
-                uart->Begin();
             }
 
             void ApplySpike(const int id, const float time, const float value)
@@ -167,8 +162,10 @@ namespace neuro {
                 return out_queue_.counts[out_idx];
             }
 
-            // Hardware-dependent implementation
-            void Connect();
+            void Connect()
+            {
+                Serial1.begin(4'000'000);
+            }
 
         private:
 
