@@ -94,12 +94,17 @@ cannot load a network onto the FPGA.  The Processor class virtualizes the UART m
 to be used by the board (make connection, read, write, get number of bytes available),
 which are implemented in the ```uart.cpp``` code in each of the examples.
 
+The [utils/load.py](load.py) script uses the Python ```Processor``` class to support
+loading a JSON-formatted network onto the FPGA in both volatile mode (already
+supported in the [original repo](https://github.com/TENNLab-UTK/fpga)), and
+non-volatile mode, the latter using the SPI flash on the Cmod FPGA.
+
 ## Exploring further
 
-The [utils/mkdir.py](utils/mkhdr.py) script allows you to auto-generate a declaration
-header instnatiating the ```Processor``` class based on the standard TeNNLab
-JSON specification for networks (number of inputs and outputs, charge width,
-spike value factor).  You can try this out for the XOR network by doing:
+The [utils/mkdir.py](utils/mkhdr.py) script allows you to auto-generate a
+declaration header instnatiating the ```Processor``` class based on the
+JSON-specified number of inputs and outputs, charge width, and spike value
+factor.  You can try this out for the XOR network by doing:
 
 ```bash
 python3 tennlab_fpga/utils/mkhdr.py networks/xor.txt
