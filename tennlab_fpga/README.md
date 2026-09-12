@@ -97,8 +97,9 @@ which are implemented in the ```uart.cpp``` code in each of the examples.
 ## Exploring further
 
 The [utils/mkdir.py](utils/mkhdr.py) script allows you to auto-generate a declaration
-header for the ```Processor``` class based on the standard TeNNLab JSON specification
-for networks.  You can try this out for the XOR network by doing:
+header instnatiating the ```Processor``` class based on the standard TeNNLab
+JSON specification for networks (number of inputs and outputs, charge width,
+spike value factor).  You can try this out for the XOR network by doing:
 
 ```bash
 python3 tennlab_fpga/utils/mkhdr.py networks/xor.txt
