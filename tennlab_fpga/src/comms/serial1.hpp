@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 
-#include <processor.hpp>
+#include <new_processor.hpp>
 
 static const uint32_t kBaudRate = 4'000'000; // Based on FPGA
 static const uint32_t kDelayUsec = 10;       // Based on trial-and-error 

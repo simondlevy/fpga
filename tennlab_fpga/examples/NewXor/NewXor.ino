@@ -6,19 +6,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <stdio.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-
-#include <uarts/posix.hpp>
+#include <new_processor.hpp>
+#include <uarts/arduino.hpp>
 
 #include "decl.hpp"
 
-static void run(const uint8_t a, const uint8_t b)
+static void Run(const uint8_t a, const uint8_t b)
 {
     // proc_ is declared in auto-generated xor.hpp
     proc_.ClearActivity();
@@ -32,21 +25,34 @@ static void run(const uint8_t a, const uint8_t b)
     }
 
     proc_.Run(3);
-    printf("input = %d,%d; output = %d\n", a, b, proc_.GetOutputCount(0));
+
+    Serial.print("input=");
+    Serial.print(a);
+    Serial.print(",");
+    Serial.print(b);
+    Serial.print(" output=");
+    Serial.println(proc_.GetOutputCount(0));
 }
 
-int main()
+void setup()
 {
-    neuro::PosixUart uart = {};
+    Serial.begin(115200);
+
+    neuro::ArduinoUart uart = {};
 
     proc_.Connect(&uart);
 
     proc_.ClearActivity();
+}
 
-    run(0, 0);
-    run(0, 1);
-    run(1, 0);
-    run(1, 1);
+void loop() 
+{
+    Run(0, 0);
+    Run(0, 1);
+    Run(1, 0);
+    Run(1, 1);
 
-    return 0;
+    Serial.println();
+
+    delay(1000);
 }

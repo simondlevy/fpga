@@ -14,7 +14,8 @@
 #include <string>
 #include <vector>
 
-#include <comms/posix.hpp>
+#include <new_processor.hpp>
+#include <uarts/posix.hpp>
 
 #include "decl.hpp"
 
@@ -37,7 +38,9 @@ static void run(const uint8_t a, const uint8_t b)
 
 int main()
 {
-    proc_.Connect();
+    neuro::PosixUart uart = {};
+
+    proc_.Connect(&uart);
 
     proc_.ClearActivity();
 
