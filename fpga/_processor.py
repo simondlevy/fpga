@@ -285,7 +285,7 @@ class Processor(neuro.Processor):
     def load_network(self, net: neuro.Network) -> None:
 
         if "openfpgaloader" in self._target_config:
-            self._load_network_nonvolatile(net)
+            self._load_network_spiflash(net)
 
         else:
             self._prepare_backend(net).run()
@@ -349,7 +349,7 @@ class Processor(neuro.Processor):
 
     ##########################################################################
 
-    def _load_network_nonvolatile(self, net: neuro.Network) -> None:
+    def _load_network_spiflash(self, net: neuro.Network) -> None:
 
         backend = self._prepare_backend(net)
 
