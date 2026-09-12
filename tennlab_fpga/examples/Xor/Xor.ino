@@ -16,27 +16,6 @@ static const uint32_t kDelayUsec = 10;       // Based on trial-and-error
 
 static auto proc_ = neuro::Processor(2, 1, 2, 1, false);
 
-namespace neuro {
-
-    class ArduinoUart : public Uart {
-
-        auto Available() -> size_t 
-        {
-            return Serial1.available();
-        }
-
-        auto Read() -> uint8_t 
-        {
-            return Serial1.read();
-        }
-    };
-}
-
-auto neuro::Processor::Available() -> size_t
-{
-    return Serial1.available();
-}
-
 auto neuro::Processor::Read() -> uint8_t
 {
     return Serial1.read();

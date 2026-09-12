@@ -268,6 +268,11 @@ namespace neuro {
                 delayMicroseconds(10);
             }
 
+            auto Available() -> size_t
+            {
+                return Serial1.available();
+            }
+
              // Bit-twiddling -------------------------------------------------
 
             static auto WidthNearestByte(const int bits) -> int
@@ -285,7 +290,6 @@ namespace neuro {
                 return bytes * 8;
             }
 
-            auto Available() -> size_t;
             auto Read() -> uint8_t;
 
 
