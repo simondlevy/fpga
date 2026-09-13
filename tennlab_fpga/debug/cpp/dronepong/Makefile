@@ -12,11 +12,24 @@ SRC = $(ROOT)/src
 
 UART = $(ROOT)/posix/uart.cpp
 
-test: main.cpp $(SRC)/*.hpp $(UART)
+NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 
+
+HDR = dronepong_fpga.hpp
+
+$(HDR): $(NET)
+	$(ROOT)/utils/mkhdr.py $(NET) > $(HDR)
+
+load: $(NET)
+	$(ROOT)/utils/load.py -s -t cmoda7_35t $(NET)
+
+test: main.cpp $(SRC)/*.hpp $(UART) $(HDR)
 	g++ -Wall -I$(SRC) -I.. -o test main.cpp $(UART)
 
 run: test
 	./test
+
+clean:
+	rm -f test $(HDR)
 
 edit:
 	vim main.cpp

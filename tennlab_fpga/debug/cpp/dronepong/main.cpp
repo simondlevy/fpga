@@ -15,12 +15,10 @@
 #include <vector>
 
 #include <processor.hpp>
+#include "dronepong_fpga.hpp"
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static const std::string kTestData = "spikes.txt";
-static const bool kDebug = false;
-
-static auto proc_ = neuro::Processor(2, 2, 2, 1, kDebug);
 
 class Entry {
 
