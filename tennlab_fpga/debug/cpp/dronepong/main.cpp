@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include <comms/posix.hpp>
+#include <processor.hpp>
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static const std::string kTestData = "spikes.txt";

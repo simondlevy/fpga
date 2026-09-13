@@ -10,8 +10,10 @@ ROOT = ../../..
 
 SRC = $(ROOT)/src
 
-test: main.cpp $(SRC)/*.hpp
-	g++ -Wall -I$(SRC) -I.. -o test main.cpp
+UART = $(ROOT)/posix/uart.cpp
+
+test: main.cpp $(SRC)/*.hpp $(UART)
+	g++ -Wall -I$(SRC) -I.. -o test main.cpp $(UART)
 
 run: test
 	./test
