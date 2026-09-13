@@ -8,19 +8,17 @@
 
 import argparse
 from pathlib import Path
+import json
 
 import neuro
 import fpga
-
 
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('input_file')
 
-parser.add_argument('-t', '--target',
-                    choices=('cmoda7_35t', 'cmoda7_35t_pmod'),
-                    help='target board')
+parser.add_argument('-t', '--target', default='basys3', help='target board')
 
 parser.add_argument('-p', '--port', default='/dev/ttyUSB1', help='target port')
 
