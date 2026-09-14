@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 
-//#include <processor.hpp>
-//#include "dronepong_fpga.hpp"
+#include <processor.hpp>
+#include "dronepong_fpga.hpp"
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static const std::string kTestData = "spikes.txt";
@@ -104,7 +104,7 @@ extern unsigned int output_count(unsigned int output_ind);
 
 int main()
 {
-    //proc_.Connect();
+    proc_.Connect();
 
     const auto data = loaddata(); 
 
@@ -115,7 +115,7 @@ int main()
         clear_encoded_spikes();
         encode();
 
-        //proc_.ClearActivity();
+        proc_.ClearActivity();
 
         for (auto entry:data) {
             if (entry.step == timestep) {
