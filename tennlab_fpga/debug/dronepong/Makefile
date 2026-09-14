@@ -6,7 +6,7 @@
 
 all: test
 
-ROOT = ../../..
+ROOT = $(HOME)/Desktop/fpga/tennlab_fpga
 
 SRC = $(ROOT)/src
 

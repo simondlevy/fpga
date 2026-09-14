@@ -42,7 +42,8 @@ outfile.write('#include <processor.hpp>\n\n')
 outfile.write('static const int kNumInputs = %d;\n' % net.num_inputs())
 outfile.write('static const int kNumOutputs = %d;\n' % net.num_outputs())
 outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
-outfile.write('static const int kSpikeValueFactor = %d;\n' % spike_value_factor(net))
+outfile.write('static const int kSpikeValueFactor = %d;\n' %
+              spike_value_factor(net))
 outfile.write('static const int kSimTime = %d;\n' % sim_time(net))
 outfile.write('static const bool kDebug = %s;\n\n' %
               ('true' if args.debug else 'false'))
