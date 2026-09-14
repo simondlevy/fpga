@@ -1034,7 +1034,7 @@ except Exception:
     print('Unable to open ' + NET)
     exit(1)
 
-proc = fpga.Processor(args.target, PORT, IO_TYPE)
+proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=True)
 
 proc.attach_network(net)
 
@@ -1043,6 +1043,9 @@ timestep_prev = None
 for entry in entries:
 
     timestep = entry[0]
+
+    if timestep == 10:
+        break
 
     if timestep_prev != timestep:
         if timestep_prev is not None:
