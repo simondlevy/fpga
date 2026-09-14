@@ -22,9 +22,6 @@ FPGA_TL_DIR = $(FPGA_DIR)/tennlab_fpga
 
 NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 
 
-load: $(NET)
-	$(ROOT)/utils/load.py -s -t cmoda7_35t $(NET)
-
 test: main.cpp $(SRC)/*.hpp $(UART) $(HDR) embedded_dronepong.cpp dronepong_fpga.hpp
 	g++ -Wall -I$(SRC) -I.. -o test main.cpp $(UART) embedded_dronepong.cpp
 
