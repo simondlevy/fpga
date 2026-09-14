@@ -36,7 +36,7 @@ run: test
 	./test
 
 clean:
-	rm -f test $(HDR) embedded_dronepong.cpp
+	rm -f test $(HDR) embedded_dronepong.cpp dronepong_fpga.hpp
 
 edit:
 	vim main.cpp

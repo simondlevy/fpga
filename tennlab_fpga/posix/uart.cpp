@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-#include <processor.hpp>
-
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -19,6 +17,8 @@
 #include <unistd.h>
 
 #include <string>
+
+#include <processor.hpp>
 
 static std::string kPort = "/dev/ttyUSB1";
 static constexpr speed_t kBaudRate = B4000000;
