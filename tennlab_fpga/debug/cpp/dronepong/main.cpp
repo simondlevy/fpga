@@ -94,6 +94,14 @@ static auto loaddata() -> std::vector<Entry>
     return data;
 }
 
+extern void clear_encoded_spikes();
+extern void encode();
+extern unsigned int num_encoded_spikes;
+extern void apply_spike(unsigned int input_ind, unsigned int time, double value);
+extern void run(double duration);
+static const unsigned int SIM_TIME = 50;
+extern unsigned int output_count(unsigned int output_ind);
+
 int main()
 {
     //proc_.Connect();
@@ -104,13 +112,21 @@ int main()
 
     for (int timestep=0; timestep<runtime; ++timestep) {
 
+        clear_encoded_spikes();
+        encode();
+
         //proc_.ClearActivity();
 
         for (auto entry:data) {
             if (entry.step == timestep) {
                 //proc_.ApplySpike(entry.id, entry.time, entry.value);
+                apply_spike(entry.id, entry.time, entry.value);
             }
         }
+
+        run(SIM_TIME);
+
+        printf("%u %u\n", output_count(0), output_count(1));
 
         /*
         proc_.Run(50);
