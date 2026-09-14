@@ -1037,5 +1037,12 @@ proc = fpga.Processor(args.target, PORT, IO_TYPE)
 
 proc.attach_network(net)
 
+timestep_prev = None
+
 for entry in entries:
-    print(entry)
+
+    timestep = entry[0]
+
+    if timestep_prev != timestep:
+        print(timestep)
+        timestep_prev = timestep
