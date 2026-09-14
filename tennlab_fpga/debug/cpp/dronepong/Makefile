@@ -12,8 +12,6 @@ SRC = $(ROOT)/src
 
 UART = $(ROOT)/posix/uart.cpp
 
-NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 
-
 EMBEDDER = $(HOME)/Desktop/embedded-framework/bin/framework_embedder
 
 FPGA_DIR = $(HOME)//Desktop/fpga
