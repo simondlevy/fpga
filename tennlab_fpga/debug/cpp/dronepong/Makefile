@@ -32,7 +32,7 @@ dronepong_fpga.hpp: $(NET)
 	$(FPGA_TL_DIR)/utils/mkhdr.py $(NET) > dronepong_fpga.hpp
 
 load: $(NET)
-	$(FPGA_DIR)/utils/load.py -t cmoda7_35t $(NET)
+	$(FPGA_DIR)/utils/load.py -s -t cmoda7_35t $(NET)
 
 run: test
 	./test

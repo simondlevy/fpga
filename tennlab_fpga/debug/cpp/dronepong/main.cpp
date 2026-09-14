@@ -28,7 +28,7 @@ int main()
 {
     proc_.Connect();
 
-    const auto runtime = entries[kEntries-1].step;
+    const int runtime = 10; // entries[kEntries-1].step;
 
     for (int timestep=0; timestep<runtime; ++timestep) {
 
@@ -39,21 +39,18 @@ int main()
 
         for (auto entry:entries) {
             if (entry.step == timestep) {
-                //proc_.ApplySpike(entry.id, entry.time, entry.value);
+                proc_.ApplySpike(entry.id, entry.time, entry.value);
                 apply_spike(entry.id, entry.time, entry.value);
             }
         }
 
         run(SIM_TIME);
 
-        printf("%u %u\n", output_count(0), output_count(1));
+        proc_.Run(SIM_TIME);
 
-        /*
-        proc_.Run(50);
-
-        printf("%03d: %02d %02d\n",
-                timestep, proc_.GetOutputCount(0), proc_.GetOutputCount(1));
-                */
+        printf("%03d | %02d %02d | %02d %02d\n",
+                timestep, output_count(0), output_count(1),
+                proc_.GetOutputCount(0), proc_.GetOutputCount(1));
     }
 
     return 0;
