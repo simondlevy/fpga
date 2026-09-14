@@ -107,9 +107,10 @@ class _IoConfig:
                 idx_width, operand_width = dispatch_operand_widths(
                     opc_width, self._num_net_io(), self._charge_width(), is_axi
                 )
-
                 cmd_names = spk_names + ["operand"]
                 cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
+                print('operand_width = ', operand_width)
+                print('cmd_fmt_str = ', cmd_fmt_str)
                 self.cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
 
                 if idx_width:
@@ -130,7 +131,6 @@ class _IoConfig:
             case _:
                 raise ValueError()
 
-        #print('>>>>>>>>> ', idx_width, spk_fmt_str, spk_names)
         self.spk_fmt = bs.compile(spk_fmt_str, spk_names)
 
         self.clear()

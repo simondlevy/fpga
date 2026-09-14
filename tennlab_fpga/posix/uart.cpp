@@ -16,7 +16,6 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include <ctime>
 #include <string>
 
 #include <processor.hpp>
@@ -27,19 +26,13 @@ static constexpr size_t kMaxMessageSize = 4096;
 static constexpr uint32_t kDefaultTimeoutMsec = 100;
 static constexpr long kDelayUsec = 100;
 
-static int fd_;
+//static int fd_;
 static uint8_t buf_[kMaxMessageSize] = {};
 static size_t index_;
 
-static void DelayMicroseconds(long microseconds) {
-    timespec ts;
-    ts.tv_sec = microseconds / 1000000;
-    ts.tv_nsec = (microseconds % 1000000) * 1000;
-    nanosleep(&ts, nullptr);
-}
-
 void neuro::Processor::UartBegin()
 {
+    /*
     const auto port = kPort.c_str();
     fd_ = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd_ < 0) {
@@ -57,7 +50,7 @@ void neuro::Processor::UartBegin()
     cfmakeraw(&tio);
     tio.c_cflag &= ~(CSIZE | CSTOPB | PARENB | CRTSCTS);
     tio.c_cflag |= CS8 | CLOCAL | CREAD;
-    tio.c_cc[VMIN] = 0;  /* poll() does the waiting */
+    tio.c_cc[VMIN] = 0;  // poll() does the waiting
     tio.c_cc[VTIME] = 0;
 
     if (cfsetispeed(&tio, kBaudRate) != 0 || cfsetospeed(&tio, kBaudRate) != 0) {
@@ -72,19 +65,23 @@ void neuro::Processor::UartBegin()
     }
 
     tcflush(fd_, TCIOFLUSH);
+    */
 }
 
 void neuro::Processor::UartWrite(const uint8_t byte)
 {
+    /*
     const auto ignore = write(fd_, &byte, 1);
     (void)ignore;
     DelayMicroseconds(kDelayUsec);
+    */
 }
 
 auto neuro::Processor::UartAvailable() -> size_t
 {
     size_t got = 0;
 
+    /*
     // Read until the line has been quiet for kDefaultTimeoutMsec, or buf is full
     while (got < kMaxMessageSize) {
 
@@ -114,6 +111,7 @@ auto neuro::Processor::UartAvailable() -> size_t
     }
 
     index_ = 0;
+    */
 
     return got;
 }

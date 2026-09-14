@@ -46,7 +46,7 @@ namespace neuro {
 
                 const auto spk_width = idx_width + charge_width;
 
-                const auto operand_width = (
+                operand_width_ = (
                         WidthNearestByte(parser_.OpcodeWidth() + spk_width) -
                         parser_.OpcodeWidth());
 
@@ -62,7 +62,7 @@ namespace neuro {
                 max_runs_ahead_ = kSystemBufferSizeBytes / max_bytes_per_run;
 
                 max_run_ = std::min(
-                        (1 << operand_width) - 1, max_runs_ahead_);
+                        (1 << operand_width_) - 1, max_runs_ahead_);
 
                 opc_shift_ = 8 - parser_.OpcodeWidth();
                 idx_shift_ = opc_shift_ - idx_width_;
@@ -191,6 +191,7 @@ namespace neuro {
             int output_time_;
             int max_runs_ahead_;
             int max_run_;
+            uint8_t operand_width_;
             uint8_t opc_shift_;
             uint8_t idx_shift_;
             uint8_t val_shift_;

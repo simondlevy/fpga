@@ -39,6 +39,7 @@ except Exception:
 
 proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=True)
 
+
 proc.attach_network(net)
 
 '''
@@ -48,7 +49,7 @@ for entry in entries:
 
     timestep = entry[0]
 
-    if timestep == 10:
+    if timestep == 1:
         break
 
     if timestep_prev != timestep:
