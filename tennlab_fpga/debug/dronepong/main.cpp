@@ -27,6 +27,7 @@ int main()
 {
     proc_.Connect();
 
+#if 0
     int timestep_prev = -1;
 
     for (auto entry : entries) {
@@ -48,7 +49,6 @@ int main()
     }
 
 
-#if 0
     const int runtime = 10; // entries[kEntries-1].step;
 
     for (int timestep=0; timestep<runtime; ++timestep) {
