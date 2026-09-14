@@ -431,12 +431,12 @@ class Processor(neuro.Processor):
         self._interface.flush()
 
     def _write(self, msg):
-        self._do_debug('write: 0x%02X' % msg[0])
+        self._do_debug('write: ' + str(msg))
         self._interface.write(msg)
 
     def _read(self, size, timeout=None):
         rx = self._interface.read( size, timeout)
-        self._do_debug('read:  0x%02X' % rx[0])
+        self._do_debug('read:  ' + str(rx))
         return rx
 
     def _do_debug(self, msg):
