@@ -1036,3 +1036,6 @@ except Exception:
 proc = fpga.Processor(args.target, PORT, IO_TYPE)
 
 proc.attach_network(net)
+
+for entry in entries:
+    print(entry)
