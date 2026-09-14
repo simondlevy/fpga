@@ -15,11 +15,14 @@
 #include <vector>
 
 #include <processor.hpp>
+
 #include "dronepong_fpga.hpp"
+#include "spikes.h"
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static const std::string kTestData = "spikes.txt";
 
+/*
 class Entry {
 
     public:
@@ -93,6 +96,7 @@ static auto loaddata() -> std::vector<Entry>
 
     return data;
 }
+*/
 
 extern void clear_encoded_spikes();
 extern void encode();
@@ -106,9 +110,9 @@ int main()
 {
     proc_.Connect();
 
-    const auto data = loaddata(); 
+    //const auto data = loaddata(); 
 
-    const auto runtime = data.back().step + 1;
+    const auto runtime = entries[kEntries-1].step;//data.back().step + 1;
 
     for (int timestep=0; timestep<runtime; ++timestep) {
 
@@ -117,7 +121,7 @@ int main()
 
         proc_.ClearActivity();
 
-        for (auto entry:data) {
+        for (auto entry:entries) {
             if (entry.step == timestep) {
                 //proc_.ApplySpike(entry.id, entry.time, entry.value);
                 apply_spike(entry.id, entry.time, entry.value);
