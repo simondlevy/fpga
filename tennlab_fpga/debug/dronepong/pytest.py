@@ -1047,6 +1047,7 @@ for entry in entries:
     if timestep_prev != timestep:
         if timestep_prev is not None:
             proc.run(SIM_TIME)
+            print(proc.output_counts())
         proc.clear_activity()
         timestep_prev = timestep
 
