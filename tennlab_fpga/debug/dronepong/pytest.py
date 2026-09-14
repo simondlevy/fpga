@@ -15,6 +15,7 @@ PORT = '/dev/ttyUSB1'
 IO_TYPE = 'DIDO'
 NET = ('/home/levys/Desktop/framework/cpp-apps/applications/dronepong/' +
        'networks/dronepong_risp_train.txt')
+SIM_TIME = 50
 
 entries = (
 
@@ -1044,5 +1045,9 @@ for entry in entries:
     timestep = entry[0]
 
     if timestep_prev != timestep:
-        print(timestep)
+        if timestep_prev is not None:
+            proc.run(SIM_TIME)
+        proc.clear_activity()
         timestep_prev = timestep
+
+    proc.apply_spike(neuro.Spike(entry[1], entry[2], entry[3]))
