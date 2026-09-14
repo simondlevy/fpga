@@ -11,14 +11,23 @@ import argparse
 import neuro
 import fpga
 
+PORT = '/dev/ttyUSB1'
+IO_TYPE = 'DIDO'
+NET = '/home/levys/Desktop/framework/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt'
+
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('-t', '--target', default='basys3', help='target board')
+parser.add_argument('-t', '--target', default='cmoda7_35t', help='target board')
 
 args = parser.parse_args()
 
 net = neuro.Network()
-net.read_from_file(args.input_file)
 
-proc = fpga.Processor(args.target, args.port, args.io_type)
+try:
+    net.read_from_file(NET)
+except:
+    print('Unable to open ' + NET)
+    exit(1)
+
+proc = fpga.Processor(args.target, PORT, IO_TYPE)
