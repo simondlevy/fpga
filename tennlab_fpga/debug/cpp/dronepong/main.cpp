@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 
-#include <processor.hpp>
-#include "dronepong_fpga.hpp"
+//#include <processor.hpp>
+//#include "dronepong_fpga.hpp"
 
 static const std::string kPortName = "/dev/ttyUSB1";
 static const std::string kTestData = "spikes.txt";
@@ -96,7 +96,7 @@ static auto loaddata() -> std::vector<Entry>
 
 int main()
 {
-    proc_.Connect();
+    //proc_.Connect();
 
     const auto data = loaddata(); 
 
@@ -104,22 +104,20 @@ int main()
 
     for (int timestep=0; timestep<runtime; ++timestep) {
 
-        proc_.ClearActivity();
+        //proc_.ClearActivity();
 
         for (auto entry:data) {
             if (entry.step == timestep) {
-                proc_.ApplySpike(entry.id, entry.time, entry.value);
+                //proc_.ApplySpike(entry.id, entry.time, entry.value);
             }
         }
 
+        /*
         proc_.Run(50);
 
         printf("%03d: %02d %02d\n",
                 timestep, proc_.GetOutputCount(0), proc_.GetOutputCount(1));
-
-        if (kDebug) {
-            printf("\n");
-        }
+                */
     }
 
     return 0;
