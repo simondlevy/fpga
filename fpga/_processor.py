@@ -430,18 +430,18 @@ class Processor(neuro.Processor):
     def _flush(self):
         self._interface.flush()
 
-    def _write(self, msg):
-        self._do_debug('write: ' + str(msg))
-        self._interface.write(msg)
+    def _write(self, data):
+        self._do_debug('write', data)
+        self._interface.write(data)
 
     def _read(self, size, timeout=None):
-        rx = self._interface.read( size, timeout)
-        self._do_debug('read:  ' + str(rx))
-        return rx
+        data = self._interface.read( size, timeout)
+        self._do_debug('read ', data) 
+        return data
 
-    def _do_debug(self, msg):
+    def _do_debug(self, label, data):
         if self._debug:
-            print('  ' + msg)
+            print(label + ': ' + str(data))
 
     def _hw_rx(self, target: int, seek_clr: bool = False) -> None:
         num_rx_bytes = width_bits_to_bytes(self._out.spk_fmt.calcsize())
