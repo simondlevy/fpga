@@ -441,7 +441,10 @@ class Processor(neuro.Processor):
 
     def _do_debug(self, label, data):
         if self._debug:
-            print(label + ': ' + str(data))
+            print(label + ': ', end='')
+            for byte in data:
+                print('x%02X ' % byte, end='')
+            print()
 
     def _hw_rx(self, target: int, seek_clr: bool = False) -> None:
         num_rx_bytes = width_bits_to_bytes(self._out.spk_fmt.calcsize())
