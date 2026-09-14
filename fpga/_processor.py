@@ -219,6 +219,10 @@ class Processor(neuro.Processor):
 
         if spike.time < 0:
             raise RuntimeError("Spikes cannot be scheduled in the past.")
+
+        if (self._debug):
+            print('AS %d %f %f' % (spike.id, spike.time, spike.value))
+
         self._inp.queue.append(
             neuro.Spike(spike.id, spike.time + self._inp.time, spike.value)
         )
@@ -262,6 +266,10 @@ class Processor(neuro.Processor):
         if self._programmed is False:
             raise RuntimeError("Cannot clear network activity before " +
                                "programming the target FPGA.")
+
+        if (self._debug):
+            print('CLR')
+
         if self._inp.type == IoType.DISPATCH:
             self._write(
                 self._inp.cmd_fmt.pack(
@@ -330,6 +338,9 @@ class Processor(neuro.Processor):
 
         if time < 1:
             raise ValueError("It's not possible to run for less than 1 timestep")
+
+        print('RUN %d' % time)
+
         target_time = self._inp.time + time
         rx_thread = Thread(target=self._hw_rx, args=(target_time,))
         rx_thread.daemon = True
@@ -430,7 +441,7 @@ class Processor(neuro.Processor):
 
     def _do_debug(self, msg):
         if self._debug:
-            print('DEBUG: ' + msg)
+            print('  ' + msg)
 
     def _hw_rx(self, target: int, seek_clr: bool = False) -> None:
         num_rx_bytes = width_bits_to_bytes(self._out.spk_fmt.calcsize())

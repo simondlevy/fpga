@@ -16,6 +16,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include <ctime>
 #include <string>
 
 #include <processor.hpp>
@@ -24,10 +25,18 @@ static std::string kPort = "/dev/ttyUSB1";
 static constexpr speed_t kBaudRate = B4000000;
 static constexpr size_t kMaxMessageSize = 4096;
 static constexpr uint32_t kDefaultTimeoutMsec = 100;
+static constexpr long kDelayUsec = 100;
 
 static int fd_;
 static uint8_t buf_[kMaxMessageSize] = {};
 static size_t index_;
+
+static void DelayMicroseconds(long microseconds) {
+    timespec ts;
+    ts.tv_sec = microseconds / 1000000;
+    ts.tv_nsec = (microseconds % 1000000) * 1000;
+    nanosleep(&ts, nullptr);
+}
 
 void neuro::Processor::UartBegin()
 {
@@ -69,6 +78,7 @@ void neuro::Processor::UartWrite(const uint8_t byte)
 {
     const auto ignore = write(fd_, &byte, 1);
     (void)ignore;
+    DelayMicroseconds(kDelayUsec);
 }
 
 auto neuro::Processor::UartAvailable() -> size_t

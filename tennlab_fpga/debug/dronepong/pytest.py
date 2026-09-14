@@ -1038,7 +1038,7 @@ proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=True)
 
 proc.attach_network(net)
 
-timestep_prev = None
+timestep_prev = -1
 
 for entry in entries:
 
@@ -1048,7 +1048,7 @@ for entry in entries:
         break
 
     if timestep_prev != timestep:
-        if timestep_prev is not None:
+        if timestep_prev != -1:
             proc.run(SIM_TIME)
             print(proc.output_counts())
         proc.clear_activity()

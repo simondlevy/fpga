@@ -2,7 +2,7 @@
 
 typedef struct {
 
-    int step;
+    int timestep;
     int id;
     double time;
     double value;
