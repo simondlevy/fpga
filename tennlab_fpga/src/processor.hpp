@@ -23,6 +23,8 @@ namespace neuro {
 
         private:
 
+            // Aribtrary limts
+            static constexpr int kMaxOutputNeurons = 128;
             static constexpr int kMaxInputSpikes = 1024;
             static constexpr int kMaxSpikesPerNeuron = 256;
             static constexpr int kQueueCapacity = 1024;
@@ -157,8 +159,8 @@ namespace neuro {
             int input_time_;
             int output_time_;
 
-            float output_times_[kNumOutputs][kMaxSpikesPerNeuron];
-            int output_counts_[kNumOutputs];
+            float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
+            int output_counts_[kMaxOutputNeurons];
 
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
@@ -337,7 +339,9 @@ namespace neuro {
             {
                 return heap_size_ == 0;
             }
- 
+
+            // Network-dependent ---------------------------------------------
+
             // Hardware-dependent --------------------------------------------
 
             void UartBegin();
