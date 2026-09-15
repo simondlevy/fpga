@@ -39,9 +39,7 @@ namespace neuro {
 
             Processor()
             {
-                idx_width_ = InputIndexWidth();
-
-                const auto spk_width = idx_width_ + kChargeWidth;
+                const auto spk_width = kInputIndexWidth + kChargeWidth;
 
                 operand_width_ = WidthNearestByte(OpcodeWidth() + spk_width)
                         - OpcodeWidth();
@@ -61,7 +59,7 @@ namespace neuro {
                         (1 << operand_width_) - 1, max_runs_ahead_);
 
                 opc_shift_ = 8 - OpcodeWidth();
-                idx_shift_ = opc_shift_ - idx_width_;
+                idx_shift_ = opc_shift_ - kInputIndexWidth;
                 val_shift_ = idx_shift_ - kChargeWidth;
             }
 
@@ -180,7 +178,6 @@ namespace neuro {
 
             const int MAXMSG = 32;
 
-            int idx_width_;
             bool kDebug;
             int input_time_;
             int output_time_;
@@ -240,7 +237,7 @@ namespace neuro {
 
                     const auto spike = spikes[k];
 
-                    const uint8_t idx_mask = (1 << idx_width_) - 1;
+                    const uint8_t idx_mask = (1 << kInputIndexWidth) - 1;
                     const uint8_t val_mask = (1 << kChargeWidth) - 1;
 
                     const int8_t val = (int8_t)(spike.value * kSpikeValueFactor);
