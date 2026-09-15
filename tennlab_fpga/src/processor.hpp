@@ -209,9 +209,8 @@ namespace neuro {
 
             auto GetNeuronIndex(const uint8_t byte) -> uint8_t
             {
-                const auto idx_width = kOutputIndexWidth;
-                const uint8_t mask = 0xFF >> (8 - idx_width);
-                return idx_width > 0 ? (byte >> 5) & mask : 0;
+                const uint8_t mask = 0xFF >> (8 - kOutputIndexWidth);
+                return kOutputIndexWidth > 0 ? (byte >> 5) & mask : 0;
             }
 
             auto OpcodeWidth() -> uint8_t
