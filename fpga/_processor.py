@@ -109,8 +109,6 @@ class _IoConfig:
                 )
                 cmd_names = spk_names + ["operand"]
                 cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
-                print("operand_width = ", operand_width)
-                print("cmd_fmt_str = ", cmd_fmt_str)
                 self.cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
 
                 if idx_width:
@@ -179,6 +177,8 @@ class Processor(neuro.Processor):
     ):
         super().__init__(*args, **kwargs)
 
+        self._io_type = io_type.upper()
+
         if target == "cpp":
             pass
 
@@ -208,8 +208,6 @@ class Processor(neuro.Processor):
                                    "periphery.Serial or str or None object.")
             self._interface = interface
             self._baudrate = baudrate
-
-            self._io_type = io_type.upper()
 
             self._network = None
             self._programmed = False
@@ -270,7 +268,6 @@ class Processor(neuro.Processor):
         if self._programmed is False:
             raise RuntimeError("Cannot clear network activity before " +
                                "programming the target FPGA.")
-
         if (self._debug):
             print("CLR")
 
@@ -364,7 +361,11 @@ class Processor(neuro.Processor):
 
     def compile_to_cpp(self, net, debug=False):
 
-        # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", self._inp)
+        self._network = net
+        self._setup_io_config()
+        self._setup_run_config()
+
+        charge_width = self._inp._charge_width()
 
         opc_width = unsigned_width(len(DispatchOpcode) - 1)
 
@@ -373,8 +374,6 @@ class Processor(neuro.Processor):
         max_bytes_per_run = (width_bits_to_bytes(opc_width +
                              unsigned_width(net.num_outputs() - 1)) *
                              (net.num_outputs() + 1))
-
-        max_runs_ahead = SYSTEM_BUFFER // max_bytes_per_run
 
         opcode_shift = 8 - opc_width
 
@@ -389,7 +388,7 @@ class Processor(neuro.Processor):
 
         cpp_code += "#include <processor.hpp>\n\n"
         cpp_code += ("int neuro::Processor::GetChargeWidth() { "+
-                     "return %d; }\n" % charge_width(net))
+                     "return %d; }\n" % charge_width)
         cpp_code += ("int neuro::Processor::GetSpikeValueFactor() { "+
                      "return %d; }\n" % spike_value_factor(net))
         cpp_code += ("int neuro::Processor::GetOpcodeWidth() { "+
@@ -403,13 +402,13 @@ class Processor(neuro.Processor):
         cpp_code += ("int neuro::Processor::GetIndexShift() { "+
                      "return %d; }\n" % index_shift)
         cpp_code += ("int neuro::Processor::GetValueShift() { "+
-                     "return %d; }\n" % (index_shift - charge_width(net)))
+                     "return %d; }\n" % (index_shift - charge_width))
         cpp_code += ("int neuro::Processor::GetMaxRunsAhead() { "+
-                     "return %d; }\n" % max_runs_ahead)
+                     "return %d; }\n" % self._max_runs_ahead)
         cpp_code += ("int neuro::Processor::GetMaxRun() { "+
                      "return %d; }\n" % (min((1 << (width_nearest_byte(opc_width +
-                              (input_index_width + charge_width(net))) -
-                              opc_width)) - 1, max_runs_ahead)))
+                              (input_index_width + charge_width)) -
+                              opc_width)) - 1, self._max_runs_ahead)))
         cpp_code += ("bool neuro::Processor::GetDebug() { "+
                      "return %s; }\n" % ("true" if debug else "false"))
  
@@ -590,13 +589,11 @@ class Processor(neuro.Processor):
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
-                    """
                     print('opcode=', int(DispatchOpcode.SPK),
                           '|idx=', idx,
                           '|val=', val,
                           '|charge_width=', self._inp._charge_width(),
                           '|spike_value_factor=', spike_value_factor(self._network))
-                    """
                     self._write(
                         self._inp.spk_fmt.pack(
                             {
@@ -839,22 +836,18 @@ class Processor(neuro.Processor):
                 " connected and that udev rules grant access to it."
             ) from e
 
-    def _set_comm_limits(self):
-        self._secs_per_run = 0.0
+    def _setup_run_config(self):
 
         max_bytes_per_run = width_bits_to_bytes(self._out.spk_fmt.calcsize())
+
         match self._out.type:
             case IoType.DISPATCH:
                 max_bytes_per_run *= self._network.num_outputs() + 1
-                self._secs_per_run += (
-                    self._network.num_outputs()
-                    / self._target_config["parameters"]["clk_freq"]
-                )
             case IoType.STREAM:
                 pass
             case _:
                 raise ValueError()
-        self._secs_per_run += max_bytes_per_run * 10 / self._baudrate
+
         self._max_run = SYSTEM_BUFFER // max_bytes_per_run
         self._max_runs_ahead = self._max_run
 
@@ -870,10 +863,44 @@ class Processor(neuro.Processor):
             case _:
                 raise ValueError()
 
-    def _setup_io(self):
+    def _set_comm_limits(self):
+
+        self._secs_per_run = 0.0
+
+        max_bytes_per_run = width_bits_to_bytes(self._out.spk_fmt.calcsize())
+
+        match self._out.type:
+            case IoType.DISPATCH:
+                max_bytes_per_run *= self._network.num_outputs() + 1
+                self._secs_per_run += (
+                    self._network.num_outputs()
+                    / self._target_config["parameters"]["clk_freq"]
+                )
+            case IoType.STREAM:
+                pass
+            case _:
+                raise ValueError()
+
+        self._secs_per_run += max_bytes_per_run * 10 / self._baudrate
+
+        self._max_run = SYSTEM_BUFFER // max_bytes_per_run
+        self._max_runs_ahead = self._max_run
+
+        match self._inp.type:
+            case IoType.DISPATCH:
+                # limited by both buffer size and command field width
+                self._max_run = min(
+                    2 ** (self._inp.cmd_fmt._infos[1].size) - 1,
+                    self._max_run,
+                )
+            case IoType.STREAM:
+                pass
+            case _:
+                raise ValueError()
+
+    def _setup_io_config(self):
         match self._io_type[:2]:
             case "DI":
-                #print('inp=', end='')
                 self._inp = InpConfig(IoType.DISPATCH, self._network)
             case "SI":
                 self._inp = InpConfig(IoType.STREAM, self._network)
@@ -883,7 +910,6 @@ class Processor(neuro.Processor):
                 )
         match self._io_type[2:]:
             case "DO":
-                #print('out=', end='')
                 self._out = OutConfig(IoType.DISPATCH, self._network)
             case "SO":
                 self._out = OutConfig(IoType.STREAM, self._network)
@@ -891,6 +917,9 @@ class Processor(neuro.Processor):
                 raise ValueError(
                     f"Invalid output type: {self._io_type[2:]}\nExpected: (D|S)O"
                 )
+
+    def _setup_io(self):
+        self._setup_io_config()
         self._set_comm_limits()
 
     def _sync(self) -> None:

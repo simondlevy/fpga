@@ -42,7 +42,6 @@ proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=True)
 
 proc.attach_network(net)
 
-'''
 timestep_prev = -1
 
 for entry in entries:
@@ -60,4 +59,3 @@ for entry in entries:
         timestep_prev = timestep
 
     proc.apply_spike(neuro.Spike(entry[1], entry[2], entry[3]))
-'''
