@@ -24,7 +24,6 @@ namespace neuro {
 
             static constexpr int kSystemBufferSizeBytes = 4096;
             static constexpr int kMaxInputSpikes = 1024;
-            static constexpr int kMaxOutputNeurons = 16;
             static constexpr int kMaxSpikesPerNeuron = 256;
             static constexpr int kQueueCapacity = 1024;
 
@@ -199,8 +198,8 @@ namespace neuro {
             int output_idx_width_;
             int opcode_width_;
 
-            float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
-            int output_counts_[kMaxOutputNeurons];
+            float output_times_[kNumOutputs][kMaxSpikesPerNeuron];
+            int output_counts_[kNumOutputs];
 
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
