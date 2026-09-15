@@ -23,7 +23,6 @@ namespace neuro {
 
         private:
 
-            static constexpr int kSystemBufferSizeBytes = 4096;
             static constexpr int kMaxInputSpikes = 1024;
             static constexpr int kMaxSpikesPerNeuron = 256;
             static constexpr int kQueueCapacity = 1024;
@@ -40,7 +39,6 @@ namespace neuro {
 
             Processor()
             {
-
                 output_time_ = 0;
                 input_time_ = 0;
             }
@@ -339,7 +337,6 @@ namespace neuro {
             {
                 return heap_size_ == 0;
             }
-
  
             // Hardware-dependent --------------------------------------------
 
