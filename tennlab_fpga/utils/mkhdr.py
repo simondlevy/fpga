@@ -39,8 +39,7 @@ input_index_width = unsigned_width(net.num_inputs() - 1)
 spike_width = input_index_width + charge_width(net)
 operand_width = width_nearest_byte(opcode_width + spike_width) - opcode_width
 output_index_width = unsigned_width(net.num_outputs() - 1)
-output_size_bits = opcode_width + output_index_width
-max_bytes_per_run = (width_bits_to_bytes(output_size_bits) *
+max_bytes_per_run = (width_bits_to_bytes(opcode_width + output_index_width) *
                      (net.num_outputs() + 1))
 max_runs_ahead = SYSTEM_BUFFER // max_bytes_per_run
 opcode_shift = 8 - opcode_width
