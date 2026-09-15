@@ -10,8 +10,8 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
-#include "output_queue.hpp"
 #include "message_parser.hpp"
 #include "spike.hpp"
 #include "spike_heap.hpp"
@@ -24,6 +24,8 @@ namespace neuro {
 
             static constexpr int kSystemBufferSizeBytes = 4096;
             static constexpr int kMaxInputSpikes = 1024;
+            static constexpr int kMaxOutputNeurons = 16;
+            static constexpr int kMaxSpikesPerNeuron = 256;
 
         public:
 
@@ -104,7 +106,9 @@ namespace neuro {
                 input_time_ = 0;
 
                 inp_queue_ = SpikeHeap();
-                out_queue_ = OutputQueue();
+
+                memset(output_times_, 0, sizeof(output_times_));
+                memset(output_counts_, 0, sizeof(output_counts_));
             }
 
             void Run(const int time)
@@ -170,7 +174,7 @@ namespace neuro {
 
             auto GetOutputCount(const int out_idx) -> int
             {
-                return out_queue_.output_counts_[out_idx];
+                return output_counts_[out_idx];
             }
 
             void Connect()
@@ -200,7 +204,8 @@ namespace neuro {
 
             SpikeHeap inp_queue_;
 
-            OutputQueue out_queue_;
+            float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
+            int output_counts_[kMaxOutputNeurons];
 
             void PrepareToSend(LevySpike * spikes, int count)
             {
@@ -268,7 +273,8 @@ namespace neuro {
 
                     else if (opcode == MessageParser::kOpcodeSpk) {
                         const auto out_idx = parser_.GetNeuronIndex(byte);
-                        out_queue_.Append(out_idx, (float)output_time_);
+                        output_times_[out_idx][output_counts_[out_idx]] = output_time_;
+                        output_counts_[out_idx]++;
                     }
                 }
             }
