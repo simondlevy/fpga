@@ -401,7 +401,6 @@ namespace neuro {
                 }
             }
 
-
             auto QueuePeek() -> LevySpike
             {
                 return heap_[0];
