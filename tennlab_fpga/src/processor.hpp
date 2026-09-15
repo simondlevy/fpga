@@ -39,7 +39,6 @@ namespace neuro {
 
             Processor()
             {
-                opcode_width_ = UnsignedWidth(kOpcodeCount - 1);
                 output_idx_width_ = UnsignedWidth(kNumOutputs - 1) ;
  
                 idx_width_ = InputIndexWidth();
@@ -196,7 +195,6 @@ namespace neuro {
             uint8_t idx_shift_;
             uint8_t val_shift_;
             int output_idx_width_;
-            int opcode_width_;
 
             float output_times_[kNumOutputs][kMaxSpikesPerNeuron];
             int output_counts_[kNumOutputs];
@@ -206,12 +204,12 @@ namespace neuro {
 
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {
-                return byte >> (8 - opcode_width_);
+                return byte >> (8 - kOpcodeWidth);
             }
 
             auto GetRunTime(const uint8_t byte) -> uint8_t
             {
-                return (((byte << opcode_width_) >> opcode_width_) & 0XFF);
+                return (((byte << kOpcodeWidth) >> kOpcodeWidth) & 0XFF);
             }
 
             auto GetNeuronIndex(const uint8_t byte) -> uint8_t
@@ -223,7 +221,7 @@ namespace neuro {
 
             auto OpcodeWidth() -> uint8_t
             {
-                return opcode_width_;
+                return kOpcodeWidth;
             }
 
             auto InputIndexWidth() -> uint8_t
@@ -239,7 +237,7 @@ namespace neuro {
             auto MakeCommand(
                     const uint8_t opcode, const uint8_t operand=0) -> uint8_t
             {
-                return opcode << (8 - opcode_width_) | operand;
+                return opcode << (8 - kOpcodeWidth) | operand;
             }
 
              void PrepareToSend(LevySpike * spikes, int count)
