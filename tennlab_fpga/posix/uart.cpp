@@ -24,15 +24,18 @@ static std::string kPort = "/dev/ttyUSB1";
 static constexpr speed_t kBaudRate = B4000000;
 static constexpr size_t kMaxMessageSize = 4096;
 static constexpr uint32_t kDefaultTimeoutMsec = 100;
-static constexpr long kDelayUsec = 100;
+static bool kProxy = false;
 
-//static int fd_;
+static int fd_;
 static uint8_t buf_[kMaxMessageSize] = {};
 static size_t index_;
 
 void neuro::Processor::UartBegin()
 {
-    /*
+    if (kProxy) {
+        return;
+    }
+
     const auto port = kPort.c_str();
     fd_ = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd_ < 0) {
@@ -65,23 +68,26 @@ void neuro::Processor::UartBegin()
     }
 
     tcflush(fd_, TCIOFLUSH);
-    */
 }
 
 void neuro::Processor::UartWrite(const uint8_t byte)
 {
-    /*
+    if (kProxy) {
+        return;
+    }
+
     const auto ignore = write(fd_, &byte, 1);
     (void)ignore;
-    DelayMicroseconds(kDelayUsec);
-    */
 }
 
 auto neuro::Processor::UartAvailable() -> size_t
 {
+    if (kProxy) {
+        return 0;
+    }
+
     size_t got = 0;
 
-    /*
     // Read until the line has been quiet for kDefaultTimeoutMsec, or buf is full
     while (got < kMaxMessageSize) {
 
@@ -111,12 +117,15 @@ auto neuro::Processor::UartAvailable() -> size_t
     }
 
     index_ = 0;
-    */
 
     return got;
 }
 
 auto neuro::Processor::UartRead() -> uint8_t
 {
+    if (kProxy) {
+        return 0;
+    }
+
     return buf_[index_++];
 }
