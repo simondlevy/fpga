@@ -382,7 +382,6 @@ class Processor(neuro.Processor):
         code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
 
         hdr_code = code + '#pragma once\n\n'
-        hdr_code += '#include <processor.hpp>\n\n'
         hdr_code += 'static const int kOutputNeurons = %d;\n' % net.num_outputs()
 
         cpp_code = code
