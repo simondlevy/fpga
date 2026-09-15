@@ -8,11 +8,11 @@
 
 #pragma once
 
+#include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
-#include "message_parser.hpp"
 #include "spike.hpp"
 
 namespace neuro {
@@ -27,6 +27,14 @@ namespace neuro {
             static constexpr int kMaxSpikesPerNeuron = 256;
             static constexpr int kQueueCapacity = 1024;
 
+            enum {
+                kOpcodeRun,
+                kOpcodeSpk,
+                kOpcodeSnc,
+                kOpcodeClr,
+                kOpcodeCount
+            };
+
         public:
 
             Processor(
@@ -36,27 +44,29 @@ namespace neuro {
                     const int spike_value_factor,
                     const bool debug=false)
             {
-                parser_ = MessageParser(num_inputs, num_outputs);
-
-                idx_width_ = parser_.InputIndexWidth();
+                num_inputs_ = num_inputs;
+                num_outputs_ = num_outputs;
+                opcode_width_ = UnsignedWidth(kOpcodeCount - 1);
+                output_idx_width_ = UnsignedWidth(num_outputs - 1) ;
+ 
+                idx_width_ = InputIndexWidth();
 
                 charge_width_ = charge_width;
                 spike_value_factor_ = spike_value_factor;
                 debug_ = debug;
 
-                const auto idx_width = parser_.InputIndexWidth();
+                const auto idx_width = InputIndexWidth();
 
                 const auto spk_width = idx_width + charge_width;
 
-                operand_width_ = (
-                        WidthNearestByte(parser_.OpcodeWidth() + spk_width) -
-                        parser_.OpcodeWidth());
+                operand_width_ = WidthNearestByte(OpcodeWidth() + spk_width)
+                        - OpcodeWidth();
 
                 output_time_ = 0;
                 input_time_ = 0;
 
-                const uint8_t output_size_bits = (
-                        parser_.OpcodeWidth() + parser_.OutputIndexWidth());
+                const uint8_t output_size_bits =
+                    OpcodeWidth() + OutputIndexWidth();
 
                 const int max_bytes_per_run =
                     WidthBitsToBytes(output_size_bits) * (num_outputs + 1);
@@ -66,7 +76,7 @@ namespace neuro {
                 max_run_ = std::min(
                         (1 << operand_width_) - 1, max_runs_ahead_);
 
-                opc_shift_ = 8 - parser_.OpcodeWidth();
+                opc_shift_ = 8 - OpcodeWidth();
                 idx_shift_ = opc_shift_ - idx_width_;
                 val_shift_ = idx_shift_ - charge_width;
             }
@@ -97,7 +107,7 @@ namespace neuro {
                     printf("CLR\n");
                 }
 
-                SendCommand(MessageParser::kOpcodeClr);
+                SendCommand(kOpcodeClr);
 
                 Receive();
 
@@ -155,7 +165,7 @@ namespace neuro {
                                     max_run_),
                                 max_runs_ahead_ + output_time_ - input_time_);
 
-                        SendCommand(MessageParser::kOpcodeRun, to_run);
+                        SendCommand(kOpcodeRun, to_run);
 
                         input_time_ += runs;
 
@@ -164,7 +174,7 @@ namespace neuro {
 
                     if (run_time == target_time) {
 
-                        SendCommand(MessageParser::kOpcodeSnc);
+                        SendCommand(kOpcodeSnc);
                     }
                 }
 
@@ -199,7 +209,10 @@ namespace neuro {
             uint8_t idx_shift_;
             uint8_t val_shift_;
 
-            MessageParser parser_;
+            int num_inputs_;
+            int num_outputs_;
+            int output_idx_width_;
+            int opcode_width_;
 
             float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
             int output_counts_[kMaxOutputNeurons];
@@ -207,7 +220,45 @@ namespace neuro {
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
 
-            void PrepareToSend(LevySpike * spikes, int count)
+            auto GetOpcode(const uint8_t byte) -> uint8_t
+            {
+                return byte >> (8 - opcode_width_);
+            }
+
+            auto GetRunTime(const uint8_t byte) -> uint8_t
+            {
+                return (((byte << opcode_width_) >> opcode_width_) & 0XFF);
+            }
+
+            auto GetNeuronIndex(const uint8_t byte) -> uint8_t
+            {
+                const auto idx_width = output_idx_width_;
+                const uint8_t mask = 0xFF >> (8 - idx_width);
+                return idx_width > 0 ? (byte >> 5) & mask : 0;
+            }
+
+            auto OpcodeWidth() -> uint8_t
+            {
+                return opcode_width_;
+            }
+
+            auto InputIndexWidth() -> uint8_t
+            {
+                return UnsignedWidth(num_inputs_ - 1) ;
+            }
+
+            auto OutputIndexWidth() -> uint8_t
+            {
+                return UnsignedWidth(num_outputs_ - 1) ;
+            }
+
+            auto MakeCommand(
+                    const uint8_t opcode, const uint8_t operand=0) -> uint8_t
+            {
+                return opcode << (8 - opcode_width_) | operand;
+            }
+
+             void PrepareToSend(LevySpike * spikes, int count)
             {
                 for (int k=0; k<count; ++k) {
 
@@ -219,7 +270,7 @@ namespace neuro {
                     const int8_t val = (int8_t)(spike.value * spike_value_factor_);
 
                     const uint8_t byte =
-                        MessageParser::kOpcodeSpk << opc_shift_ |
+                        kOpcodeSpk << opc_shift_ |
                         (spike.id & idx_mask) << idx_shift_ |
                         (val & val_mask) << val_shift_;
 
@@ -229,7 +280,7 @@ namespace neuro {
 
             void SendCommand(const uint8_t opcode, const uint8_t operand=0)
             {
-                WriteByte(parser_.MakeCommand(opcode, operand));
+                WriteByte(MakeCommand(opcode, operand));
             }
 
             void WriteByte(const uint8_t byte)
@@ -264,15 +315,15 @@ namespace neuro {
                     
                     const auto byte = ReadByte();
 
-                    const auto opcode = parser_.GetOpcode(byte);
+                    const auto opcode = GetOpcode(byte);
 
-                    if (opcode == MessageParser::kOpcodeRun) {
-                        const uint8_t operand = parser_.GetRunTime(byte);
+                    if (opcode == kOpcodeRun) {
+                        const uint8_t operand = GetRunTime(byte);
                         output_time_ += operand;
                     }
 
-                    else if (opcode == MessageParser::kOpcodeSpk) {
-                        const auto out_idx = parser_.GetNeuronIndex(byte);
+                    else if (opcode == kOpcodeSpk) {
+                        const auto out_idx = GetNeuronIndex(byte);
                         output_times_[out_idx][output_counts_[out_idx]] = output_time_;
                         output_counts_[out_idx]++;
                     }
@@ -384,6 +435,21 @@ namespace neuro {
             static auto WidthBytesToBits(const int bytes) -> int
             {
                 return bytes * 8;
+            }
+
+            static auto UnsignedWidth(const int value) -> int
+            {
+                return SignedWidth(value) - 1;
+            }
+
+            static auto SignedWidth(const int value) -> int
+            {
+                return Clog2(abs(value) + int(value >= 0)) + 1;
+            }
+
+            static auto Clog2(float value) -> int
+            { 
+                return int(ceil(log2(value)));
             }
 
 
