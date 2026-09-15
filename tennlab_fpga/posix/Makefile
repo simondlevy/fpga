@@ -14,6 +14,9 @@ SRC = $(TFPGA)/src
 
 NET = $(ROOT)/networks/xor.txt
 
+load:
+	$(ROOT)/utils/load.py -s -t cmoda7_35t $(NET)
+
 test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h proc.cpp
 	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp uart.cpp proc.cpp
 
