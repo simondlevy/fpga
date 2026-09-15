@@ -342,6 +342,8 @@ namespace neuro {
 
             // Network-dependent ---------------------------------------------
 
+            int GetChargeWidth();
+
             // Hardware-dependent --------------------------------------------
 
             void UartBegin();

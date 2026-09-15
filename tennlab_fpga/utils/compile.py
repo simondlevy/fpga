@@ -32,8 +32,7 @@ except Exception:
 
 proc = Processor('cpp')
 
-cppcode = proc.compile_to_cpp(net, args.debug)
+hdr_code, cpp_code = proc.compile_to_cpp(net, args.debug)
 
-outfile = open('network_config.h', 'w')
-
-outfile.write(cppcode)
+with open('network_config.h', 'w') as outfile:
+    outfile.write(hdr_code)

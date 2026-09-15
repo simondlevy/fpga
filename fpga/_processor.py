@@ -379,30 +379,32 @@ class Processor(neuro.Processor):
 
         index_shift = opcode_shift - input_index_width
 
-        cppcode = '// AUTO-GENERATED: DO NOT EDIT\n\n'
-        cppcode += '#pragma once\n\n'
-        cppcode += '#include <processor.hpp>\n\n'
-        cppcode += ('static const int kChargeWidth = %d;\n' % charge_width(net))
-        cppcode += ('static const int kSpikeValueFactor = %d;\n' %
+        hdr_code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
+        hdr_code += '#pragma once\n\n'
+        hdr_code += '#include <processor.hpp>\n\n'
+        hdr_code += ('static const int kChargeWidth = %d;\n' % charge_width(net))
+        hdr_code += ('static const int kSpikeValueFactor = %d;\n' %
                     spike_value_factor(net))
-        cppcode += 'static const int kOpcodeWidth = %d;\n' % opc_width
-        cppcode += 'static const int kInputIndexWidth = %d;\n' % input_index_width
-        cppcode += ('static const int kOutputIndexWidth = %d;\n' %
+        hdr_code += 'static const int kOpcodeWidth = %d;\n' % opc_width
+        hdr_code += 'static const int kInputIndexWidth = %d;\n' % input_index_width
+        hdr_code += ('static const int kOutputIndexWidth = %d;\n' %
                   unsigned_width(net.num_outputs() - 1))
-        cppcode += 'static const int kOpcodeShift = %d;\n' % opcode_shift
-        cppcode += 'static const int kIndexShift = %d;\n' % index_shift
-        cppcode += ('static const int kValueShift = %d;\n' %
+        hdr_code += 'static const int kOpcodeShift = %d;\n' % opcode_shift
+        hdr_code += 'static const int kIndexShift = %d;\n' % index_shift
+        hdr_code += ('static const int kValueShift = %d;\n' %
                   (index_shift - charge_width(net)))
-        cppcode += 'static const int kMaxRunsAhead = %d;\n' % max_runs_ahead
-        cppcode += ('static const int kMaxRun = %d;\n' %
+        hdr_code += 'static const int kMaxRunsAhead = %d;\n' % max_runs_ahead
+        hdr_code += ('static const int kMaxRun = %d;\n' %
                   (min((1 << (width_nearest_byte(opc_width +
                               (input_index_width + charge_width(net))) -
                               opc_width)) - 1,
                        max_runs_ahead)))
-        cppcode += ('static const bool kDebug = %s;\n\n' %
+        hdr_code += ('static const bool kDebug = %s;\n\n' %
                     ('true' if debug else 'false'))
 
-        return cppcode
+        cpp_code = ''
+
+        return hdr_code, cpp_code
 
     ##########################################################################
 
