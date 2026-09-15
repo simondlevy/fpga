@@ -37,6 +37,7 @@ outfile = open('network_config.h', 'w')
 
 opcode_width = unsigned_width(len(DispatchOpcode) - 1)
 input_index_width = unsigned_width(net.num_inputs() - 1)
+spike_width = input_index_width + charge_width(net)
 
 outfile.write('// AUTO-GENERATED: DO NOT EDIT\n\n')
 outfile.write('#pragma once\n\n')
