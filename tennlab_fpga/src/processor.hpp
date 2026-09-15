@@ -39,10 +39,7 @@ namespace neuro {
 
             Processor()
             {
-                int operand_width = WidthNearestByte(OpcodeWidth() + kSpikeWidth)
-                        - OpcodeWidth();
-
-                max_run_ = std::min((1 << operand_width) - 1, kMaxRunsAhead);
+                //printf("%d %d\n", kMaxRun, kMaxRun); exit(0);
 
                 opc_shift_ = 8 - OpcodeWidth();
                 idx_shift_ = opc_shift_ - kInputIndexWidth;
@@ -133,7 +130,7 @@ namespace neuro {
 
                         const auto to_run = std::min(std::min(
                                     runs,
-                                    max_run_),
+                                    kMaxRun),
                                 kMaxRunsAhead + output_time_ - input_time_);
 
                         SendCommand(kOpcodeRun, to_run);
@@ -170,7 +167,6 @@ namespace neuro {
             bool kDebug;
             int input_time_;
             int output_time_;
-            int max_run_;
             uint8_t opc_shift_;
             uint8_t idx_shift_;
             uint8_t val_shift_;
