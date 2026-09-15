@@ -65,7 +65,7 @@ outfile.write('static const int kSpikeWidth = kInputIndexWidth + ' +
               'kChargeWidth;\n')
 outfile.write('static const int kOpcodeShift = %d;\n' % opcode_shift)
 outfile.write('static const int kIndexShift = %d;\n' % index_shift)
-outfile.write('static const int kValShift = %d;\n' % value_shift)
+outfile.write('static const int kValueShift = %d;\n' % value_shift)
 outfile.write('static const int kMaxRunsAhead = %d;\n' % max_runs_ahead)
 outfile.write('static const int kMaxRun = %d;\n' % max_run)
 
