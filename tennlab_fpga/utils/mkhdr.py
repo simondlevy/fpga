@@ -36,6 +36,7 @@ except Exception:
 outfile = open('network_config.h', 'w')
 
 opcode_width = unsigned_width(len(DispatchOpcode) - 1)
+input_index_width = unsigned_width(net.num_inputs() - 1)
 
 outfile.write('// AUTO-GENERATED: DO NOT EDIT\n\n')
 outfile.write('#pragma once\n\n')
@@ -46,13 +47,11 @@ outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
 outfile.write('static const int kSpikeValueFactor = %d;\n' %
               spike_value_factor(net))
 outfile.write('static const int kOpcodeWidth = %d;\n' % opcode_width)
-outfile.write('static const int kInputIndexWidth = %d;\n' %
-              unsigned_width(net.num_inputs() - 1))
+outfile.write('static const int kInputIndexWidth = %d;\n' % input_index_width)
 outfile.write('static const int kOutputIndexWidth = %d;\n' %
               unsigned_width(net.num_outputs() - 1))
 outfile.write('static const int kSpikeWidth = kInputIndexWidth + ' +
               'kChargeWidth;\n')
-
 
 outfile.write('static const int kSimTime = %d;\n' % sim_time(net))
 outfile.write('static const bool kDebug = %s;\n\n' %
