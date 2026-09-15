@@ -14,7 +14,6 @@
 
 #include "message_parser.hpp"
 #include "spike.hpp"
-#include "spike_heap.hpp"
 
 namespace neuro {
 
@@ -26,6 +25,7 @@ namespace neuro {
             static constexpr int kMaxInputSpikes = 1024;
             static constexpr int kMaxOutputNeurons = 16;
             static constexpr int kMaxSpikesPerNeuron = 256;
+            static constexpr int kQueueCapacity = 1024;
 
         public:
 
@@ -77,15 +77,14 @@ namespace neuro {
                     printf("AS\n");
                 }
 
-                inp_queue_.Push(LevySpike(id, time + input_time_, value));
+                QueuePush(LevySpike(id, time + input_time_, value));
 
-                static LevySpike spikes_now[SpikeHeap::CAPACITY];
+                static LevySpike spikes_now[kQueueCapacity];
                 int count = 0;
 
-                while (!inp_queue_.IsEmpty() &&
-                        inp_queue_.Peek().time == input_time_) {
+                while (!QueueIsEmpty() && QueuePeek().time == input_time_) {
                     // send these spikes as soon as they arrive to reduce latency
-                    spikes_now[count] = inp_queue_.Pop();
+                    spikes_now[count] = QueuePop();
                     count++;
                 }
 
@@ -105,7 +104,7 @@ namespace neuro {
                 output_time_ = 0;
                 input_time_ = 0;
 
-                inp_queue_ = SpikeHeap();
+                heap_size_ = 0;
 
                 memset(output_times_, 0, sizeof(output_times_));
                 memset(output_counts_, 0, sizeof(output_counts_));
@@ -126,23 +125,23 @@ namespace neuro {
 
                     while (true) {
 
-                        if (inp_queue_.IsEmpty()) {
+                        if (QueueIsEmpty()) {
                             break;
                         }
 
-                        const auto spike = inp_queue_.Peek();
+                        const auto spike = QueuePeek();
 
                         if (spike.time != input_time_) {
                             break;
                         }
 
-                        spikes[count] = inp_queue_.Pop();
+                        spikes[count] = QueuePop();
                         count++;
 
                     }
 
-                    const auto run_time = !inp_queue_.IsEmpty() ?
-                        (int)inp_queue_.Peek().time :
+                    const auto run_time = !QueueIsEmpty() ?
+                        (int)QueuePeek().time :
                         target_time;
 
                     PrepareToSend(spikes, count);
@@ -202,10 +201,11 @@ namespace neuro {
 
             MessageParser parser_;
 
-            SpikeHeap inp_queue_;
-
             float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
             int output_counts_[kMaxOutputNeurons];
+
+            LevySpike heap_[kQueueCapacity];
+            int heap_size_;
 
             void PrepareToSend(LevySpike * spikes, int count)
             {
@@ -279,6 +279,89 @@ namespace neuro {
                 }
             }
 
+            void QueuePush(const LevySpike & spike)
+            {
+                // Insert at the end and sift up
+                heap_[heap_size_] = spike;
+                heap_size_++;
+                QueueSiftUp(heap_size_ - 1);
+            }
+
+            auto QueuePop() -> LevySpike
+            {
+                const auto min_val = heap_[0];
+
+                // Move the last element to the root and sift down
+                heap_[0] = heap_[heap_size_ - 1];
+                heap_size_ -= 1;
+
+                if (heap_size_ > 0) {
+                    QueueSiftDown(0);
+                }
+
+                return min_val;
+            }
+
+            void QueueSiftUp(int idx)
+            {
+                // Maintains min-heap property by moving an element upwards.
+                while (idx > 0) {
+
+                    const auto parent = (idx - 1) / 2;
+
+                    if (!(heap_[idx]< heap_[parent])) {
+                        break;
+                    }
+
+                    const auto tmp = heap_[idx];
+                    heap_[idx] = heap_[parent];
+                    heap_[parent] = tmp;
+
+                    idx = parent;
+                }
+            }
+
+            void QueueSiftDown(int idx)
+            {
+                // Maintains min-heap property by moving an element downwards.
+                while (true) {
+
+                    const auto left = 2 * idx + 1;
+                    const auto right = 2 * idx + 2;
+                    auto smallest = idx;
+
+                    if (left < heap_size_ && heap_[left] < heap_[smallest]) {
+                        smallest = left;
+                    }
+
+                    if (right < heap_size_ && heap_[right] < heap_[smallest]) {
+                        smallest = right;
+                    }
+
+                    if (smallest == idx) {
+                        break;
+                    }
+
+                    const auto tmp = heap_[idx];
+                    heap_[idx] = heap_[smallest];
+                    heap_[smallest] = tmp;
+
+                    idx = smallest;
+                }
+            }
+
+
+            auto QueuePeek() -> LevySpike
+            {
+                return heap_[0];
+            }
+
+            auto QueueIsEmpty() -> bool
+            {
+                return heap_size_ == 0;
+            }
+
+ 
             // Hardware-dependent --------------------------------------------
 
             void UartBegin();
