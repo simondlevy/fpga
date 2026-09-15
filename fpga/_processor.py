@@ -104,16 +104,16 @@ class _IoConfig:
                 self.opc_width = unsigned_width(len(DispatchOpcode) - 1)
                 spk_names = ["opcode"]
                 spk_fmt_str = f"u{self.opc_width}"
-                idx_width, operand_width = dispatch_operand_widths(
+                self.idx_width, operand_width = dispatch_operand_widths(
                     self.opc_width, self._num_net_io(), self._charge_width(), is_axi
                 )
                 cmd_names = spk_names + ["operand"]
                 cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
                 self.cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
 
-                if idx_width:
+                if self.idx_width:
                     spk_names.append("idx")
-                    spk_fmt_str += f"u{idx_width}"
+                    spk_fmt_str += f"u{self.idx_width}"
                 if self._charge_width():
                     spk_names.append("val")
                     spk_fmt_str += f"s{self._charge_width()}"
@@ -369,7 +369,7 @@ class Processor(neuro.Processor):
 
         opc_width = self._out.opc_width
 
-        input_index_width = unsigned_width(net.num_inputs() - 1)
+        input_index_width = self._inp.idx_width
 
         opcode_shift = 8 - opc_width
 
