@@ -383,8 +383,6 @@ class Processor(neuro.Processor):
 
         hdr_code = code + '#pragma once\n\n'
         hdr_code += '#include <processor.hpp>\n\n'
-        hdr_code += ('static const int kSpikeValueFactor = %d;\n' %
-                    spike_value_factor(net))
         hdr_code += 'static const int kOpcodeWidth = %d;\n' % opc_width
         hdr_code += 'static const int kInputIndexWidth = %d;\n' % input_index_width
         hdr_code += ('static const int kOutputIndexWidth = %d;\n' %
@@ -403,9 +401,14 @@ class Processor(neuro.Processor):
                     ('true' if debug else 'false'))
 
         cpp_code = code
+
         cpp_code += '#include <processor.hpp>\n\n'
+
         cpp_code += ('int neuro::Processor::GetChargeWidth()\n{\n    '+
                      'return %d;\n}\n\n' % charge_width(net))
+
+        cpp_code += ('int neuro::Processor::GetSpikeValueFactor()\n{\n    '+
+                     'return %d;\n}\n\n' % spike_value_factor(net))
 
         return hdr_code, cpp_code
 

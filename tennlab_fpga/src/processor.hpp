@@ -196,7 +196,7 @@ namespace neuro {
                     const uint8_t idx_mask = (1 << kInputIndexWidth) - 1;
                     const uint8_t val_mask = (1 << GetChargeWidth()) - 1;
 
-                    const int8_t val = (int8_t)(spike.value * kSpikeValueFactor);
+                    const int8_t val = (int8_t)(spike.value * GetSpikeValueFactor());
 
                     const uint8_t byte =
                         kOpcodeSpk << kOpcodeShift |
@@ -343,6 +343,7 @@ namespace neuro {
             // Network-dependent ---------------------------------------------
 
             int GetChargeWidth();
+            int GetSpikeValueFactor();
 
             // Hardware-dependent --------------------------------------------
 
