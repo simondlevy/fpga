@@ -41,9 +41,7 @@ namespace neuro {
             {
                 idx_width_ = InputIndexWidth();
 
-                const auto idx_width = InputIndexWidth();
-
-                const auto spk_width = idx_width + kChargeWidth;
+                const auto spk_width = idx_width_ + kChargeWidth;
 
                 operand_width_ = WidthNearestByte(OpcodeWidth() + spk_width)
                         - OpcodeWidth();
