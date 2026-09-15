@@ -124,9 +124,7 @@ namespace neuro {
 
                     while (runs > 0) {
 
-                        const auto to_run = std::min(std::min(
-                                    runs,
-                                    kMaxRun),
+                        const auto to_run = std::min(std::min( runs, kMaxRun),
                                 kMaxRunsAhead + output_time_ - input_time_);
 
                         SendCommand(kOpcodeRun, to_run);
