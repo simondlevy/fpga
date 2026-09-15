@@ -8,7 +8,8 @@
 
 #pragma once
 
-#include <math.h>
+#include <algorithm>
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -157,8 +158,6 @@ namespace neuro {
 
         private:
 
-            const int MAXMSG = 32;
-
             int input_time_;
             int output_time_;
 
@@ -182,21 +181,6 @@ namespace neuro {
             {
                 const uint8_t mask = 0xFF >> (8 - kOutputIndexWidth);
                 return kOutputIndexWidth > 0 ? (byte >> 5) & mask : 0;
-            }
-
-            auto OpcodeWidth() -> uint8_t
-            {
-                return kOpcodeWidth;
-            }
-
-            auto InputIndexWidth() -> uint8_t
-            {
-                return UnsignedWidth(kNumInputs - 1) ;
-            }
-
-            auto OutputIndexWidth() -> uint8_t
-            {
-                return UnsignedWidth(kNumOutputs - 1) ;
             }
 
             auto MakeCommand(
@@ -365,39 +349,6 @@ namespace neuro {
             void UartWrite(const uint8_t byte);
             auto UartAvailable() -> int;
             auto UartRead() -> uint8_t;
-
-            // Bit-twiddling -------------------------------------------------
-
-            static auto WidthNearestByte(const int bits) -> int
-            {
-                return WidthBytesToBits(WidthBitsToBytes(bits));
-            }
-
-            static auto WidthBitsToBytes(const int bits) -> int
-            {
-                return int(ceil(bits / 8.f));
-            }
-
-            static auto WidthBytesToBits(const int bytes) -> int
-            {
-                return bytes * 8;
-            }
-
-            static auto UnsignedWidth(const int value) -> int
-            {
-                return SignedWidth(value) - 1;
-            }
-
-            static auto SignedWidth(const int value) -> int
-            {
-                return Clog2(abs(value) + int(value >= 0)) + 1;
-            }
-
-            static auto Clog2(float value) -> int
-            { 
-                return int(ceil(log2(value)));
-            }
-
 
     }; // class Processor
 

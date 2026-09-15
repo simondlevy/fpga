@@ -52,7 +52,6 @@ value_shift = index_shift - charge_width(net);
 outfile.write('// AUTO-GENERATED: DO NOT EDIT\n\n')
 outfile.write('#pragma once\n\n')
 outfile.write('#include <processor.hpp>\n\n')
-outfile.write('static const int kNumInputs = %d;\n' % net.num_inputs())
 outfile.write('static const int kNumOutputs = %d;\n' % net.num_outputs())
 outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
 outfile.write('static const int kSpikeValueFactor = %d;\n' %
