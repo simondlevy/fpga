@@ -13,6 +13,7 @@ import neuro
 
 from fpga.network import charge_width, spike_value_factor, sim_time
 from fpga._processor import DispatchOpcode, unsigned_width
+from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -34,6 +35,8 @@ except Exception:
 
 outfile = open('network_config.h', 'w')
 
+opcode_width = unsigned_width(len(DispatchOpcode) - 1)
+
 outfile.write('// AUTO-GENERATED: DO NOT EDIT\n\n')
 outfile.write('#pragma once\n\n')
 outfile.write('#include <processor.hpp>\n\n')
@@ -42,15 +45,13 @@ outfile.write('static const int kNumOutputs = %d;\n' % net.num_outputs())
 outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
 outfile.write('static const int kSpikeValueFactor = %d;\n' %
               spike_value_factor(net))
-outfile.write('static const int kOpcodeWidth = %d;\n' %
-              unsigned_width(len(DispatchOpcode) - 1))
+outfile.write('static const int kOpcodeWidth = %d;\n' % opcode_width)
 outfile.write('static const int kInputIndexWidth = %d;\n' %
               unsigned_width(net.num_inputs() - 1))
 outfile.write('static const int kOutputIndexWidth = %d;\n' %
               unsigned_width(net.num_outputs() - 1))
 outfile.write('static const int kSpikeWidth = kInputIndexWidth + ' +
               'kChargeWidth;\n')
-
 
 
 outfile.write('static const int kSimTime = %d;\n' % sim_time(net))
