@@ -402,9 +402,7 @@ class Processor(neuro.Processor):
         cpp_code += ("int neuro::Processor::GetMaxRunsAhead() { "+
                      "return %d; }\n" % self._max_runs_ahead)
         cpp_code += ("int neuro::Processor::GetMaxRun() { "+
-                     "return %d; }\n" % (min((1 << (width_nearest_byte(opc_width +
-                              (input_index_width + charge_width)) -
-                              opc_width)) - 1, self._max_runs_ahead)))
+                     "return %d; }\n" % self._max_run)
         cpp_code += ("bool neuro::Processor::GetDebug() { "+
                      "return %s; }\n" % ("true" if debug else "false"))
  
