@@ -179,36 +179,41 @@ class Processor(neuro.Processor):
     ):
         super().__init__(*args, **kwargs)
 
-        self._debug = debug
+        if target == 'cpp':
+            pass
 
-        self._target_name = target
-
-        with open(resources.files(config).joinpath("targets.json")) as f:
-            self._target_config = load(f)[self._target_name]
-
-        if interface is None or isinstance(interface, str):
-            baudrate = 115200
-            try:
-                baudrate = self._target_config["parameters"]["uart"]["baud_rates"][-1]
-            except KeyError:
-                pass
-            except IndexError:
-                pass
-            if isinstance(interface, str):
-                interface = Serial(interface, baudrate)
-        elif isinstance(interface, Serial):
-            baudrate = interface.baudrate
         else:
-            raise RuntimeError("fpga Processor interface must be a " +
-                               "periphery.Serial or str or None object.")
-        self._interface = interface
-        self._baudrate = baudrate
 
-        self._io_type = io_type.upper()
+            self._debug = debug
 
-        self._network = None
-        self._programmed = False
-        self.clear()
+            self._target_name = target
+
+            with open(resources.files(config).joinpath("targets.json")) as f:
+                self._target_config = load(f)[self._target_name]
+
+            if interface is None or isinstance(interface, str):
+                baudrate = 115200
+                try:
+                    baudrate = self._target_config["parameters"]["uart"]["baud_rates"][-1]
+                except KeyError:
+                    pass
+                except IndexError:
+                    pass
+                if isinstance(interface, str):
+                    interface = Serial(interface, baudrate)
+            elif isinstance(interface, Serial):
+                baudrate = interface.baudrate
+            else:
+                raise RuntimeError("fpga Processor interface must be a " +
+                                   "periphery.Serial or str or None object.")
+            self._interface = interface
+            self._baudrate = baudrate
+
+            self._io_type = io_type.upper()
+
+            self._network = None
+            self._programmed = False
+            self.clear()
 
     def _ignore(self, _):
         return
@@ -357,6 +362,37 @@ class Processor(neuro.Processor):
                 (run_time == target_time),
             )
         rx_thread.join()
+
+    def compile_to_cpp(self, network):
+
+        cppcode = '// AUTO-GENERATED: DO NOT EDIT\n\n'
+        
+        '''
+        outfile.write('#pragma once\n\n')
+        outfile.write('#include <processor.hpp>\n\n')
+        outfile.write('static const int kNumOutputs = %d;\n' % net.num_outputs())
+        outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
+        outfile.write('static const int kSpikeValueFactor = %d;\n' %
+                  spike_value_factor(net))
+        outfile.write('static const int kOpcodeWidth = %d;\n' % opc_width)
+        outfile.write('static const int kInputIndexWidth = %d;\n' % input_index_width)
+        outfile.write('static const int kOutputIndexWidth = %d;\n' %
+                  unsigned_width(net.num_outputs() - 1))
+        outfile.write('static const int kOpcodeShift = %d;\n' % opcode_shift)
+        outfile.write('static const int kIndexShift = %d;\n' % index_shift)
+        outfile.write('static const int kValueShift = %d;\n' %
+                  (index_shift - charge_width(net)))
+        outfile.write('static const int kMaxRunsAhead = %d;\n' % max_runs_ahead)
+        outfile.write('static const int kMaxRun = %d;\n' %
+                  (min((1 << (width_nearest_byte(opc_width +
+                              (input_index_width + charge_width(net))) -
+                              opc_width)) - 1,
+                       max_runs_ahead)))
+        outfile.write('static const bool kDebug = %s;\n\n' %
+                  ('true' if args.debug else 'false'))
+        '''
+
+        return cppcode
 
     ##########################################################################
 

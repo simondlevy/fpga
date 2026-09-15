@@ -14,6 +14,8 @@ from fpga.network import charge_width, spike_value_factor
 from fpga._processor import SYSTEM_BUFFER, DispatchOpcode
 from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
 
+from fpga._processor import Processor
+
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -32,19 +34,25 @@ except Exception:
     print('Unable to read from ' + args.input_file)
     exit(1)
 
+proc = Processor('cpp')
+
+cppcode = proc.compile_to_cpp(net)
+
+print(cppcode)
+
 outfile = open('network_config.h', 'w')
 
-opcode_width = unsigned_width(len(DispatchOpcode) - 1)
+opc_width = unsigned_width(len(DispatchOpcode) - 1)
 
 input_index_width = unsigned_width(net.num_inputs() - 1)
 
-max_bytes_per_run = (width_bits_to_bytes(opcode_width +
+max_bytes_per_run = (width_bits_to_bytes(opc_width +
                      unsigned_width(net.num_outputs() - 1)) *
                      (net.num_outputs() + 1))
 
 max_runs_ahead = SYSTEM_BUFFER // max_bytes_per_run
 
-opcode_shift = 8 - opcode_width
+opcode_shift = 8 - opc_width
 
 index_shift = opcode_shift - input_index_width
 
@@ -55,7 +63,7 @@ outfile.write('static const int kNumOutputs = %d;\n' % net.num_outputs())
 outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
 outfile.write('static const int kSpikeValueFactor = %d;\n' %
               spike_value_factor(net))
-outfile.write('static const int kOpcodeWidth = %d;\n' % opcode_width)
+outfile.write('static const int kOpcodeWidth = %d;\n' % opc_width)
 outfile.write('static const int kInputIndexWidth = %d;\n' % input_index_width)
 outfile.write('static const int kOutputIndexWidth = %d;\n' %
               unsigned_width(net.num_outputs() - 1))
@@ -65,9 +73,9 @@ outfile.write('static const int kValueShift = %d;\n' %
               (index_shift - charge_width(net)))
 outfile.write('static const int kMaxRunsAhead = %d;\n' % max_runs_ahead)
 outfile.write('static const int kMaxRun = %d;\n' %
-              (min((1 << (width_nearest_byte(opcode_width +
+              (min((1 << (width_nearest_byte(opc_width +
                           (input_index_width + charge_width(net))) -
-                          opcode_width)) - 1,
+                          opc_width)) - 1,
                    max_runs_ahead)))
 outfile.write('static const bool kDebug = %s;\n\n' %
               ('true' if args.debug else 'false'))
