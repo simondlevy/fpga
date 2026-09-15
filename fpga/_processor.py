@@ -404,6 +404,7 @@ class Processor(neuro.Processor):
                     ('true' if debug else 'false'))
 
         cpp_code = code
+        cpp_code += '#include <processor.hpp>\n\n'
 
         return hdr_code, cpp_code
 

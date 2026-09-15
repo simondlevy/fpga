@@ -14,10 +14,13 @@ SRC = $(TFPGA)/src
 
 NET = $(ROOT)/networks/xor.txt
 
-test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
-	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp uart.cpp
+test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h proc.cpp
+	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp uart.cpp proc.cpp
 
 network_config.h: $(NET)
+	$(TFPGA)/utils/compile.py $(NET)
+
+proc.cpp: $(NET)
 	$(TFPGA)/utils/compile.py $(NET)
 
 run: test
