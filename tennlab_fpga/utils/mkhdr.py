@@ -48,6 +48,8 @@ outfile.write('static const int kInputIndexWidth = %d;\n' %
               unsigned_width(net.num_inputs() - 1))
 outfile.write('static const int kOutputIndexWidth = %d;\n' %
               unsigned_width(net.num_outputs() - 1))
+outfile.write('static const int kSpikeWidth = kInputIndexWidth + ' +
+              'kChargeWidth;\n')
 
 
 

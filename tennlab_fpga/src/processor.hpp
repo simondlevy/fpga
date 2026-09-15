@@ -39,9 +39,7 @@ namespace neuro {
 
             Processor()
             {
-                const auto spk_width = kInputIndexWidth + kChargeWidth;
-
-                operand_width_ = WidthNearestByte(OpcodeWidth() + spk_width)
+                operand_width_ = WidthNearestByte(OpcodeWidth() + kSpikeWidth)
                         - OpcodeWidth();
 
                 output_time_ = 0;
