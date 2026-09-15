@@ -42,22 +42,14 @@ namespace neuro {
                 int operand_width = WidthNearestByte(OpcodeWidth() + kSpikeWidth)
                         - OpcodeWidth();
 
-                output_time_ = 0;
-                input_time_ = 0;
-
-                const uint8_t output_size_bits =
-                    OpcodeWidth() + OutputIndexWidth();
-
-                const int max_bytes_per_run =
-                    WidthBitsToBytes(output_size_bits) * (kNumOutputs + 1);
-
-                max_runs_ahead_ = kSystemBufferSizeBytes / max_bytes_per_run;
-
-                max_run_ = std::min((1 << operand_width) - 1, max_runs_ahead_);
+                max_run_ = std::min((1 << operand_width) - 1, kMaxRunsAhead);
 
                 opc_shift_ = 8 - OpcodeWidth();
                 idx_shift_ = opc_shift_ - kInputIndexWidth;
                 val_shift_ = idx_shift_ - kChargeWidth;
+
+                output_time_ = 0;
+                input_time_ = 0;
             }
 
             void ApplySpike(const int id, const float time, const float value)
@@ -142,7 +134,7 @@ namespace neuro {
                         const auto to_run = std::min(std::min(
                                     runs,
                                     max_run_),
-                                max_runs_ahead_ + output_time_ - input_time_);
+                                kMaxRunsAhead + output_time_ - input_time_);
 
                         SendCommand(kOpcodeRun, to_run);
 
@@ -178,7 +170,6 @@ namespace neuro {
             bool kDebug;
             int input_time_;
             int output_time_;
-            int max_runs_ahead_;
             int max_run_;
             uint8_t opc_shift_;
             uint8_t idx_shift_;
