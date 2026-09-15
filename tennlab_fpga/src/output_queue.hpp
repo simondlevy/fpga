@@ -14,13 +14,13 @@ namespace neuro {
 
         private:
 
-            static constexpr size_t MAX_NEURONS = 16;
-            static constexpr size_t MAX_SPIKES_PER_NEURON = 256;
+            static constexpr int kMaxOutputNeurons = 16;
+            static constexpr int kMaxSpikesPerNeuron = 256;
 
         public:
 
-            float times[MAX_NEURONS][MAX_SPIKES_PER_NEURON];
-            size_t counts[MAX_NEURONS];
+            float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
+            int output_counts_[kMaxOutputNeurons];
 
             OutputQueue() = default;
 
@@ -28,8 +28,8 @@ namespace neuro {
 
             void Append(const int index, const float time)
             {
-                times[index][counts[index]] = time;
-                counts[index]++;
+                output_times_[index][output_counts_[index]] = time;
+                output_counts_[index]++;
             }
 
     }; // class OutputQueue

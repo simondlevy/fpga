@@ -23,7 +23,7 @@ namespace neuro {
         private:
 
             static constexpr int kSystemBufferSizeBytes = 4096;
-            static const size_t kMaxInputSpikes = 1024;
+            static constexpr int kMaxInputSpikes = 1024;
 
         public:
 
@@ -118,7 +118,7 @@ namespace neuro {
                 while (input_time_ < target_time) {
 
                     static LevySpike spikes[kMaxInputSpikes];
-                    size_t count = 0;
+                    int count = 0;
 
                     while (true) {
 
@@ -170,7 +170,7 @@ namespace neuro {
 
             auto GetOutputCount(const int out_idx) -> int
             {
-                return out_queue_.counts[out_idx];
+                return out_queue_.output_counts_[out_idx];
             }
 
             void Connect()
@@ -181,7 +181,7 @@ namespace neuro {
 
         private:
 
-            const size_t MAXMSG = 32;
+            const int MAXMSG = 32;
 
             int idx_width_;
             int charge_width_;
@@ -255,7 +255,7 @@ namespace neuro {
                     printf("  avail %d\n", (int)avail);
                 }
 
-                for (size_t k=0; k<avail; ++k) {
+                for (int k=0; k<avail; ++k) {
                     
                     const auto byte = ReadByte();
 
@@ -277,7 +277,7 @@ namespace neuro {
 
             void UartBegin();
             void UartWrite(const uint8_t byte);
-            auto UartAvailable() -> size_t;
+            auto UartAvailable() -> int;
             auto UartRead() -> uint8_t;
 
             // Bit-twiddling -------------------------------------------------
