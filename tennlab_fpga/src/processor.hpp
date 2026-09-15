@@ -123,7 +123,7 @@ namespace neuro {
 
                     while (runs > 0) {
 
-                        const auto to_run = std::min(std::min( runs, kMaxRun),
+                        const auto to_run = std::min(std::min( runs, GetMaxRun()),
                                 GetMaxRunsAhead() + output_time_ - input_time_);
 
                         SendCommand(kOpcodeRun, to_run);
@@ -350,6 +350,7 @@ namespace neuro {
             int GetIndexShift();
             int GetValueShift();
             int GetMaxRunsAhead();
+            int GetMaxRun();
 
             // Hardware-dependent --------------------------------------------
 

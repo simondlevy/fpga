@@ -384,11 +384,6 @@ class Processor(neuro.Processor):
         hdr_code = code + '#pragma once\n\n'
         hdr_code += '#include <processor.hpp>\n\n'
         hdr_code += 'static const int kOutputNeurons = %d;\n' % net.num_outputs()
-        hdr_code += ('static const int kMaxRun = %d;\n' %
-                  (min((1 << (width_nearest_byte(opc_width +
-                              (input_index_width + charge_width(net))) -
-                              opc_width)) - 1,
-                       max_runs_ahead)))
         hdr_code += ('static const bool kDebug = %s;\n\n' %
                     ('true' if debug else 'false'))
 
@@ -413,6 +408,10 @@ class Processor(neuro.Processor):
                      'return %d; }\n' % (index_shift - charge_width(net)))
         cpp_code += ('int neuro::Processor::GetMaxRunsAhead() { '+
                      'return %d; }\n' % max_runs_ahead)
+        cpp_code += ('int neuro::Processor::GetMaxRun() { '+
+                     'return %d; }\n' % (min((1 << (width_nearest_byte(opc_width +
+                              (input_index_width + charge_width(net))) -
+                              opc_width)) - 1, max_runs_ahead)))
 
         return hdr_code, cpp_code
 
