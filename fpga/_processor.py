@@ -379,8 +379,9 @@ class Processor(neuro.Processor):
 
         index_shift = opcode_shift - input_index_width
 
-        hdr_code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
-        hdr_code += '#pragma once\n\n'
+        code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
+
+        hdr_code = code + '#pragma once\n\n'
         hdr_code += '#include <processor.hpp>\n\n'
         hdr_code += ('static const int kChargeWidth = %d;\n' % charge_width(net))
         hdr_code += ('static const int kSpikeValueFactor = %d;\n' %
@@ -402,7 +403,7 @@ class Processor(neuro.Processor):
         hdr_code += ('static const bool kDebug = %s;\n\n' %
                     ('true' if debug else 'false'))
 
-        cpp_code = ''
+        cpp_code = code
 
         return hdr_code, cpp_code
 
