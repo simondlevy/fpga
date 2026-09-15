@@ -371,10 +371,6 @@ class Processor(neuro.Processor):
 
         input_index_width = unsigned_width(net.num_inputs() - 1)
 
-        max_bytes_per_run = (width_bits_to_bytes(opc_width +
-                             unsigned_width(net.num_outputs() - 1)) *
-                             (net.num_outputs() + 1))
-
         opcode_shift = 8 - opc_width
 
         index_shift = opcode_shift - input_index_width
