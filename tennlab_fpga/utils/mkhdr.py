@@ -60,8 +60,6 @@ outfile.write('static const int kOpcodeWidth = %d;\n' % opcode_width)
 outfile.write('static const int kInputIndexWidth = %d;\n' % input_index_width)
 outfile.write('static const int kOutputIndexWidth = %d;\n' %
               unsigned_width(net.num_outputs() - 1))
-outfile.write('static const int kSpikeWidth = kInputIndexWidth + ' +
-              'kChargeWidth;\n')
 outfile.write('static const int kOpcodeShift = %d;\n' % opcode_shift)
 outfile.write('static const int kIndexShift = %d;\n' % index_shift)
 outfile.write('static const int kValueShift = %d;\n' % value_shift)
