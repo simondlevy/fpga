@@ -194,7 +194,7 @@ namespace neuro {
                     const auto spike = spikes[k];
 
                     const uint8_t idx_mask = (1 << kInputIndexWidth) - 1;
-                    const uint8_t val_mask = (1 << kChargeWidth) - 1;
+                    const uint8_t val_mask = (1 << GetChargeWidth()) - 1;
 
                     const int8_t val = (int8_t)(spike.value * kSpikeValueFactor);
 
