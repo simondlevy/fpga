@@ -27,4 +27,4 @@ edit:
 	vim main.cpp
 
 clean:
-	rm -rf test network_config.h
+	rm -rf test network_config.h proc.cpp

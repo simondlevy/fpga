@@ -36,3 +36,6 @@ hdr_code, cpp_code = proc.compile_to_cpp(net, args.debug)
 
 with open('network_config.h', 'w') as outfile:
     outfile.write(hdr_code)
+
+with open('proc.cpp', 'w') as outfile:
+    outfile.write(cpp_code)
