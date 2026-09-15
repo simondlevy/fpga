@@ -17,8 +17,11 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('input_file')
 
-parser.add_argument('-d', '--debug', help='turn on debugging',
-                    action='store_true')
+parser.add_argument('-d', '--debug', action='store_true',
+                    help='turn on debugging')
+
+parser.add_argument('-i', '--io_type', choices=('DIDO', 'DISO'),
+                    default='DIDO', help='IO type')
 
 args = parser.parse_args()
 
@@ -30,7 +33,7 @@ except Exception:
     print('Unable to read from ' + args.input_file)
     exit(1)
 
-proc = Processor('cpp')
+proc = Processor('cpp', io_type=args.io_type)
 
 hdr_code, cpp_code = proc.compile_to_cpp(net, args.debug)
 
