@@ -384,8 +384,6 @@ class Processor(neuro.Processor):
         hdr_code = code + '#pragma once\n\n'
         hdr_code += '#include <processor.hpp>\n\n'
         hdr_code += 'static const int kOutputNeurons = %d;\n' % net.num_outputs()
-        hdr_code += ('static const bool kDebug = %s;\n\n' %
-                    ('true' if debug else 'false'))
 
         cpp_code = code
 
@@ -412,7 +410,9 @@ class Processor(neuro.Processor):
                      'return %d; }\n' % (min((1 << (width_nearest_byte(opc_width +
                               (input_index_width + charge_width(net))) -
                               opc_width)) - 1, max_runs_ahead)))
-
+        cpp_code += ('bool neuro::Processor::GetDebug() { '+
+                     'return %s; }\n' % ('true' if debug else 'false'))
+ 
         return hdr_code, cpp_code
 
     ##########################################################################

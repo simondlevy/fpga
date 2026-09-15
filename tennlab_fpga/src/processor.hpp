@@ -46,7 +46,7 @@ namespace neuro {
 
             void ApplySpike(const int id, const float time, const float value)
             {
-                if (kDebug) {
+                if (GetDebug()) {
                     printf("AS\n");
                 }
 
@@ -66,7 +66,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                if (kDebug) {
+                if (GetDebug()) {
                     printf("CLR\n");
                 }
 
@@ -85,7 +85,7 @@ namespace neuro {
 
             void Run(const int time)
             {
-                if (kDebug) {
+                if (GetDebug()) {
                     printf("RUN\n");
                 }
 
@@ -213,7 +213,7 @@ namespace neuro {
 
             void WriteByte(const uint8_t byte)
             {
-                if (kDebug) {
+                if (GetDebug()) {
                     printf("  write x%02X\n", byte);
                 }
 
@@ -224,7 +224,7 @@ namespace neuro {
             {
                 const auto byte = UartRead();
 
-                if (kDebug) {
+                if (GetDebug()) {
                     printf("  read  x%02X\n", byte);
                 }
 
@@ -235,7 +235,7 @@ namespace neuro {
             {
                 const auto avail = UartAvailable();
 
-                if (kDebug) {
+                if (GetDebug()) {
                     printf("  avail %d\n", (int)avail);
                 }
 
@@ -351,6 +351,7 @@ namespace neuro {
             int GetValueShift();
             int GetMaxRunsAhead();
             int GetMaxRun();
+            bool GetDebug();
 
             // Hardware-dependent --------------------------------------------
 
