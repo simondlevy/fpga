@@ -24,7 +24,6 @@ namespace neuro {
         private:
 
             // Aribtrary limts
-            static constexpr int kMaxOutputNeurons = 128;
             static constexpr int kMaxInputSpikes = 1024;
             static constexpr int kMaxSpikesPerNeuron = 256;
             static constexpr int kQueueCapacity = 1024;
@@ -125,7 +124,7 @@ namespace neuro {
                     while (runs > 0) {
 
                         const auto to_run = std::min(std::min( runs, kMaxRun),
-                                kMaxRunsAhead + output_time_ - input_time_);
+                                GetMaxRunsAhead() + output_time_ - input_time_);
 
                         SendCommand(kOpcodeRun, to_run);
 
@@ -159,8 +158,8 @@ namespace neuro {
             int input_time_;
             int output_time_;
 
-            float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
-            int output_counts_[kMaxOutputNeurons];
+            float output_times_[kOutputNeurons][kMaxSpikesPerNeuron];
+            int output_counts_[kOutputNeurons];
 
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
@@ -177,8 +176,8 @@ namespace neuro {
 
             auto GetNeuronIndex(const uint8_t byte) -> uint8_t
             {
-                const uint8_t mask = 0xFF >> (8 - kOutputIndexWidth);
-                return kOutputIndexWidth > 0 ? (byte >> 5) & mask : 0;
+                const uint8_t mask = 0xFF >> (8 - GetOutputIndexWidth());
+                return GetOutputIndexWidth() > 0 ? (byte >> 5) & mask : 0;
             }
 
             auto MakeCommand(
@@ -193,15 +192,15 @@ namespace neuro {
 
                     const auto spike = spikes[k];
 
-                    const uint8_t idx_mask = (1 << kInputIndexWidth) - 1;
+                    const uint8_t idx_mask = (1 << GetInputIndexWidth()) - 1;
                     const uint8_t val_mask = (1 << GetChargeWidth()) - 1;
 
                     const int8_t val = (int8_t)(spike.value * GetSpikeValueFactor());
 
                     const uint8_t byte =
-                        kOpcodeSpk << kOpcodeShift |
-                        (spike.id & idx_mask) << kIndexShift |
-                        (val & val_mask) << kValueShift;
+                        kOpcodeSpk << GetOpcodeShift() |
+                        (spike.id & idx_mask) << GetIndexShift() |
+                        (val & val_mask) << GetValueShift();
 
                     WriteByte(byte);
                 }
@@ -345,6 +344,12 @@ namespace neuro {
             int GetChargeWidth();
             int GetSpikeValueFactor();
             int GetOpcodeWidth();
+            int GetInputIndexWidth();
+            int GetOutputIndexWidth();
+            int GetOpcodeShift();
+            int GetIndexShift();
+            int GetValueShift();
+            int GetMaxRunsAhead();
 
             // Hardware-dependent --------------------------------------------
 

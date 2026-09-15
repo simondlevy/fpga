@@ -383,14 +383,7 @@ class Processor(neuro.Processor):
 
         hdr_code = code + '#pragma once\n\n'
         hdr_code += '#include <processor.hpp>\n\n'
-        hdr_code += 'static const int kInputIndexWidth = %d;\n' % input_index_width
-        hdr_code += ('static const int kOutputIndexWidth = %d;\n' %
-                  unsigned_width(net.num_outputs() - 1))
-        hdr_code += 'static const int kOpcodeShift = %d;\n' % opcode_shift
-        hdr_code += 'static const int kIndexShift = %d;\n' % index_shift
-        hdr_code += ('static const int kValueShift = %d;\n' %
-                  (index_shift - charge_width(net)))
-        hdr_code += 'static const int kMaxRunsAhead = %d;\n' % max_runs_ahead
+        hdr_code += 'static const int kOutputNeurons = %d;\n' % net.num_outputs()
         hdr_code += ('static const int kMaxRun = %d;\n' %
                   (min((1 << (width_nearest_byte(opc_width +
                               (input_index_width + charge_width(net))) -
@@ -402,15 +395,24 @@ class Processor(neuro.Processor):
         cpp_code = code
 
         cpp_code += '#include <processor.hpp>\n\n'
-
         cpp_code += ('int neuro::Processor::GetChargeWidth() { '+
                      'return %d; }\n' % charge_width(net))
-
         cpp_code += ('int neuro::Processor::GetSpikeValueFactor() { '+
                      'return %d; }\n' % spike_value_factor(net))
-
         cpp_code += ('int neuro::Processor::GetOpcodeWidth() { '+
                      'return %d; }\n' % opc_width)
+        cpp_code += ('int neuro::Processor::GetInputIndexWidth() { '+
+                     'return %d; }\n' % input_index_width)
+        cpp_code += ('int neuro::Processor::GetOutputIndexWidth() { '+
+                     'return %d; }\n' % unsigned_width(net.num_outputs() - 1))
+        cpp_code += ('int neuro::Processor::GetOpcodeShift() { '+
+                     'return %d; }\n' % opcode_shift)
+        cpp_code += ('int neuro::Processor::GetIndexShift() { '+
+                     'return %d; }\n' % index_shift)
+        cpp_code += ('int neuro::Processor::GetValueShift() { '+
+                     'return %d; }\n' % (index_shift - charge_width(net)))
+        cpp_code += ('int neuro::Processor::GetMaxRunsAhead() { '+
+                     'return %d; }\n' % max_runs_ahead)
 
         return hdr_code, cpp_code
 
