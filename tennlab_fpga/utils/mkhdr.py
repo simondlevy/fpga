@@ -44,9 +44,3 @@ outfile.write('static const int kSpikeValueFactor = %d;\n' %
 outfile.write('static const int kSimTime = %d;\n' % sim_time(net))
 outfile.write('static const bool kDebug = %s;\n\n' %
               ('true' if args.debug else 'false'))
-outfile.write('static neuro::Processor proc_(\n')
-outfile.write('    kNumInputs,\n')
-outfile.write('    kNumOutputs,\n')
-outfile.write('    kChargeWidth,\n')
-outfile.write('    kSpikeValueFactor,\n')
-outfile.write('    kDebug);\n')

@@ -15,7 +15,7 @@ SRC = $(TFPGA)/src
 NET = $(ROOT)/networks/xor.txt
 
 test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
-	g++ -Wall -I$(SRC) -I.. -o test main.cpp uart.cpp
+	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp uart.cpp
 
 network_config.h: $(NET)
 	$(TFPGA)/utils/mkhdr.py $(NET)

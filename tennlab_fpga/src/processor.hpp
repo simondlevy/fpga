@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "spike.hpp"
+#include <network_config.h>
 
 namespace neuro {
 
@@ -37,27 +38,16 @@ namespace neuro {
 
         public:
 
-            Processor(
-                    const int num_inputs,
-                    const int num_outputs,
-                    const int charge_width,
-                    const int spike_value_factor,
-                    const bool debug=false)
+            Processor()
             {
-                num_inputs_ = num_inputs;
-                num_outputs_ = num_outputs;
                 opcode_width_ = UnsignedWidth(kOpcodeCount - 1);
-                output_idx_width_ = UnsignedWidth(num_outputs - 1) ;
+                output_idx_width_ = UnsignedWidth(kNumOutputs - 1) ;
  
                 idx_width_ = InputIndexWidth();
 
-                charge_width_ = charge_width;
-                spike_value_factor_ = spike_value_factor;
-                debug_ = debug;
-
                 const auto idx_width = InputIndexWidth();
 
-                const auto spk_width = idx_width + charge_width;
+                const auto spk_width = idx_width + kChargeWidth;
 
                 operand_width_ = WidthNearestByte(OpcodeWidth() + spk_width)
                         - OpcodeWidth();
@@ -69,7 +59,7 @@ namespace neuro {
                     OpcodeWidth() + OutputIndexWidth();
 
                 const int max_bytes_per_run =
-                    WidthBitsToBytes(output_size_bits) * (num_outputs + 1);
+                    WidthBitsToBytes(output_size_bits) * (kNumOutputs + 1);
 
                 max_runs_ahead_ = kSystemBufferSizeBytes / max_bytes_per_run;
 
@@ -78,12 +68,12 @@ namespace neuro {
 
                 opc_shift_ = 8 - OpcodeWidth();
                 idx_shift_ = opc_shift_ - idx_width_;
-                val_shift_ = idx_shift_ - charge_width;
+                val_shift_ = idx_shift_ - kChargeWidth;
             }
 
             void ApplySpike(const int id, const float time, const float value)
             {
-                if (debug_) {
+                if (kDebug) {
                     printf("AS\n");
                 }
 
@@ -103,7 +93,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                if (debug_) {
+                if (kDebug) {
                     printf("CLR\n");
                 }
 
@@ -122,7 +112,7 @@ namespace neuro {
 
             void Run(const int time)
             {
-                if (debug_) {
+                if (kDebug) {
                     printf("RUN\n");
                 }
 
@@ -197,9 +187,7 @@ namespace neuro {
             const int MAXMSG = 32;
 
             int idx_width_;
-            int charge_width_;
-            int spike_value_factor_;
-            bool debug_;
+            bool kDebug;
             int input_time_;
             int output_time_;
             int max_runs_ahead_;
@@ -208,9 +196,6 @@ namespace neuro {
             uint8_t opc_shift_;
             uint8_t idx_shift_;
             uint8_t val_shift_;
-
-            int num_inputs_;
-            int num_outputs_;
             int output_idx_width_;
             int opcode_width_;
 
@@ -244,12 +229,12 @@ namespace neuro {
 
             auto InputIndexWidth() -> uint8_t
             {
-                return UnsignedWidth(num_inputs_ - 1) ;
+                return UnsignedWidth(kNumInputs - 1) ;
             }
 
             auto OutputIndexWidth() -> uint8_t
             {
-                return UnsignedWidth(num_outputs_ - 1) ;
+                return UnsignedWidth(kNumOutputs - 1) ;
             }
 
             auto MakeCommand(
@@ -265,9 +250,9 @@ namespace neuro {
                     const auto spike = spikes[k];
 
                     const uint8_t idx_mask = (1 << idx_width_) - 1;
-                    const uint8_t val_mask = (1 << charge_width_) - 1;
+                    const uint8_t val_mask = (1 << kChargeWidth) - 1;
 
-                    const int8_t val = (int8_t)(spike.value * spike_value_factor_);
+                    const int8_t val = (int8_t)(spike.value * kSpikeValueFactor);
 
                     const uint8_t byte =
                         kOpcodeSpk << opc_shift_ |
@@ -285,7 +270,7 @@ namespace neuro {
 
             void WriteByte(const uint8_t byte)
             {
-                if (debug_) {
+                if (kDebug) {
                     printf("  write x%02X\n", byte);
                 }
 
@@ -296,7 +281,7 @@ namespace neuro {
             {
                 const auto byte = UartRead();
 
-                if (debug_) {
+                if (kDebug) {
                     printf("  read  x%02X\n", byte);
                 }
 
@@ -307,7 +292,7 @@ namespace neuro {
             {
                 const auto avail = UartAvailable();
 
-                if (debug_) {
+                if (kDebug) {
                     printf("  avail %d\n", (int)avail);
                 }
 
