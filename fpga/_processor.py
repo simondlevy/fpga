@@ -405,6 +405,7 @@ class Processor(neuro.Processor):
 
         cpp_code = code
         cpp_code += '#include <processor.hpp>\n\n'
+        cpp_code += 'int neuro::Processor::GetChargeWidth()\n{\n    return 0;\n}\n\n'
 
         return hdr_code, cpp_code
 
