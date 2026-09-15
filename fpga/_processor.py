@@ -101,11 +101,11 @@ class _IoConfig:
         self.type = io_type
         match self.type:
             case IoType.DISPATCH:
-                opc_width = unsigned_width(len(DispatchOpcode) - 1)
+                self.opc_width = unsigned_width(len(DispatchOpcode) - 1)
                 spk_names = ["opcode"]
-                spk_fmt_str = f"u{opc_width}"
+                spk_fmt_str = f"u{self.opc_width}"
                 idx_width, operand_width = dispatch_operand_widths(
-                    opc_width, self._num_net_io(), self._charge_width(), is_axi
+                    self.opc_width, self._num_net_io(), self._charge_width(), is_axi
                 )
                 cmd_names = spk_names + ["operand"]
                 cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
@@ -367,7 +367,7 @@ class Processor(neuro.Processor):
 
         charge_width = self._inp._charge_width()
 
-        opc_width = unsigned_width(len(DispatchOpcode) - 1)
+        opc_width = self._out.opc_width
 
         input_index_width = unsigned_width(net.num_inputs() - 1)
 
