@@ -18,8 +18,6 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('input_file')
 
-parser.add_argument('-o', '--output_file', help='path for output file')
-
 parser.add_argument('-d', '--debug', help='turn on debugging',
                     action='store_true')
 
@@ -33,8 +31,7 @@ except Exception:
     print('Unable to read from ' + args.input_file)
     exit(1)
 
-outfile = (sys.stdout if args.output_file is None
-           else open(args.output_file, 'w'))
+outfile = open('network_config.h', 'w')
 
 outfile.write('// AUTO-GENERATED: DO NOT EDIT\n\n')
 outfile.write('#pragma once\n\n')

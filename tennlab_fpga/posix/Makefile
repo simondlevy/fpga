@@ -6,14 +6,19 @@
 
 all: test
 
-ROOT = ..
+ROOT = ../..
 
-SRC = $(ROOT)/src
+TFPGA = $(ROOT)/tennlab_fpga
+
+SRC = $(TFPGA)/src
 
 NET = $(ROOT)/networks/xor.txt
 
-test: main.cpp uart.cpp $(SRC)/*.hpp
+test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
 	g++ -Wall -I$(SRC) -I.. -o test main.cpp uart.cpp
+
+network_config.h: $(NET)
+	$(TFPGA)/utils/mkhdr.py $(NET)
 
 run: test
 	./test
@@ -22,4 +27,4 @@ edit:
 	vim main.cpp
 
 clean:
-	rm -rf test
+	rm -rf test network_config.h
