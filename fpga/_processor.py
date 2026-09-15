@@ -380,7 +380,6 @@ class Processor(neuro.Processor):
 
         index_shift = opcode_shift - input_index_width
 
-
         cppcode = '// AUTO-GENERATED: DO NOT EDIT\n\n'
         cppcode += '#pragma once\n\n'
         cppcode += '#include <processor.hpp>\n\n'

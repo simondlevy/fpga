@@ -10,10 +10,6 @@ import argparse
 
 import neuro
 
-from fpga.network import charge_width, spike_value_factor
-from fpga._processor import SYSTEM_BUFFER, DispatchOpcode
-from fpga._math import unsigned_width, width_bits_to_bytes, width_nearest_byte
-
 from fpga._processor import Processor
 
 parser = argparse.ArgumentParser(
