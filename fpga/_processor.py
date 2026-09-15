@@ -363,34 +363,47 @@ class Processor(neuro.Processor):
             )
         rx_thread.join()
 
-    def compile_to_cpp(self, network):
+    def compile_to_cpp(self, net, debug=False):
+
+        opc_width = unsigned_width(len(DispatchOpcode) - 1)
+        opc_width = unsigned_width(len(DispatchOpcode) - 1)
+
+        input_index_width = unsigned_width(net.num_inputs() - 1)
+
+        max_bytes_per_run = (width_bits_to_bytes(opc_width +
+                             unsigned_width(net.num_outputs() - 1)) *
+                             (net.num_outputs() + 1))
+
+        max_runs_ahead = SYSTEM_BUFFER // max_bytes_per_run
+
+        opcode_shift = 8 - opc_width
+
+        index_shift = opcode_shift - input_index_width
+
 
         cppcode = '// AUTO-GENERATED: DO NOT EDIT\n\n'
-        
-        '''
-        outfile.write('#pragma once\n\n')
-        outfile.write('#include <processor.hpp>\n\n')
-        outfile.write('static const int kNumOutputs = %d;\n' % net.num_outputs())
-        outfile.write('static const int kChargeWidth = %d;\n' % charge_width(net))
-        outfile.write('static const int kSpikeValueFactor = %d;\n' %
-                  spike_value_factor(net))
-        outfile.write('static const int kOpcodeWidth = %d;\n' % opc_width)
-        outfile.write('static const int kInputIndexWidth = %d;\n' % input_index_width)
-        outfile.write('static const int kOutputIndexWidth = %d;\n' %
+        cppcode += '#pragma once\n\n'
+        cppcode += '#include <processor.hpp>\n\n'
+        cppcode += ('static const int kNumOutputs = %d;\n' % net.num_outputs())
+        cppcode += ('static const int kChargeWidth = %d;\n' % charge_width(net))
+        cppcode += ('static const int kSpikeValueFactor = %d;\n' %
+                    spike_value_factor(net))
+        cppcode += 'static const int kOpcodeWidth = %d;\n' % opc_width
+        cppcode += 'static const int kInputIndexWidth = %d;\n' % input_index_width
+        cppcode += ('static const int kOutputIndexWidth = %d;\n' %
                   unsigned_width(net.num_outputs() - 1))
-        outfile.write('static const int kOpcodeShift = %d;\n' % opcode_shift)
-        outfile.write('static const int kIndexShift = %d;\n' % index_shift)
-        outfile.write('static const int kValueShift = %d;\n' %
+        cppcode += 'static const int kOpcodeShift = %d;\n' % opcode_shift
+        cppcode += 'static const int kIndexShift = %d;\n' % index_shift
+        cppcode += ('static const int kValueShift = %d;\n' %
                   (index_shift - charge_width(net)))
-        outfile.write('static const int kMaxRunsAhead = %d;\n' % max_runs_ahead)
-        outfile.write('static const int kMaxRun = %d;\n' %
+        cppcode += 'static const int kMaxRunsAhead = %d;\n' % max_runs_ahead
+        cppcode += ('static const int kMaxRun = %d;\n' %
                   (min((1 << (width_nearest_byte(opc_width +
                               (input_index_width + charge_width(net))) -
                               opc_width)) - 1,
                        max_runs_ahead)))
-        outfile.write('static const bool kDebug = %s;\n\n' %
-                  ('true' if args.debug else 'false'))
-        '''
+        cppcode += ('static const bool kDebug = %s;\n\n' %
+                    ('true' if debug else 'false'))
 
         return cppcode
 
