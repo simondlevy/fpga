@@ -109,8 +109,8 @@ class _IoConfig:
                 )
                 cmd_names = spk_names + ["operand"]
                 cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
-                print('operand_width = ', operand_width)
-                print('cmd_fmt_str = ', cmd_fmt_str)
+                print("operand_width = ", operand_width)
+                print("cmd_fmt_str = ", cmd_fmt_str)
                 self.cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
 
                 if idx_width:
@@ -179,7 +179,7 @@ class Processor(neuro.Processor):
     ):
         super().__init__(*args, **kwargs)
 
-        if target == 'cpp':
+        if target == "cpp":
             pass
 
         else:
@@ -226,7 +226,7 @@ class Processor(neuro.Processor):
             raise RuntimeError("Spikes cannot be scheduled in the past.")
 
         if (self._debug):
-            print('AS %d %f %f' % (spike.id, spike.time, spike.value))
+            print("AS %d %f %f" % (spike.id, spike.time, spike.value))
 
         self._inp.queue.append(
             neuro.Spike(spike.id, spike.time + self._inp.time, spike.value)
@@ -236,7 +236,6 @@ class Processor(neuro.Processor):
             while self._inp.queue and self._inp.queue[0].time == self._inp.time:
                 # send these spikes as soon as they arrive to reduce latency
                 spikes_now.append(self._inp.queue.popleft())
-            #print('apply_spike: %d' % len(spikes_now))
             self._hw_tx(spikes_now, 0, False)
 
     def apply_spikes(self, spikes: list[neuro.Spike]) -> None:
@@ -273,7 +272,7 @@ class Processor(neuro.Processor):
                                "programming the target FPGA.")
 
         if (self._debug):
-            print('CLR')
+            print("CLR")
 
         if self._inp.type == IoType.DISPATCH:
             self._write(
@@ -344,7 +343,7 @@ class Processor(neuro.Processor):
         if time < 1:
             raise ValueError("It's not possible to run for less than 1 timestep")
 
-        print('RUN %d' % time)
+        print("RUN %d" % time)
 
         target_time = self._inp.time + time
         rx_thread = Thread(target=self._hw_rx, args=(target_time,))
@@ -365,6 +364,8 @@ class Processor(neuro.Processor):
 
     def compile_to_cpp(self, net, debug=False):
 
+        # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", self._inp)
+
         opc_width = unsigned_width(len(DispatchOpcode) - 1)
 
         input_index_width = unsigned_width(net.num_inputs() - 1)
@@ -379,38 +380,38 @@ class Processor(neuro.Processor):
 
         index_shift = opcode_shift - input_index_width
 
-        code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
+        code = "// AUTO-GENERATED: DO NOT EDIT\n\n"
 
-        hdr_code = code + '#pragma once\n\n'
-        hdr_code += 'static const int kOutputNeurons = %d;\n' % net.num_outputs()
+        hdr_code = code + "#pragma once\n\n"
+        hdr_code += "static const int kOutputNeurons = %d;\n" % net.num_outputs()
 
         cpp_code = code
 
-        cpp_code += '#include <processor.hpp>\n\n'
-        cpp_code += ('int neuro::Processor::GetChargeWidth() { '+
-                     'return %d; }\n' % charge_width(net))
-        cpp_code += ('int neuro::Processor::GetSpikeValueFactor() { '+
-                     'return %d; }\n' % spike_value_factor(net))
-        cpp_code += ('int neuro::Processor::GetOpcodeWidth() { '+
-                     'return %d; }\n' % opc_width)
-        cpp_code += ('int neuro::Processor::GetInputIndexWidth() { '+
-                     'return %d; }\n' % input_index_width)
-        cpp_code += ('int neuro::Processor::GetOutputIndexWidth() { '+
-                     'return %d; }\n' % unsigned_width(net.num_outputs() - 1))
-        cpp_code += ('int neuro::Processor::GetOpcodeShift() { '+
-                     'return %d; }\n' % opcode_shift)
-        cpp_code += ('int neuro::Processor::GetIndexShift() { '+
-                     'return %d; }\n' % index_shift)
-        cpp_code += ('int neuro::Processor::GetValueShift() { '+
-                     'return %d; }\n' % (index_shift - charge_width(net)))
-        cpp_code += ('int neuro::Processor::GetMaxRunsAhead() { '+
-                     'return %d; }\n' % max_runs_ahead)
-        cpp_code += ('int neuro::Processor::GetMaxRun() { '+
-                     'return %d; }\n' % (min((1 << (width_nearest_byte(opc_width +
+        cpp_code += "#include <processor.hpp>\n\n"
+        cpp_code += ("int neuro::Processor::GetChargeWidth() { "+
+                     "return %d; }\n" % charge_width(net))
+        cpp_code += ("int neuro::Processor::GetSpikeValueFactor() { "+
+                     "return %d; }\n" % spike_value_factor(net))
+        cpp_code += ("int neuro::Processor::GetOpcodeWidth() { "+
+                     "return %d; }\n" % opc_width)
+        cpp_code += ("int neuro::Processor::GetInputIndexWidth() { "+
+                     "return %d; }\n" % input_index_width)
+        cpp_code += ("int neuro::Processor::GetOutputIndexWidth() { "+
+                     "return %d; }\n" % unsigned_width(net.num_outputs() - 1))
+        cpp_code += ("int neuro::Processor::GetOpcodeShift() { "+
+                     "return %d; }\n" % opcode_shift)
+        cpp_code += ("int neuro::Processor::GetIndexShift() { "+
+                     "return %d; }\n" % index_shift)
+        cpp_code += ("int neuro::Processor::GetValueShift() { "+
+                     "return %d; }\n" % (index_shift - charge_width(net)))
+        cpp_code += ("int neuro::Processor::GetMaxRunsAhead() { "+
+                     "return %d; }\n" % max_runs_ahead)
+        cpp_code += ("int neuro::Processor::GetMaxRun() { "+
+                     "return %d; }\n" % (min((1 << (width_nearest_byte(opc_width +
                               (input_index_width + charge_width(net))) -
                               opc_width)) - 1, max_runs_ahead)))
-        cpp_code += ('bool neuro::Processor::GetDebug() { '+
-                     'return %s; }\n' % ('true' if debug else 'false'))
+        cpp_code += ("bool neuro::Processor::GetDebug() { "+
+                     "return %s; }\n" % ("true" if debug else "false"))
  
         return hdr_code, cpp_code
 
@@ -487,19 +488,19 @@ class Processor(neuro.Processor):
         self._interface.flush()
 
     def _write(self, data):
-        self._do_debug('write', data)
+        self._do_debug("write", data)
         self._interface.write(data)
 
     def _read(self, size, timeout=None):
         data = self._interface.read( size, timeout)
-        self._do_debug('read ', data) 
+        self._do_debug("read ", data) 
         return data
 
     def _do_debug(self, label, data):
         if self._debug:
-            print(label + ': ', end='')
+            print(label + ": ", end="")
             for byte in data:
-                print('x%02X ' % byte, end='')
+                print("x%02X " % byte, end="")
             print()
 
     def _hw_rx(self, target: int, seek_clr: bool = False) -> None:
@@ -589,13 +590,13 @@ class Processor(neuro.Processor):
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
-                    '''
+                    """
                     print('opcode=', int(DispatchOpcode.SPK),
                           '|idx=', idx,
                           '|val=', val,
                           '|charge_width=', self._inp._charge_width(),
                           '|spike_value_factor=', spike_value_factor(self._network))
-                    '''
+                    """
                     self._write(
                         self._inp.spk_fmt.pack(
                             {
