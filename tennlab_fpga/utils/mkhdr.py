@@ -46,7 +46,6 @@ max_runs_ahead = SYSTEM_BUFFER // max_bytes_per_run
 max_run = min((1 << operand_width) - 1, max_runs_ahead)
 opcode_shift = 8 - opcode_width
 index_shift = opcode_shift - input_index_width
-value_shift = index_shift - charge_width(net)
 
 
 outfile.write('// AUTO-GENERATED: DO NOT EDIT\n\n')
@@ -62,7 +61,7 @@ outfile.write('static const int kOutputIndexWidth = %d;\n' %
               unsigned_width(net.num_outputs() - 1))
 outfile.write('static const int kOpcodeShift = %d;\n' % opcode_shift)
 outfile.write('static const int kIndexShift = %d;\n' % index_shift)
-outfile.write('static const int kValueShift = %d;\n' % value_shift)
+outfile.write('static const int kValueShift = %d;\n' % (index_shift - charge_width(net)))
 outfile.write('static const int kMaxRunsAhead = %d;\n' % max_runs_ahead)
 outfile.write('static const int kMaxRun = %d;\n' % max_run)
 outfile.write('static const bool kDebug = %s;\n\n' %
