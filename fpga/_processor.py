@@ -366,7 +366,6 @@ class Processor(neuro.Processor):
     def compile_to_cpp(self, net, debug=False):
 
         opc_width = unsigned_width(len(DispatchOpcode) - 1)
-        opc_width = unsigned_width(len(DispatchOpcode) - 1)
 
         input_index_width = unsigned_width(net.num_inputs() - 1)
 
