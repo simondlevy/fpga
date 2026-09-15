@@ -39,10 +39,9 @@ namespace neuro {
 
             Processor()
             {
-                //printf("%d %d\n", kOpcodeShift, kOpcodeShift); exit(0);
+                //printf("%d %d\n", kIndexShift, kIndexShift); exit(0);
 
-                idx_shift_ = kOpcodeShift - kInputIndexWidth;
-                val_shift_ = idx_shift_ - kChargeWidth;
+                val_shift_ = kIndexShift - kChargeWidth;
 
                 output_time_ = 0;
                 input_time_ = 0;
@@ -166,7 +165,6 @@ namespace neuro {
             bool kDebug;
             int input_time_;
             int output_time_;
-            uint8_t idx_shift_;
             uint8_t val_shift_;
 
             float output_times_[kNumOutputs][kMaxSpikesPerNeuron];
@@ -225,7 +223,7 @@ namespace neuro {
 
                     const uint8_t byte =
                         kOpcodeSpk << kOpcodeShift |
-                        (spike.id & idx_mask) << idx_shift_ |
+                        (spike.id & idx_mask) << kIndexShift |
                         (val & val_mask) << val_shift_;
 
                     WriteByte(byte);
