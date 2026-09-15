@@ -44,6 +44,9 @@ outfile.write('static const int kSpikeValueFactor = %d;\n' %
               spike_value_factor(net))
 outfile.write('static const int kOpcodeWidth = %d;\n' %
               unsigned_width(len(DispatchOpcode) - 1))
+outfile.write('static const int kOutputIndexWidth = %d;\n' %
+              unsigned_width(net.num_outputs() - 1))
+
 
 
 outfile.write('static const int kSimTime = %d;\n' % sim_time(net))
