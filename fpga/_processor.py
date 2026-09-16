@@ -382,7 +382,10 @@ class Processor(neuro.Processor):
         cppcode = '// AUTO-GENERATED: DO NOT EDIT\n\n'
         cppcode += '#pragma once\n\n'
         cppcode += '#include <processor.hpp>\n\n'
-        cppcode += ('static const int kChargeWidth = %d;\n' % charge_width(net))
+        cppcode += ('static const int kOutputNeurons = %d;\n' %
+                    net.num_outputs())
+        cppcode += ('static const int kChargeWidth = %d;\n' %
+                    charge_width(net))
         cppcode += ('static const int kSpikeValueFactor = %d;\n' %
                     spike_value_factor(net))
         cppcode += 'static const int kOpcodeWidth = %d;\n' % opc_width
