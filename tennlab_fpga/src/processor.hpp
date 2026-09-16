@@ -47,7 +47,7 @@ namespace neuro {
             void ApplySpike(const int id, const float time, const float value)
             {
                 if (kDebug) {
-                    printf("AS %d %d %d\n", id, (int)time, (int)value);
+                    printf("AS %d %d\n", id, (int)value);
                 }
 
                 QueuePush(LevySpike(id, time + input_time_, value));
