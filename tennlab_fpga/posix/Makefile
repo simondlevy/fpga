@@ -20,6 +20,9 @@ test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
 network_config.h: $(NET)
 	$(TFPGA)/utils/compile.py $(NET)
 
+load:
+	$(ROOT)/utils/load.py -t cmoda7_35t $(ROOT)/networks/xor.txt
+
 run: test
 	./test
 
