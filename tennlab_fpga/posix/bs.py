@@ -20,7 +20,7 @@ def printspk(fmtstr, idx, chg):
 ##_from_fpga.spk_fmt_str:  u2 = opc_width
 ##_from_fpga.cmd_fmt_str:  u2u6 = opc_width,operand_width
 
-printclr('u2u6')
+#printclr('u2u6')
 printspk('u2u1s2', 1, 1)
 
 ## Dronepong:
@@ -29,8 +29,8 @@ printspk('u2u1s2', 1, 1)
 ##_from_fpga.spk_fmt_str:  u2u1
 ##_from_fpga.cmd_fmt_str:  u2u6
 
-printclr('u2u14')
-printspk('u2u1s7', 0, 63)
+#printclr('u2u14')
+#printspk('u2u1s7', 0, 63)
 
 
 

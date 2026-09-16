@@ -109,7 +109,6 @@ class _IoConfig:
                 )
                 cmd_names = spk_names + ["operand"]
                 self.cmd_fmt_str = self.spk_fmt_str + f"u{operand_width}"
-                print('operand_width: ', operand_width)
                 self.cmd_fmt = bs.compile(self.cmd_fmt_str, cmd_names)
 
                 if idx_width:
@@ -131,9 +130,6 @@ class _IoConfig:
                 raise ValueError()
 
         self.spk_fmt = bs.compile(self.spk_fmt_str, spk_names)
-
-        print('spk: ', self.spk_fmt_str)
-        print('cmd: ', self.cmd_fmt_str)
 
         self.clear()
 
@@ -772,7 +768,6 @@ class Processor(neuro.Processor):
             return None
 
     def _run_programmer(self, cmd: list, executable: str) -> None:
-        print(" ".join(cmd))
         try:
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError as e:
@@ -832,12 +827,6 @@ class Processor(neuro.Processor):
                     f"Invalid output type: {self._io_type[2:]}\nExpected: (D|S)O"
                 )
         self._set_comm_limits()
-
-        print('to_fpga.spk_fmt_str: ', self._to_fpga.spk_fmt_str)
-        print('to_fpga.cmd_fmt_str: ', self._to_fpga.cmd_fmt_str)
-        print('from_fpga.spk_fmt_str: ', self._from_fpga.spk_fmt_str)
-        print('from_fpga.cmd_fmt_str: ', self._from_fpga.cmd_fmt_str)
-        exit(0)
 
     def _sync(self) -> None:
         # hardware will sometimes send CLR on startup
