@@ -18,7 +18,7 @@ test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
 	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp uart.cpp
 
 network_config.h: $(NET)
-	$(TFPGA)/utils/compile.py $(NET)
+	$(TFPGA)/utils/compile.py -d $(NET)
 
 load:
 	$(ROOT)/utils/load.py -t cmoda7_35t $(ROOT)/networks/xor.txt
@@ -30,4 +30,4 @@ edit:
 	vim main.cpp
 
 clean:
-	rm -rf test network_config.h
+	rm -rf test network_config.h proc.cpp

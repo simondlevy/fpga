@@ -86,11 +86,19 @@ def main():
         outfile.write(h_code)
 
     cpp_code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
+
     cpp_code += 'void WriteClr()\n'
     cpp_code += '{\n'
     cpp_code += ('    const uint8_t bytes[%d] = {0xC0%s};\n' %
                  (cmd_bytes, (', x00') * (cmd_bytes-1)))
+    cpp_code += '}\n\n'
+
+    cpp_code += 'void WriteSpk()\n'
+    cpp_code += '{\n'
+    cpp_code += ('    const uint8_t bytes[%d] = {0xC0%s};\n' %
+                 (cmd_bytes, (', x00') * (cmd_bytes-1)))
     cpp_code += '}\n'
+
     with open('proc.cpp', 'w') as outfile:
         outfile.write(cpp_code)
 
