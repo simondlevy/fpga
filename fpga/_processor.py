@@ -179,10 +179,8 @@ class Processor(neuro.Processor):
 
         self._io_type = io_type.upper()
 
-        if target == "cpp":
-            pass
-
-        else:
+        # We handle C++ compilation in another method
+        if target != "cpp":
 
             self._debug = debug
 
@@ -405,6 +403,10 @@ class Processor(neuro.Processor):
                      "return %d; }\n" % self._max_run)
         cpp_code += ("bool neuro::Processor::GetDebug() { "+
                      "return %s; }\n" % ("true" if debug else "false"))
+        cpp_code += '\nvoid neuro::Processor::NewSendCommand('
+        cpp_code += 'const uint8_t opcode, const uint8_t operand)\n'
+        cpp_code += '{\n'
+        cpp_code += '}\n'
  
         return hdr_code, cpp_code
 
