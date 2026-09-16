@@ -338,8 +338,6 @@ class Processor(neuro.Processor):
         if time < 1:
             raise ValueError("It's not possible to run for less than 1 timestep")
 
-        print("RUN %d" % time)
-
         target_time = self._inp.time + time
         rx_thread = Thread(target=self._hw_rx, args=(target_time,))
         rx_thread.daemon = True
@@ -404,18 +402,18 @@ class Processor(neuro.Processor):
         cpp_code += ("bool neuro::Processor::GetDebug() { "+
                      "return %s; }\n" % ("true" if debug else "false"))
 
+        new_code = ''
         clr_cmd = self._inp.cmd_fmt.pack(
                 {"opcode": DispatchOpcode.CLR, "operand": 0, })
-
         cmdlen = len(clr_cmd)
-        cpp_code += '\nvoid neuro::Processor::SendClearCommand()\n'
-        cpp_code += '{\n'
-        cpp_code += ('    const uint8_t msg[%d] = {%s};\n' %
-                     (len(clr_cmd),
+        new_code += "\nvoid neuro::Processor::SendClearCommand()\n"
+        new_code += "{\n"
+        new_code += ("    const uint8_t msg[%d] = {%s};\n" % (cmdlen,
                       ", ".join(list(("0x%02X" % byte) for byte in clr_cmd))))
-        cpp_code += '}\n'
+        new_code += ("    UartWrite(msg, %d);\n" % cmdlen)
+        new_code += "}\n"
 
-        print(cpp_code)
+        print(new_code)
  
         return hdr_code, cpp_code
 
