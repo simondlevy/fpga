@@ -14,8 +14,9 @@ def printclr(fmtstr):
 def printspk(fmtstr, idx, chg):
     print('AS %d %d : ' % (idx, chg), end='')
     packed = pack(fmtstr, DispatchOpcode.SPK, idx, chg)
-    print([('x%02X' % c) for c in packed], end=" | ")
-    print([(f'{c:08b}') for c in packed])
+    print([('x%02X' % c) for c in packed], end=' | ')
+    print([(f'{c:08b}') for c in packed], end=' | ')
+    print('x%02X' % (DispatchOpcode.SPK << 6 | idx << 5 | chg << 3))
 
 ## XOR:
 ##_to_fpga.spk_fmt_str:  u2u1s2 = opc_width, idx_width, charge_width
