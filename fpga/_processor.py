@@ -109,6 +109,7 @@ class _IoConfig:
                 )
                 cmd_names = spk_names + ["operand"]
                 self.cmd_fmt_str = self.spk_fmt_str + f"u{operand_width}"
+                print('operand_width: ', operand_width)
                 self.cmd_fmt = bs.compile(self.cmd_fmt_str, cmd_names)
 
                 if idx_width:
@@ -130,6 +131,9 @@ class _IoConfig:
                 raise ValueError()
 
         self.spk_fmt = bs.compile(self.spk_fmt_str, spk_names)
+
+        print('spk: ', self.spk_fmt_str)
+        print('cmd: ', self.cmd_fmt_str)
 
         self.clear()
 
@@ -359,50 +363,6 @@ class Processor(neuro.Processor):
                 (run_time == target_time),
             )
         rx_thread.join()
-
-    def compile_to_cpp(self, net, debug=False):
-
-        opc_width = unsigned_width(len(DispatchOpcode) - 1)
-
-        input_index_width = unsigned_width(net.num_inputs() - 1)
-
-        max_bytes_per_run = (width_bits_to_bytes(opc_width +
-                             unsigned_width(net.num_outputs() - 1)) *
-                             (net.num_outputs() + 1))
-
-        max_runs_ahead = SYSTEM_BUFFER // max_bytes_per_run
-
-        opcode_shift = 8 - opc_width
-
-        index_shift = opcode_shift - input_index_width
-
-        cppcode = '// AUTO-GENERATED: DO NOT EDIT\n\n'
-        cppcode += '#pragma once\n\n'
-        cppcode += '#include <processor.hpp>\n\n'
-        cppcode += ('static const int kOutputNeurons = %d;\n' %
-                    net.num_outputs())
-        cppcode += ('static const int kChargeWidth = %d;\n' %
-                    charge_width(net))
-        cppcode += ('static const int kSpikeValueFactor = %d;\n' %
-                    spike_value_factor(net))
-        cppcode += 'static const int kOpcodeWidth = %d;\n' % opc_width
-        cppcode += 'static const int kInputIndexWidth = %d;\n' % input_index_width
-        cppcode += ('static const int kOutputIndexWidth = %d;\n' %
-                  unsigned_width(net.num_outputs() - 1))
-        cppcode += 'static const int kOpcodeShift = %d;\n' % opcode_shift
-        cppcode += 'static const int kIndexShift = %d;\n' % index_shift
-        cppcode += ('static const int kValueShift = %d;\n' %
-                  (index_shift - charge_width(net)))
-        cppcode += 'static const int kMaxRunsAhead = %d;\n' % max_runs_ahead
-        cppcode += ('static const int kMaxRun = %d;\n' %
-                  (min((1 << (width_nearest_byte(opc_width +
-                              (input_index_width + charge_width(net))) -
-                              opc_width)) - 1,
-                       max_runs_ahead)))
-        cppcode += ('static const bool kDebug = %s;\n\n' %
-                    ('true' if debug else 'false'))
-
-        return cppcode
 
     ##########################################################################
 
@@ -855,7 +815,6 @@ class Processor(neuro.Processor):
     def _setup_io(self):
         match self._io_type[:2]:
             case "DI":
-                #print('inp=', end='')
                 self._to_fpga = ToFpgaConfig(IoType.DISPATCH, self._network)
             case "SI":
                 self._to_fpga = ToFpgaConfig(IoType.STREAM, self._network)
@@ -865,7 +824,6 @@ class Processor(neuro.Processor):
                 )
         match self._io_type[2:]:
             case "DO":
-                #print('out=', end='')
                 self._from_fpga = FromFpgaConfig(IoType.DISPATCH, self._network)
             case "SO":
                 self._from_fpga = FromFpgaConfig(IoType.STREAM, self._network)
@@ -875,10 +833,11 @@ class Processor(neuro.Processor):
                 )
         self._set_comm_limits()
 
-        print('_inp.spk_fmt_str: ', self._to_fpga.spk_fmt_str)
-        print('_inp.cmd_fmt_str: ', self._to_fpga.cmd_fmt_str)
-        print('_from_fpga.spk_fmt_str: ', self._from_fpga.spk_fmt_str)
+        print('to_fpga.spk_fmt_str: ', self._to_fpga.spk_fmt_str)
+        print('to_fpga.cmd_fmt_str: ', self._to_fpga.cmd_fmt_str)
+        print('from_fpga.spk_fmt_str: ', self._from_fpga.spk_fmt_str)
         print('from_fpga.cmd_fmt_str: ', self._from_fpga.cmd_fmt_str)
+        exit(0)
 
     def _sync(self) -> None:
         # hardware will sometimes send CLR on startup
