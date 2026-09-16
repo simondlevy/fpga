@@ -16,7 +16,8 @@ def printspk(fmtstr, idx, chg):
     packed = pack(fmtstr, DispatchOpcode.SPK, idx, chg)
     print([('x%02X' % c) for c in packed], end=' | ')
     print([(f'{c:08b}') for c in packed], end=' | ')
-    print('x%02X' % (DispatchOpcode.SPK << 6 | idx << 5 | chg << 3))
+    #print('x%02X' % (DispatchOpcode.SPK << 6 | idx << 5 | chg << 3))
+    print()
 
 ## XOR:
 ##_to_fpga.spk_fmt_str:  u2u1s2 = opc_width, idx_width, charge_width
@@ -25,8 +26,8 @@ def printspk(fmtstr, idx, chg):
 ##_from_fpga.cmd_fmt_str:  u2u6 = opc_width,operand_width
 
 #printclr('u2u6')
-printspk('u2u1s2', 0, 1)
-printspk('u2u1s2', 1, 1)
+#printspk('u2u1s2', 0, 1)
+#printspk('u2u1s2', 1, 1)
 
 ## Dronepong:
 ##_to_fpga.spk_fmt_str:  u2u1s7
@@ -35,4 +36,5 @@ printspk('u2u1s2', 1, 1)
 ##_from_fpga.cmd_fmt_str:  u2u6
 
 #printclr('u2u14')
-#printspk('u2u1s7', 0, 63)
+printspk('u2u1s7', 0, 63)
+printspk('u2u1s7', 1, 63)
