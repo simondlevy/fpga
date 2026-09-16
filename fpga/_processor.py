@@ -403,10 +403,19 @@ class Processor(neuro.Processor):
                      "return %d; }\n" % self._max_run)
         cpp_code += ("bool neuro::Processor::GetDebug() { "+
                      "return %s; }\n" % ("true" if debug else "false"))
-        cpp_code += '\nvoid neuro::Processor::NewSendCommand('
-        cpp_code += 'const uint8_t opcode, const uint8_t operand)\n'
+
+        clr_cmd = self._inp.cmd_fmt.pack(
+                {"opcode": DispatchOpcode.CLR, "operand": 0, })
+
+        cmdlen = len(clr_cmd)
+        cpp_code += '\nvoid neuro::Processor::SendClearCommand()\n'
         cpp_code += '{\n'
+        cpp_code += ('    const uint8_t msg[%d] = {%s};\n' %
+                     (len(clr_cmd),
+                      ", ".join(list(("0x%02X" % byte) for byte in clr_cmd))))
         cpp_code += '}\n'
+
+        print(cpp_code)
  
         return hdr_code, cpp_code
 
@@ -585,11 +594,13 @@ class Processor(neuro.Processor):
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
+                    '''
                     print('opcode=', int(DispatchOpcode.SPK),
                           '|idx=', idx,
                           '|val=', val,
                           '|charge_width=', self._inp._charge_width(),
                           '|spike_value_factor=', spike_value_factor(self._network))
+                    '''
                     self._write(
                         self._inp.spk_fmt.pack(
                             {

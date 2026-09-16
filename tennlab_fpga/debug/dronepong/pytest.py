@@ -39,8 +39,11 @@ except Exception:
 
 proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=True)
 
-
 proc.attach_network(net)
+
+proc.compile_to_cpp(net, False)
+
+exit(0)
 
 timestep_prev = -1
 

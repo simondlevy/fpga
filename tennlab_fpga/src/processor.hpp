@@ -353,7 +353,7 @@ namespace neuro {
             int GetMaxRun();
             bool GetDebug();
 
-            void NewSendCommand(const uint8_t opcode, const uint8_t operand);
+            void SendClearCommand();
 
             // Hardware-dependent --------------------------------------------
 
