@@ -355,6 +355,9 @@ namespace neuro {
 
             void SendClearCommand();
 
+            void SendApplySpikeCommand(
+                    const int id, const float time, const float value);
+
             // Hardware-dependent --------------------------------------------
 
             void UartBegin();

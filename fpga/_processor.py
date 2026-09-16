@@ -403,6 +403,7 @@ class Processor(neuro.Processor):
                      "return %s; }\n" % ("true" if debug else "false"))
 
         new_code = ''
+
         clr_cmd = self._inp.cmd_fmt.pack(
                 {"opcode": DispatchOpcode.CLR, "operand": 0, })
         cmdlen = len(clr_cmd)
@@ -411,6 +412,11 @@ class Processor(neuro.Processor):
         new_code += ("    const uint8_t msg[%d] = {%s};\n" % (cmdlen,
                       ", ".join(list(("0x%02X" % byte) for byte in clr_cmd))))
         new_code += ("    UartWrite(msg, %d);\n" % cmdlen)
+        new_code += "}\n\n"
+
+        new_code += 'void SendApplySpikeCommand(\n'
+        new_code += '   const int id, const float time, const float value)\n'
+        new_code += "{\n"
         new_code += "}\n"
 
         print(new_code)
