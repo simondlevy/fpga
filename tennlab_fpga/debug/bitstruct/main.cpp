@@ -57,20 +57,30 @@ typedef std::vector<uint8_t> Bytes;
 
 enum { RUN, SPK, SNC, CLR };
 
+static Bits pack_u(const int val, const int size)
+{
+    Bits bits;
+    return bits;
+}
+
+static Bits pack_s(const int val, const int size)
+{
+    Bits bits;
+    return bits;
+}
+
 static Bytes pack_spk_command(const int opcode_width, const int index_width,
         const int charge_width, const int index, const int charge)
 {
-    Bytes b;
-
-    return b;
+    Bytes bytes;
+    return bytes;
 }
 
 static Bytes pack_run_command(const int opcode_width, const int operand_width,
         const int to_run)
 {
-    Bytes b;
-
-    return b;
+    Bytes bytes;
+    return bytes;
 }
 
 int main()
