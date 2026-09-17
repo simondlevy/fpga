@@ -8,24 +8,24 @@ enum { RUN, SPK, SNC, CLR };
 
 static std::vector<uint8_t> int2bin(const int val, const int size)
 {
-    std::vector<uint8_t> bits;
+    std::vector<uint8_t> reversed_bits;
 
     auto v = val;
 
     while (v > 0) {
-        bits.push_back(v & 0x1);
+        reversed_bits.push_back(v & 0x1);
         v >>= 1;
     }
 
-    while ((int)bits.size() < size) {
-        bits.push_back(0);
+    while ((int)reversed_bits.size() < size) {
+        reversed_bits.push_back(0);
     }
 
-    std::vector<uint8_t> reversed_bits(bits.size());
+    std::vector<uint8_t> bits(reversed_bits.size());
 
-    std::reverse_copy(bits.begin(), bits.end(), reversed_bits.begin());
+    std::reverse_copy(reversed_bits.begin(), reversed_bits.end(), bits.begin());
 
-    return reversed_bits;
+    return bits;
 }
 
 static std::vector<uint8_t> pack_u(const int val, const int size)
