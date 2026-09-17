@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 
-enum { RUN, SPK, SNC, CLR };
+// Bit-twiddling utilities ---------------------------------------------------
 
 typedef std::vector<uint8_t> Bits;
 
@@ -51,14 +51,26 @@ static Bits zfill(const Bits inp, const size_t n)
     return append(inp, zeros);
 }
 
-static void pack_spk_command(const int opcode_width, const int index_width,
+// FPGA stuff ----------------------------------------------------------------
+
+typedef std::vector<uint8_t> Bytes;
+
+enum { RUN, SPK, SNC, CLR };
+
+static Bytes pack_spk_command(const int opcode_width, const int index_width,
         const int charge_width, const int index, const int charge)
 {
+    Bytes b;
+
+    return b;
 }
 
-static void pack_run_command(const int opcode_width, const int operand_width,
+static Bytes pack_run_command(const int opcode_width, const int operand_width,
         const int to_run)
 {
+    Bytes b;
+
+    return b;
 }
 
 int main()
