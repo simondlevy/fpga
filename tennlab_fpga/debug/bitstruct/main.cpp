@@ -30,6 +30,16 @@ static Bits int2bin(const int val, const int size)
     return bits;
 }
 
+
+static Bits append(const Bits a, const Bits b)
+{
+    auto c = a;
+
+    c.insert(c.end(), b.begin(), b.end());
+
+    return c;
+}
+
 static Bits zfill(const Bits inp, const size_t n)
 {
     Bits zeros;
@@ -38,11 +48,7 @@ static Bits zfill(const Bits inp, const size_t n)
         zeros.push_back(0);
     }
 
-    auto out = inp;
-
-    out.insert(out.end(), zeros.begin(), zeros.end());
-
-    return out;
+    return append(inp, zeros);
 }
 
 static void pack_spk_command(const int opcode_width, const int index_width,
