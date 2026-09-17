@@ -6,9 +6,11 @@
 
 enum { RUN, SPK, SNC, CLR };
 
-static std::vector<uint8_t> int2bin(const int val, const int size)
+typedef std::vector<uint8_t> Bits;
+
+static Bits int2bin(const int val, const int size)
 {
-    std::vector<uint8_t> reversed_bits;
+    Bits reversed_bits;
 
     auto v = val;
 
@@ -21,19 +23,16 @@ static std::vector<uint8_t> int2bin(const int val, const int size)
         reversed_bits.push_back(0);
     }
 
-    std::vector<uint8_t> bits(reversed_bits.size());
+    Bits bits(reversed_bits.size());
 
     std::reverse_copy(reversed_bits.begin(), reversed_bits.end(), bits.begin());
 
     return bits;
 }
 
-static std::vector<uint8_t> pack_u(const int val, const int size)
+static Bits pack_u(const int val, const int size)
 {
-    std::vector<uint8_t> bits = int2bin(val, size);
-
-   
-    return bits;
+    return int2bin(val, size+2);
 }
 
 static void pack_spk_command(const int opcode_width, const int index_width,
@@ -48,7 +47,7 @@ static void pack_run_command(const int opcode_width, const int operand_width,
 
 int main()
 {
-    for (auto bit : int2bin(3, 8)) {
+    for (auto bit : int2bin(3, 2)) {
         printf("%d", bit);
     }
     printf("\n");
