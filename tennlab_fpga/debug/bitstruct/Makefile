@@ -6,3 +6,9 @@ run: test
 
 pyrun:
 	./bs.py
+
+edit:
+	vim main.cpp
+
+clean:
+	rm -f test
