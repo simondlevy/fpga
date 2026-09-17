@@ -8,7 +8,7 @@
 
 typedef std::vector<uint8_t> Bits;
 
-static Bits int2bin(const int val, const int size)
+static Bits int2bin(const int val)
 {
     Bits reversed_bits;
 
@@ -17,10 +17,6 @@ static Bits int2bin(const int val, const int size)
     while (v > 0) {
         reversed_bits.push_back(v & 0x1);
         v >>= 1;
-    }
-
-    while ((int)reversed_bits.size() < size) {
-        reversed_bits.push_back(0);
     }
 
     Bits bits(reversed_bits.size());
@@ -59,8 +55,7 @@ enum { RUN, SPK, SNC, CLR };
 
 static Bits pack_u(const int val, const int size)
 {
-    Bits bits;
-    return bits;
+    return zfill(int2bin(val), size - 2);
 }
 
 static Bits pack_s(const int val, const int size)
@@ -85,7 +80,7 @@ static Bytes pack_run_command(const int opcode_width, const int operand_width,
 
 int main()
 {
-    for (auto bit : zfill(int2bin(3, 2), 6)) {
+    for (auto bit : pack_u(3, 6)) {
         printf("%d", bit);
     }
     printf("\n");
