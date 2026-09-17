@@ -13,11 +13,10 @@ def pack_s(val, size):
     return bin(val)[2:].zfill(size)
 
 
-def custom_bitstruct_pack(opcode_width, index_width, charge_width, opcode,
-                          index, charge):
+def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
 
     bit_string = (
-            pack_u(opcode, opcode_width) +
+            pack_u(SPK, opcode_width) +
             pack_u(index, index_width) +
             pack_s(charge, charge_width))
 
@@ -35,8 +34,8 @@ def custom_bitstruct_pack(opcode_width, index_width, charge_width, opcode,
     return bytes(packed_bytes)
 
 
-result = custom_bitstruct_pack(2, 1, 7, SPK, 0, 63)
+result = pack_spk_command(2, 1, 7, 0, 63)
 print([('x%02X' % c) for c in result])
 
-result = custom_bitstruct_pack(2, 1, 7, SPK, 1, 63)
+result = pack_spk_command(2, 1, 7, 1, 63)
 print([('x%02X' % c) for c in result])

@@ -37,3 +37,5 @@ net.read_from_file(args.input_file)
 proc = fpga.Processor(args.target, args.port, args.io_type)
 
 proc.load_network(net, args.spi_flash)
+
+print(proc._to_fpga.cmd_fmt_str)
