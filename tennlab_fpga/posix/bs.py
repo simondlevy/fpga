@@ -34,8 +34,29 @@ def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
     return bytes(packed_bytes)
 
 
+def pack_run_command(opcode_width, operand_width, to_run):
+
+    bit_string = pack_u(RUN, opcode_width) + pack_u(to_run, operand_width)
+
+    # Pad the final sequence with zeros if it doesn't align to an 8-bit byte
+    remainder = len(bit_string) % 8
+    if remainder != 0:
+        bit_string += '0' * (8 - remainder)
+
+    # Group the bits into chunks of 8 and convert them into actual bytes
+    packed_bytes = bytearray()
+    for i in range(0, len(bit_string), 8):
+        byte_chunk = bit_string[i:i+8]
+        packed_bytes.append(int(byte_chunk, 2))
+
+    return bytes(packed_bytes)
+
+
 result = pack_spk_command(2, 1, 7, 0, 63)
 print([('x%02X' % c) for c in result])
 
 result = pack_spk_command(2, 1, 7, 1, 63)
+print([('x%02X' % c) for c in result])
+
+result = pack_run_command(2, 6, 3)
 print([('x%02X' % c) for c in result])
