@@ -1,14 +1,6 @@
 #!/usr/bin/python3
 
-from enum import IntEnum, auto
-
-
-class DispatchOpcode(IntEnum):
-    RUN = 0
-    SPK = auto()
-    SNC = auto()
-    CLR = auto()
-
+RUN, SPK, SNC, CLR = 0, 1, 2, 3
 
 def pack_u(val, size):
     return bin(val)[2:].zfill(size)
@@ -21,8 +13,8 @@ def pack_s(val, size):
     return bin(val)[2:].zfill(size)
 
 
-def custom_bitstruct_pack(format_str, opcode_width, index_width, charge_width,
-                          opcode, index, charge):
+def custom_bitstruct_pack(opcode_width, index_width, charge_width, opcode,
+                          index, charge):
 
     bit_string = (
             pack_u(opcode, opcode_width) +
@@ -43,14 +35,8 @@ def custom_bitstruct_pack(format_str, opcode_width, index_width, charge_width,
     return bytes(packed_bytes)
 
 
-# --- Verification & Example Usage ---
-# Packing 4 variables into a tight 3-byte layout (24 bits total)
-format_pattern = 'u2u1s7'
-
-values = (2, 1, 7, DispatchOpcode.SPK, 0, 63)
-result = custom_bitstruct_pack(format_pattern, *values)
+result = custom_bitstruct_pack(2, 1, 7, SPK, 0, 63)
 print([('x%02X' % c) for c in result])
 
-values = (2, 1, 7, DispatchOpcode.SPK, 1, 63)
-result = custom_bitstruct_pack(format_pattern, *values)
+result = custom_bitstruct_pack(2, 1, 7, SPK, 1, 63)
 print([('x%02X' % c) for c in result])
