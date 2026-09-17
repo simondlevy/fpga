@@ -30,9 +30,19 @@ static Bits int2bin(const int val, const int size)
     return bits;
 }
 
-static Bits pack_u(const int val, const int size)
+static Bits zfill(const Bits inp, const size_t n)
 {
-    return int2bin(val, size+2);
+    Bits zeros;
+
+    while (zeros.size() < n) {
+        zeros.push_back(0);
+    }
+
+    auto out = inp;
+
+    out.insert(out.end(), zeros.begin(), zeros.end());
+
+    return out;
 }
 
 static void pack_spk_command(const int opcode_width, const int index_width,
@@ -47,7 +57,7 @@ static void pack_run_command(const int opcode_width, const int operand_width,
 
 int main()
 {
-    for (auto bit : int2bin(3, 2)) {
+    for (auto bit : zfill(int2bin(3, 2), 6)) {
         printf("%d", bit);
     }
     printf("\n");
