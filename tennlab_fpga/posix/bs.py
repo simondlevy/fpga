@@ -10,23 +10,23 @@ class DispatchOpcode(IntEnum):
     CLR = auto()
 
 
-def custom_bitstruct_pack(format_str, opcode, index, charge):
+def custom_bitstruct_pack(format_str, opcode_width, index_width, charge_width,
+                          opcode, index, charge):
 
-    # 1. Parse the format string using Regular Expressions
-    # Finds pairs like ('u', '1'), ('u', '3'), etc.
-    fields = re.findall(r'([usfbtrapP])(\d+)', format_str)
+    bit_string = ''
 
-    print(fields)
-    
-    bit_string = ""
-    
-    # 2. Process each value according to its type and bit size
-    for (data_type, size_str), val in zip(fields, (opcode, index, charge)):
+    data_types = 'u', 'u', 's'
 
-        print(data_type, size_str)
+    data_values = opcode, index, charge
 
-        size = int(size_str)
-        
+    data_sizes = opcode_width, index_width, charge_width
+
+    for k in range(3):
+
+        data_type = data_types[k]
+        size = data_sizes[k]
+        val = data_values[k]
+
         if data_type == 'u':  # Unsigned Integer
             # Convert to binary and pad with leading zeros to match the specified bit size
             bits = bin(val)[2:].zfill(size)
@@ -59,10 +59,10 @@ def custom_bitstruct_pack(format_str, opcode, index, charge):
 # Packing 4 variables into a tight 3-byte layout (24 bits total)
 format_pattern = 'u2u1s7'
 
-values = (DispatchOpcode.SPK, 0, 63)
+values = (2, 1, 7, DispatchOpcode.SPK, 0, 63)
 result = custom_bitstruct_pack(format_pattern, *values)
 print([('x%02X' % c) for c in result])
 
-values = (DispatchOpcode.SPK, 1, 63)
+values = (2, 1, 7, DispatchOpcode.SPK, 1, 63)
 result = custom_bitstruct_pack(format_pattern, *values)
 print([('x%02X' % c) for c in result])
