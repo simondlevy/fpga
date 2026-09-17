@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <algorithm>
 #include <vector>
 
 enum { RUN, SPK, SNC, CLR };
 
-static std::vector<uint8_t> int2bin(const int val)
+static std::vector<uint8_t> int2bin(const int val, const int size)
 {
     std::vector<uint8_t> bits;
 
@@ -16,12 +17,20 @@ static std::vector<uint8_t> int2bin(const int val)
         v >>= 1;
     }
 
-    return bits; 
+    while ((int)bits.size() < size) {
+        bits.push_back(0);
+    }
+
+    std::vector<uint8_t> reversed_bits(bits.size());
+
+    std::reverse_copy(bits.begin(), bits.end(), reversed_bits.begin());
+
+    return reversed_bits;
 }
 
 static std::vector<uint8_t> pack_u(const int val, const int size)
 {
-    std::vector<uint8_t> bits = int2bin(val);
+    std::vector<uint8_t> bits = int2bin(val, size);
 
    
     return bits;
@@ -39,7 +48,7 @@ static void pack_run_command(const int opcode_width, const int operand_width,
 
 int main()
 {
-    for (auto bit : int2bin(3)) {
+    for (auto bit : int2bin(3, 8)) {
         printf("%d", bit);
     }
     printf("\n");
