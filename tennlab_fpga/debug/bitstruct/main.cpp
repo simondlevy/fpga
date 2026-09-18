@@ -114,13 +114,16 @@ static ByteArray FinishPacking(const BitArray bits)
     const auto full_bits = remainder == 0 ? bits :
         Zpad(bits, 8 - remainder);
 
+    DumpBits(full_bits);
+    printf("%d\n", (int)full_bits.size());
+
     // Group the bits into chunks of 8 and convert them into actual bytes
     auto packed_bytes = ByteArray();
-    for (int i=0; i<bits.size(); i += 8) {
+    for (int i=0; i<full_bits.size(); i += 8) {
 
         const auto byte_chunk = BitArray (
-                bits.begin() + i,
-                bits.begin() + i + 8);
+                full_bits.begin() + i,
+                full_bits.begin() + i + 8);
 
         packed_bytes.push_back(BitsToByte(byte_chunk));
     }
@@ -144,11 +147,13 @@ static ByteArray PackRunCommand(const int opcode_width, const int operand_width,
 
 int main()
 {
-    auto bits = Zpad(PackU(3, 6), 2);
+    //auto bits = Zpad(PackU(3, 6), 2);
+    BitArray bits;
+    for (int k=0; k<10; ++k) {
+        bits.push_back(k%2);
+    }
     DumpBits(bits);
-    printf("\n");
     DumpBytes(FinishPacking(bits));
-    printf("\n");
 
     /*
        PackSpkCommand(2, 1, 7, 0, 63);
