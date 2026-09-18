@@ -7,9 +7,13 @@
 
 // Bit-twiddling utilities ---------------------------------------------------
 
-typedef std::vector<uint8_t> BitArray;
+typedef uint8_t Bit;
 
-typedef std::vector<uint8_t> ByteArray;
+typedef std::vector<Bit> BitArray;
+
+typedef uint8_t Byte;
+
+typedef std::vector<Byte> ByteArray;
 
 static BitArray Int2Bin(const int val)
 {
@@ -28,7 +32,6 @@ static BitArray Int2Bin(const int val)
 
     return bits;
 }
-
 
 static BitArray Append(const BitArray a, const BitArray b)
 {
@@ -50,6 +53,20 @@ static BitArray Zpad(const BitArray inp, const size_t n)
     return Append(inp, zeros);
 }
 
+static Byte BitsToByte(const BitArray bits)
+{
+    const Byte byte = 
+        (bits[0] << 7) + 
+        (bits[1] << 6) + 
+        (bits[2] << 5) + 
+        (bits[3] << 4) + 
+        (bits[4] << 3) + 
+        (bits[5] << 2) + 
+        (bits[6] << 1) +
+        bits[7];
+
+    return byte;
+}
 
 static void DumpBits(const BitArray bits)
 {
@@ -59,10 +76,15 @@ static void DumpBits(const BitArray bits)
     printf("\n");
 }
 
+static void DumpByte(const Byte byte)
+{
+    printf("x%02X ", byte);
+}
+
 static void DumpBytes(const ByteArray bytes)
 {
     for (auto byte : bytes) {
-        printf("x%02X ", byte);
+        DumpByte(byte);
     }
     printf("\n");
 }
@@ -71,7 +93,7 @@ static void DumpBytes(const ByteArray bytes)
 
 enum { RUN, SPK, SNC, CLR };
 
-static BitArray pack_u(const int val, const int size)
+static BitArray PackU(const int val, const int size)
 {
     return Zpad(Int2Bin(val), size - 2);
 }
@@ -85,7 +107,7 @@ static BitArray pack_s(const int val, const int size)
     return bits;
 }
 
-static ByteArray finish_packing(const BitArray bit_string)
+static ByteArray FinishPacking(const BitArray bit_string)
 {
     // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
     const auto remainder = bit_string.size() % 8;
@@ -96,11 +118,9 @@ static ByteArray finish_packing(const BitArray bit_string)
     auto packed_bytes = ByteArray();
     for (int i=0; i<bit_string.size(); i += 8) {
 
-
         const auto byte_chunk = BitArray (
                 bit_string.begin() + i,
                 bit_string.begin() + i + 8);
-
         
         //packed_bytes.Append(int(byte_chunk, 2));
     }
@@ -108,14 +128,14 @@ static ByteArray finish_packing(const BitArray bit_string)
     return packed_bytes;
 }
 
-static ByteArray pack_spk_command(const int opcode_width, const int index_width,
+static ByteArray PackSpkCommand(const int opcode_width, const int index_width,
         const int charge_width, const int index, const int charge)
 {
     ByteArray bytes;
     return bytes;
 }
 
-static ByteArray pack_run_command(const int opcode_width, const int operand_width,
+static ByteArray PackRunCommand(const int opcode_width, const int operand_width,
         const int to_run)
 {
     ByteArray bytes;
@@ -124,12 +144,15 @@ static ByteArray pack_run_command(const int opcode_width, const int operand_widt
 
 int main()
 {
-    DumpBits(pack_u(3, 6));
+    auto bits = Zpad(PackU(3, 6), 2);
+    DumpBits(bits);
+    DumpByte(BitsToByte(bits));
+    printf("\n");
 
     /*
-       pack_spk_command(2, 1, 7, 0, 63);
-       pack_spk_command(2, 1, 7, 1, 63);
-       pack_run_command(2, 6, 3);*/
+       PackSpkCommand(2, 1, 7, 0, 63);
+       PackSpkCommand(2, 1, 7, 1, 63);
+       PackRunCommand(2, 6, 3);*/
 
     return 0;
 }
