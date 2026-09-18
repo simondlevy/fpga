@@ -1,17 +1,5 @@
 #!/usr/bin/python3
 
-def pack_u(val, size):
-    return bin(val)[2:].zfill(size)
-
-
-def pack_s(val, size):
-
-    # Calculate Two's Complement for negative numbers
-    if val < 0:
-        val = (1 << size) + val
-
-    return pack_u(val, size)
-
 
 def bits_to_bytes(bit_string):
 
@@ -41,31 +29,42 @@ OPERAND_WIDTH = 14
 INDEX_WIDTH = 1
 CHARGE_WIDTH = 7
 
+def pack_unsigned(val, size):
+    return bin(val)[OPCODE_WIDTH:].zfill(size)
+
+def pack_signed(val, size):
+
+    # Calculate Two's Complement for negative numbers
+    if val < 0:
+        val = (1 << size) + val
+
+    return pack_unsigned(val, size)
+
 def pack_clr():
 
     return bits_to_bytes(
-            pack_u(CLR, OPCODE_WIDTH) +
-            pack_u(0, OPERAND_WIDTH))
+            pack_unsigned(CLR, OPCODE_WIDTH) +
+            pack_unsigned(0, OPERAND_WIDTH))
 
 def pack_snc():
 
     return bits_to_bytes(
-            pack_u(SNC, OPCODE_WIDTH) +
-            pack_u(0, OPERAND_WIDTH))
+            pack_unsigned(SNC, OPCODE_WIDTH) +
+            pack_unsigned(0, OPERAND_WIDTH))
 
 def pack_run(to_run):
 
     return bits_to_bytes(
-            pack_u(RUN, OPCODE_WIDTH) +
-            pack_u(to_run, OPERAND_WIDTH))
+            pack_unsigned(RUN, OPCODE_WIDTH) +
+            pack_unsigned(to_run, OPERAND_WIDTH))
 
 
 def pack_spk(index, charge):
 
     return bits_to_bytes(
-            pack_u(SPK, OPCODE_WIDTH) +
-            pack_u(index, INDEX_WIDTH) +
-            pack_s(charge, CHARGE_WIDTH))
+            pack_unsigned(SPK, OPCODE_WIDTH) +
+            pack_unsigned(index, INDEX_WIDTH) +
+            pack_signed(charge, CHARGE_WIDTH))
 
 def dump(label, result):
     print(label, ': ', bytes_to_list(result))

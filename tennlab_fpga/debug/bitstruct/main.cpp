@@ -111,6 +111,8 @@ enum { RUN, SPK, SNC, CLR };
 
 static const int kOpcodeWidth = 2;
 static const int kOperandWidth = 14;
+static const int kIndexWidth = 1;
+static const int kChargeWidth = 7;
 
 static BitArray PackUnsigned(const uint8_t opcode)
 {
@@ -135,19 +137,14 @@ static ByteArray PackSnc()
     return BitsToBytes(PackUnsigned(SNC));
 }
 
-
 static ByteArray PackRun(const int to_run)
 {
-    ByteArray bytes;
-    return bytes;
+
+    return BitesToBytes(
+            PackUnsigned(RUN) +
+            PackUnsigned(to_run, OPERAND_WIDTH));
 }
 
-static ByteArray PackSpk(const int opcode_width, const int index_width,
-        const int charge_width, const int index, const int charge)
-{
-    ByteArray bytes;
-    return bytes;
-}
 
 static void Dump(const char * label, const ByteArray bytes)
 {
@@ -172,8 +169,6 @@ int main()
 
     Dump("CLR", PackClr());
     Dump("SNC", PackSnc());
-    //DumpBytes(PackRun(1));
-    //DumpBytes(PackRun(23));
 
     return 0;
 }
