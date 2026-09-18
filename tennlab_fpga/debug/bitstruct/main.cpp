@@ -114,9 +114,9 @@ static const int kOperandWidth = 14;
 static const int kIndexWidth = 1;
 static const int kChargeWidth = 7;
 
-static BitArray PackUnsigned(const uint8_t opcode)
+static BitArray PackUnsigned(const uint8_t val, const uint8_t size)
 {
-    return Zpad(Int2Bin(opcode), kOperandWidth - kOpcodeWidth);
+    return Zpad(Int2Bin(val), size-kOpcodeWidth);
 }
 
 /*
@@ -129,22 +129,17 @@ static BitArray PackSigned(const int val, const int size)
 
 static ByteArray PackClr()
 {
-    return BitsToBytes(PackUnsigned(CLR));
+    return BitsToBytes(AppendBits(
+                PackUnsigned(CLR, kOpcodeWidth), 
+                PackUnsigned(0, kOperandWidth)));
 }
 
 static ByteArray PackSnc()
 {
-    return BitsToBytes(PackUnsigned(SNC));
+    return BitsToBytes(AppendBits(
+                PackUnsigned(SNC, kOpcodeWidth), 
+                PackUnsigned(0, kOperandWidth)));
 }
-
-static ByteArray PackRun(const int to_run)
-{
-
-    return BitesToBytes(
-            PackUnsigned(RUN) +
-            PackUnsigned(to_run, OPERAND_WIDTH));
-}
-
 
 static void Dump(const char * label, const ByteArray bytes)
 {
