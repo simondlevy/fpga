@@ -223,9 +223,6 @@ class Processor(neuro.Processor):
         if spike.time < 0:
             raise RuntimeError("Spikes cannot be scheduled in the past.")
 
-        if (self._debug):
-            print('AS %d %f %f' % (spike.id, spike.time, spike.value))
-
         self._to_fpga.queue.append(
             neuro.Spike(spike.id, spike.time + self._to_fpga.time, spike.value)
         )
@@ -530,7 +527,7 @@ class Processor(neuro.Processor):
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
-                    self._write('SPK',
+                    self._write('SPK %d %f' % (idx, val),
                         self._to_fpga.spk_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SPK,
