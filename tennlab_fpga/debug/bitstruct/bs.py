@@ -47,11 +47,11 @@ def pack_snc():
             pack_u(SNC, OPCODE_WIDTH) +
             pack_u(0, OPERAND_WIDTH))
 
-def pack_run(opcode_width, operand_width, to_run):
+def pack_run(to_run):
 
     return bits_to_bytes(
-            pack_u(RUN, opcode_width) +
-            pack_u(to_run, operand_width))
+            pack_u(RUN, OPCODE_WIDTH) +
+            pack_u(to_run, OPERAND_WIDTH))
 
 
 def pack_spk(opcode_width, index_width, charge_width, index, charge):
@@ -62,7 +62,7 @@ def pack_spk(opcode_width, index_width, charge_width, index, charge):
             pack_s(charge, charge_width))
 
 def test_run(to_run):
-    print('RUN: %d' % to_run, [('x%02X' % c)for c in pack_run(2, 14, to_run)])
+    print('RUN: %d' % to_run, [('x%02X' % c)for c in pack_run(to_run)])
 
 def test_spk(idx, val):
     print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk(2, 1, 7, idx, val)])
