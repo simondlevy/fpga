@@ -32,26 +32,26 @@ def bits_to_bytes(bit_string):
     return bytes(packed_bytes)
 
 
-def pack_clr_command(opcode_width, operand_width):
+def pack_clr(opcode_width, operand_width):
 
     return bits_to_bytes(
             pack_u(CLR, opcode_width) +
             pack_u(0, operand_width))
 
-def pack_snc_command(opcode_width, operand_width):
+def pack_snc(opcode_width, operand_width):
 
     return bits_to_bytes(
             pack_u(SNC, opcode_width) +
             pack_u(0, operand_width))
 
-def pack_run_command(opcode_width, operand_width, to_run):
+def pack_run(opcode_width, operand_width, to_run):
 
     return bits_to_bytes(
             pack_u(RUN, opcode_width) +
             pack_u(to_run, operand_width))
 
 
-def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
+def pack_spk(opcode_width, index_width, charge_width, index, charge):
 
     return bits_to_bytes(
             pack_u(SPK, opcode_width) +
@@ -59,10 +59,10 @@ def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
             pack_s(charge, charge_width))
 
 def test_run(to_run):
-    print('RUN: %d' % to_run, [('x%02X' % c)for c in pack_run_command(2, 14, to_run)])
+    print('RUN: %d' % to_run, [('x%02X' % c)for c in pack_run(2, 14, to_run)])
 
 def test_spk(idx, val):
-    print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk_command(2, 1, 7, idx, val)])
+    print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk(2, 1, 7, idx, val)])
 
 '''
 cmd_fmt = u2u14
@@ -80,9 +80,9 @@ SPK 1 63: write: xC0 x6F
 
 '''
 
-print('CLR: ', [('x%02X' % c) for c in pack_clr_command(2, 14)])
+print('CLR: ', [('x%02X' % c) for c in pack_clr(2, 14)])
 
-print('SNC: ', [('x%02X' % c) for c in pack_snc_command(2, 14)])
+print('SNC: ', [('x%02X' % c) for c in pack_snc(2, 14)])
 
 test_run(1)
 test_run(23)

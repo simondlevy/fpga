@@ -120,9 +120,9 @@ enum { RUN, SPK, SNC, CLR };
 static const int kOpcodeWidth = 2;
 static const int kOperandWidth = 14;
 
-static BitArray PackUnsigned(const int val)
+static BitArray PackUnsigned(const uint8_t opcode)
 {
-    return Zpad(Int2Bin(val), kOperandWidth - kOpcodeWidth);
+    return Zpad(Int2Bin(opcode), kOperandWidth - kOpcodeWidth);
 }
 
 /*
@@ -144,8 +144,7 @@ static ByteArray PackSnc()
 }
 
 
-static ByteArray PackRun(const int opcode_width, const int operand_width,
-        const int to_run)
+static ByteArray PackRun(const int to_run)
 {
     ByteArray bytes;
     return bytes;
@@ -171,6 +170,8 @@ int main()
 
     DumpBytes(PackClr());
     DumpBytes(PackSnc());
+    DumpBytes(PackRun(1));
+    DumpBytes(PackRun(23));
 
     return 0;
 }
