@@ -9,6 +9,8 @@
 
 typedef std::vector<uint8_t> BitArray;
 
+typedef std::vector<uint8_t> ByteArray;
+
 static BitArray int2bin(const int val)
 {
     BitArray reversed_bits;
@@ -48,7 +50,7 @@ static BitArray zpad(const BitArray inp, const size_t n)
     return append(inp, zeros);
 }
 
-static void Dump(const BitArray bits)
+static void DumpBits(const BitArray bits)
 {
     for (auto bit : bits) {
         printf("%d", bit);
@@ -56,9 +58,15 @@ static void Dump(const BitArray bits)
     printf("\n");
 }
 
-// FPGA stuff ----------------------------------------------------------------
+static void DumpBytes(const ByteArray bytes)
+{
+    for (auto byte : bytes) {
+        printf("x%02X ", byte);
+    }
+    printf("\n");
+}
 
-typedef std::vector<uint8_t> ByteArray;
+// FPGA stuff ----------------------------------------------------------------
 
 enum { RUN, SPK, SNC, CLR };
 
@@ -92,7 +100,7 @@ static ByteArray finish_packing(const BitArray bit_string)
                 bit_string.begin() + i,
                 bit_string.begin() + i + 8);
 
-        Dump(byte_chunk);
+        
 
         //packed_bytes.append(int(byte_chunk, 2));
     }
@@ -117,7 +125,7 @@ static ByteArray pack_run_command(const int opcode_width, const int operand_widt
 
 int main()
 {
-    Dump(pack_u(3, 6));
+    DumpBits(pack_u(3, 6));
 
     /*
        pack_spk_command(2, 1, 7, 0, 63);
