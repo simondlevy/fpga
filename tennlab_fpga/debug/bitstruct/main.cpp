@@ -11,7 +11,7 @@ typedef std::vector<uint8_t> BitArray;
 
 typedef std::vector<uint8_t> ByteArray;
 
-static BitArray int2bin(const int val)
+static BitArray Int2Bin(const int val)
 {
     BitArray reversed_bits;
 
@@ -30,7 +30,7 @@ static BitArray int2bin(const int val)
 }
 
 
-static BitArray append(const BitArray a, const BitArray b)
+static BitArray Append(const BitArray a, const BitArray b)
 {
     auto c = a;
 
@@ -39,7 +39,7 @@ static BitArray append(const BitArray a, const BitArray b)
     return c;
 }
 
-static BitArray zpad(const BitArray inp, const size_t n)
+static BitArray Zpad(const BitArray inp, const size_t n)
 {
     BitArray zeros;
 
@@ -47,8 +47,9 @@ static BitArray zpad(const BitArray inp, const size_t n)
         zeros.push_back(0);
     }
 
-    return append(inp, zeros);
+    return Append(inp, zeros);
 }
+
 
 static void DumpBits(const BitArray bits)
 {
@@ -72,7 +73,7 @@ enum { RUN, SPK, SNC, CLR };
 
 static BitArray pack_u(const int val, const int size)
 {
-    return zpad(int2bin(val), size - 2);
+    return Zpad(Int2Bin(val), size - 2);
 }
 
 static BitArray pack_s(const int val, const int size)
@@ -89,7 +90,7 @@ static ByteArray finish_packing(const BitArray bit_string)
     // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
     const auto remainder = bit_string.size() % 8;
     const auto full_bit_string = remainder == 0 ? bit_string :
-        zpad(bit_string, 8 - remainder);
+        Zpad(bit_string, 8 - remainder);
 
     // Group the bits into chunks of 8 and convert them into actual bytes
     auto packed_bytes = ByteArray();
@@ -101,13 +102,11 @@ static ByteArray finish_packing(const BitArray bit_string)
                 bit_string.begin() + i + 8);
 
         
-
-        //packed_bytes.append(int(byte_chunk, 2));
+        //packed_bytes.Append(int(byte_chunk, 2));
     }
 
     return packed_bytes;
 }
-
 
 static ByteArray pack_spk_command(const int opcode_width, const int index_width,
         const int charge_width, const int index, const int charge)
