@@ -68,15 +68,6 @@ static Byte BitsToByte(const BitArray bits)
     return byte;
 }
 
-static ByteArray AppendBytes(const ByteArray a, const ByteArray b)
-{
-    auto c = a;
-
-    c.insert(c.end(), b.begin(), b.end());
-
-    return c;
-}
-
 static void DumpBits(const BitArray bits)
 {
     for (auto bit : bits) {
@@ -130,8 +121,8 @@ static ByteArray FinishPacking(const BitArray bits)
         const auto byte_chunk = BitArray (
                 bits.begin() + i,
                 bits.begin() + i + 8);
-        
-        packed_bytes = AppendBytes(packed_bytes, byte_chunk);
+
+        packed_bytes.push_back(BitsToByte(byte_chunk));
     }
 
     return packed_bytes;
@@ -155,7 +146,8 @@ int main()
 {
     auto bits = Zpad(PackU(3, 6), 2);
     DumpBits(bits);
-    DumpByte(BitsToByte(bits));
+    printf("\n");
+    DumpBytes(FinishPacking(bits));
     printf("\n");
 
     /*
