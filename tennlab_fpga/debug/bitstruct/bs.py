@@ -65,14 +65,14 @@ def pack_spk(opcode_width, index_width, charge_width, index, charge):
             pack_u(index, index_width) +
             pack_s(charge, charge_width))
 
+def dump(label, result):
+    print(label, ': ', bytes_to_list(result))
+
 def test_run(to_run):
-    print('RUN: %d' % to_run, [('x%02X' % c)for c in pack_run(to_run)])
+    dump('RUN: %d' % to_run, pack_run(to_run))
 
 def test_spk(idx, val):
     print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk(2, 1, 7, idx, val)])
-
-def dump(label, result):
-    print(label, ': ', bytes_to_list(result))
 
 '''
 cmd_fmt = u2u14
