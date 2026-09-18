@@ -6,11 +6,11 @@
 
 // Bit-twiddling utilities ---------------------------------------------------
 
-typedef std::vector<uint8_t> Bits;
+typedef std::vector<uint8_t> BitArray;
 
-static Bits int2bin(const int val)
+static BitArray int2bin(const int val)
 {
-    Bits reversed_bits;
+    BitArray reversed_bits;
 
     auto v = val;
 
@@ -19,7 +19,7 @@ static Bits int2bin(const int val)
         v >>= 1;
     }
 
-    Bits bits(reversed_bits.size());
+    BitArray bits(reversed_bits.size());
 
     std::reverse_copy(reversed_bits.begin(), reversed_bits.end(), bits.begin());
 
@@ -27,7 +27,7 @@ static Bits int2bin(const int val)
 }
 
 
-static Bits append(const Bits a, const Bits b)
+static BitArray append(const BitArray a, const BitArray b)
 {
     auto c = a;
 
@@ -36,9 +36,9 @@ static Bits append(const Bits a, const Bits b)
     return c;
 }
 
-static Bits zfill(const Bits inp, const size_t n)
+static BitArray zpad(const BitArray inp, const size_t n)
 {
-    Bits zeros;
+    BitArray zeros;
 
     while (zeros.size() < n) {
         zeros.push_back(0);
@@ -49,35 +49,34 @@ static Bits zfill(const Bits inp, const size_t n)
 
 // FPGA stuff ----------------------------------------------------------------
 
-typedef std::vector<uint8_t> Bytes;
+typedef std::vector<uint8_t> ByteArray;
 
 enum { RUN, SPK, SNC, CLR };
 
-static Bits pack_u(const int val, const int size)
+static BitArray pack_u(const int val, const int size)
 {
-    return zfill(int2bin(val), size - 2);
+    return zpad(int2bin(val), size - 2);
 }
 
-static Bits pack_s(const int val, const int size)
+static BitArray pack_s(const int val, const int size)
 {
     // Calculate Two's Complement for negative numbers
     const auto twoscomp = val < 0 ? (1 << size) + val : val;
 
-    Bits bits;
+    BitArray bits;
     return bits;
 }
 
-static Bytes finish_packing(const Bits bit_string)
+static ByteArray finish_packing(const BitArray bit_string)
 {
-#if 0
     // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
-    remainder = len(bit_string) % 8;
-    if (remainder != 0) {
-        bit_string += '0' * (8 - remainder);
-    }
+    const auto remainder = bit_string.size() % 8;
+    const auto full_bit_string = remainder == 0 ? bit_string :
+        zpad(bit_string, 8 - remainder);
 
     // Group the bits into chunks of 8 and convert them into actual bytes
-    packed_bytes = bytearray();
+    auto packed_bytes = ByteArray();
+#if 0
     for (i in range(0, len(bit_string), 8)) {
         byte_chunk = bit_string[i:i+8];
         packed_bytes.append(int(byte_chunk, 2));
@@ -86,21 +85,21 @@ static Bytes finish_packing(const Bits bit_string)
     return bytes(packed_bytes);
 #endif
 
-    return Bytes();
+    return packed_bytes;
 }
 
 
-static Bytes pack_spk_command(const int opcode_width, const int index_width,
+static ByteArray pack_spk_command(const int opcode_width, const int index_width,
         const int charge_width, const int index, const int charge)
 {
-    Bytes bytes;
+    ByteArray bytes;
     return bytes;
 }
 
-static Bytes pack_run_command(const int opcode_width, const int operand_width,
+static ByteArray pack_run_command(const int opcode_width, const int operand_width,
         const int to_run)
 {
-    Bytes bytes;
+    ByteArray bytes;
     return bytes;
 }
 
