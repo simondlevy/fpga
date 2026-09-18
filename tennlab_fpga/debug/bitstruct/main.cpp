@@ -89,6 +89,28 @@ static void DumpBytes(const ByteArray bytes)
     printf("\n");
 }
 
+static ByteArray BitsToBytes(const BitArray bits)
+{
+    // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
+    const auto remainder = bits.size() % 8;
+    const auto full_bits = remainder == 0 ? bits :
+        Zpad(bits, 8 - remainder);
+
+    // Group the bits into chunks of 8 and convert them into actual bytes
+    auto packed_bytes = ByteArray();
+    for (int i=0; i<full_bits.size(); i += 8) {
+
+        const auto byte_chunk = BitArray (
+                full_bits.begin() + i,
+                full_bits.begin() + i + 8);
+
+        packed_bytes.push_back(BitsToByte(byte_chunk));
+    }
+
+    return packed_bytes;
+}
+
+
 // FPGA stuff ----------------------------------------------------------------
 
 enum { RUN, SPK, SNC, CLR };
@@ -107,30 +129,6 @@ static BitArray pack_s(const int val, const int size)
     return bits;
 }
 
-static ByteArray FinishPacking(const BitArray bits)
-{
-    // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
-    const auto remainder = bits.size() % 8;
-    const auto full_bits = remainder == 0 ? bits :
-        Zpad(bits, 8 - remainder);
-
-    DumpBits(full_bits);
-    printf("%d\n", (int)full_bits.size());
-
-    // Group the bits into chunks of 8 and convert them into actual bytes
-    auto packed_bytes = ByteArray();
-    for (int i=0; i<full_bits.size(); i += 8) {
-
-        const auto byte_chunk = BitArray (
-                full_bits.begin() + i,
-                full_bits.begin() + i + 8);
-
-        packed_bytes.push_back(BitsToByte(byte_chunk));
-    }
-
-    return packed_bytes;
-}
-
 static ByteArray PackSpkCommand(const int opcode_width, const int index_width,
         const int charge_width, const int index, const int charge)
 {
@@ -147,13 +145,9 @@ static ByteArray PackRunCommand(const int opcode_width, const int operand_width,
 
 int main()
 {
-    //auto bits = Zpad(PackU(3, 6), 2);
-    BitArray bits;
-    for (int k=0; k<10; ++k) {
-        bits.push_back(k%2);
-    }
+    auto bits = Zpad(PackU(3, 6), 2);
     DumpBits(bits);
-    DumpBytes(FinishPacking(bits));
+    DumpBytes(BitsToBytes(bits));
 
     /*
        PackSpkCommand(2, 1, 7, 0, 63);
