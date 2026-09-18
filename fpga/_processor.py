@@ -430,7 +430,7 @@ class Processor(neuro.Processor):
 
     def _read(self, size, timeout=None):
         data = self._interface.read( size, timeout)
-        self._do_debug('read ', data) 
+        #self._do_debug('read ', data) 
         return data
 
     def _do_debug(self, label, data):
@@ -527,7 +527,7 @@ class Processor(neuro.Processor):
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
-                    self._write('SPK %d %f' % (idx, val),
+                    self._write('SPK %d %d' % (idx, int(val)),
                         self._to_fpga.spk_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SPK,
@@ -548,7 +548,7 @@ class Processor(neuro.Processor):
                     if not to_run:
                         sleep(100e-9)
                         continue
-                    self._write('RUN',
+                    self._write('RUN %d' % to_run,
                         self._to_fpga.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.RUN,

@@ -48,7 +48,7 @@ for entry in entries:
 
     timestep = entry[0]
 
-    if timestep == 1:
+    if timestep == 2:
         break
 
     if timestep_prev != timestep:
