@@ -24,12 +24,25 @@ def bits_to_bytes(bit_string):
         bit_string += '0' * (8 - remainder)
 
     # Group the bits into chunks of 8 and convert them into actual bytes
-    packed_bytes = bytearray()
+    packed_bytes = []
     for i in range(0, len(bit_string), 8):
         byte_chunk = bit_string[i:i+8]
-        packed_bytes.append(int(byte_chunk, 2))
+        packed_bytes = [int(byte_chunk, 2)] + packed_bytes
 
     return bytes(packed_bytes)
+
+
+def pack_clr_command(opcode_width, operand_width):
+
+    return bits_to_bytes(
+            pack_u(CLR, opcode_width) +
+            pack_u(0, operand_width))
+
+def pack_run_command(opcode_width, operand_width, to_run):
+
+    return bits_to_bytes(
+            pack_u(RUN, opcode_width) +
+            pack_u(to_run, operand_width))
 
 
 def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
@@ -39,19 +52,16 @@ def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
             pack_u(index, index_width) +
             pack_s(charge, charge_width))
 
+#result = pack_spk_command(2, 1, 7, 0, 63)
+#print([('x%02X' % c) for c in result])
 
-def pack_run_command(opcode_width, operand_width, to_run):
+#result = pack_spk_command(2, 1, 7, 1, 63)
+#print([('x%02X' % c) for c in result])
 
-    return bits_to_bytes(
-            pack_u(RUN, opcode_width) +
-            pack_u(to_run, operand_width))
-
-
-result = pack_spk_command(2, 1, 7, 0, 63)
+print('CLR: ', end='')
+result = pack_clr_command(2, 14)
 print([('x%02X' % c) for c in result])
 
-result = pack_spk_command(2, 1, 7, 1, 63)
-print([('x%02X' % c) for c in result])
-
-result = pack_run_command(2, 6, 3)
+print('RUN 23: ', end='')
+result = pack_run_command(2, 14, 23)
 print([('x%02X' % c) for c in result])
