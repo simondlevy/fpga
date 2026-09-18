@@ -8,10 +8,12 @@ def pack_u(val, size):
 
 
 def pack_s(val, size):
+
+    # Calculate Two's Complement for negative numbers
     if val < 0:
-        # Calculate Two's Complement for negative numbers
         val = (1 << size) + val
-    return bin(val)[2:].zfill(size)
+
+    return pack_u(val, size)
 
 
 def finish_packing(bit_string):

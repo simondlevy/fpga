@@ -60,6 +60,9 @@ static Bits pack_u(const int val, const int size)
 
 static Bits pack_s(const int val, const int size)
 {
+    // Calculate Two's Complement for negative numbers
+    const auto twoscomp = val < 0 ? (1 << size) + val : val;
+
     Bits bits;
     return bits;
 }
