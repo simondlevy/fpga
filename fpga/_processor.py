@@ -269,11 +269,8 @@ class Processor(neuro.Processor):
             raise RuntimeError("Cannot clear network activity before " +
                                "programming the target FPGA.")
 
-        if (self._debug):
-            print('CLR')
-
         if self._to_fpga.type == IoType.DISPATCH:
-            self._write(
+            self._write('CLR',
                 self._to_fpga.cmd_fmt.pack(
                     {
                         "opcode": DispatchOpcode.CLR,
@@ -340,8 +337,6 @@ class Processor(neuro.Processor):
 
         if time < 1:
             raise ValueError("It's not possible to run for less than 1 timestep")
-
-        print('RUN %d' % time)
 
         target_time = self._to_fpga.time + time
         rx_thread = Thread(target=self._hw_rx, args=(target_time,))
@@ -432,8 +427,8 @@ class Processor(neuro.Processor):
     def _flush(self):
         self._interface.flush()
 
-    def _write(self, data):
-        self._do_debug('write', data)
+    def _write(self, label, data):
+        self._do_debug(label + ': write', data)
         self._interface.write(data)
 
     def _read(self, size, timeout=None):
@@ -535,7 +530,7 @@ class Processor(neuro.Processor):
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
-                    self._write(
+                    self._write('SPK',
                         self._to_fpga.spk_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SPK,
@@ -556,7 +551,7 @@ class Processor(neuro.Processor):
                     if not to_run:
                         sleep(100e-9)
                         continue
-                    self._write(
+                    self._write('RUN',
                         self._to_fpga.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.RUN,
@@ -567,7 +562,7 @@ class Processor(neuro.Processor):
                     pause(to_run)
                     runs -= to_run
                 if sync:
-                    self._write(
+                    self._write('SNC',
                         self._to_fpga.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SNC,
