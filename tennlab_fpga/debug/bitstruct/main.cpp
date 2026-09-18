@@ -110,39 +110,51 @@ static ByteArray BitsToBytes(const BitArray bits)
     return packed_bytes;
 }
 
+static BitArray PackUnsigned(const int val, const int size)
+{
+    return Zpad(Int2Bin(val), size - 2);
+}
+
+static BitArray PackSigned(const int val, const int size)
+{
+    // Calculate Two's Complement for negative numbers
+    return PackUnsigned(val < 0 ? (1 << size) + val : val, size);
+}
+
 
 // FPGA stuff ----------------------------------------------------------------
 
 enum { RUN, SPK, SNC, CLR };
 
-static BitArray PackU(const int val, const int size)
-{
-    return Zpad(Int2Bin(val), size - 2);
-}
 
-static BitArray pack_s(const int val, const int size)
-{
-    // Calculate Two's Complement for negative numbers
-    return PackU(val < 0 ? (1 << size) + val : val, size);
-}
-
-static ByteArray PackSpkCommand(const int opcode_width, const int index_width,
-        const int charge_width, const int index, const int charge)
+static ByteArray PackClr(const int opcode_width)
 {
     ByteArray bytes;
     return bytes;
 }
 
-static ByteArray PackRunCommand(const int opcode_width, const int operand_width,
+static ByteArray PackSnc(const int opcode_width)
+{
+    ByteArray bytes;
+    return bytes;
+}
+
+
+static ByteArray PackRun(const int opcode_width, const int operand_width,
         const int to_run)
 {
     ByteArray bytes;
     return bytes;
 }
 
-int main()
+static ByteArray PackSpk(const int opcode_width, const int index_width,
+        const int charge_width, const int index, const int charge)
 {
-    auto bits = Zpad(PackU(3, 6), 2);
+    ByteArray bytes;
+    return bytes;
+}int main()
+{
+    auto bits = Zpad(PackUnsigned(3, 6), 2);
     DumpBits(bits);
     DumpBytes(BitsToBytes(bits));
 

@@ -48,10 +48,6 @@ namespace neuro {
 
             void ApplySpike(const int id, const float time, const float value)
             {
-                if (kDebug) {
-                    printf("AS %d %d\n", id, (int)value);
-                }
-
                 QueuePush(LevySpike(id, time + input_time_, value));
 
                 static LevySpike spikes_now[kQueueCapacity];
@@ -68,11 +64,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                if (kDebug) {
-                    printf("CLR\n");
-                }
-
-                SendCommand(kOpcodeClr);
+                NewSendCommand(kOpcodeClr);
 
                 Receive();
 
@@ -87,10 +79,6 @@ namespace neuro {
 
             void Run(const int time)
             {
-                if (kDebug) {
-                    printf("RUN %d\n", time);
-                }
-
                 const auto target_time = input_time_ + time;
 
                 while (input_time_ < target_time) {
@@ -221,12 +209,13 @@ namespace neuro {
                 WriteByte(MakeCommand(opcode, operand));
             }
 
+            void NewSendCommand(const uint8_t opcode, const int operand=0)
+            {
+                WriteByte(MakeCommand(opcode, operand));
+            }
+
             void WriteByte(const uint8_t byte)
             {
-                if (kDebug) {
-                    printf("  write x%02X\n", byte);
-                }
-
                 UartWrite(byte);
             }
 
@@ -234,20 +223,12 @@ namespace neuro {
             {
                 const auto byte = UartRead();
 
-                if (kDebug) {
-                    printf("  read  x%02X\n", byte);
-                }
-
                 return byte;
             }
 
             void Receive()
             {
                 const auto avail = UartAvailable();
-
-                if (kDebug) {
-                    printf("  avail %d\n", (int)avail);
-                }
 
                 for (int k=0; k<avail; ++k) {
                     

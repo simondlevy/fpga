@@ -21,7 +21,7 @@ network_config.h: $(NET)
 	$(TFPGA)/utils/compile.py -d $(NET)
 
 load:
-	$(ROOT)/utils/load.py -t cmoda7_35t $(ROOT)/networks/xor.txt
+	$(ROOT)/utils/load.py -s -t cmoda7_35t $(ROOT)/networks/xor.txt
 
 run: test
 	./test
