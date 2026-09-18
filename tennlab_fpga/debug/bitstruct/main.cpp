@@ -33,7 +33,7 @@ static BitArray Int2Bin(const int val)
     return bits;
 }
 
-static BitArray Append(const BitArray a, const BitArray b)
+static BitArray AppendBits(const BitArray a, const BitArray b)
 {
     auto c = a;
 
@@ -50,7 +50,7 @@ static BitArray Zpad(const BitArray inp, const size_t n)
         zeros.push_back(0);
     }
 
-    return Append(inp, zeros);
+    return AppendBits(inp, zeros);
 }
 
 static Byte BitsToByte(const BitArray bits)
@@ -66,6 +66,15 @@ static Byte BitsToByte(const BitArray bits)
         bits[7];
 
     return byte;
+}
+
+static ByteArray AppendBytes(const ByteArray a, const ByteArray b)
+{
+    auto c = a;
+
+    c.insert(c.end(), b.begin(), b.end());
+
+    return c;
 }
 
 static void DumpBits(const BitArray bits)
@@ -107,22 +116,22 @@ static BitArray pack_s(const int val, const int size)
     return bits;
 }
 
-static ByteArray FinishPacking(const BitArray bit_string)
+static ByteArray FinishPacking(const BitArray bits)
 {
     // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
-    const auto remainder = bit_string.size() % 8;
-    const auto full_bit_string = remainder == 0 ? bit_string :
-        Zpad(bit_string, 8 - remainder);
+    const auto remainder = bits.size() % 8;
+    const auto full_bits = remainder == 0 ? bits :
+        Zpad(bits, 8 - remainder);
 
     // Group the bits into chunks of 8 and convert them into actual bytes
     auto packed_bytes = ByteArray();
-    for (int i=0; i<bit_string.size(); i += 8) {
+    for (int i=0; i<bits.size(); i += 8) {
 
         const auto byte_chunk = BitArray (
-                bit_string.begin() + i,
-                bit_string.begin() + i + 8);
+                bits.begin() + i,
+                bits.begin() + i + 8);
         
-        //packed_bytes.Append(int(byte_chunk, 2));
+        packed_bytes = AppendBytes(packed_bytes, byte_chunk);
     }
 
     return packed_bytes;
