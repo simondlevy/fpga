@@ -58,18 +58,15 @@ def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
             pack_u(index, index_width) +
             pack_s(charge, charge_width))
 
-print('CLR: ', end='')
-result = pack_clr_command(2, 14)
-print([('x%02X' % c) for c in result])
+def test_run(to_run):
+    print('RUN: %d' % to_run, [('x%02X' % c) for c in pack_run_command(2, 14, to_run)])
 
-print('SNC: ', end='')
-result = pack_snc_command(2, 14)
-print([('x%02X' % c) for c in result])
+print('CLR: ', [('x%02X' % c) for c in pack_clr_command(2, 14)])
 
-print('RUN 23: ', end='')
-result = pack_run_command(2, 14, 23)
-print([('x%02X' % c) for c in result])
+print('SNC: ', [('x%02X' % c) for c in pack_snc_command(2, 14)])
 
+test_run(1)
+test_run(23)
 
 #result = pack_spk_command(2, 1, 7, 0, 63)
 #print([('x%02X' % c) for c in result])
