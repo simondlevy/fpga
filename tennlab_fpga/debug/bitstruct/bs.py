@@ -71,6 +71,9 @@ def test_run(to_run):
 def test_spk(idx, val):
     print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk(2, 1, 7, idx, val)])
 
+def dump(label, result):
+    print(label, ': ', bytes_to_list(result))
+
 '''
 cmd_fmt = u2u14
 spk_fmt = u2u1s7
@@ -87,9 +90,8 @@ SPK 1 63: write: xC0 x6F
 
 '''
 
-print('CLR: ', bytes_to_list(pack_clr()))
-print('SNC: ', bytes_to_list(pack_snc()))
-
+dump('CLR', pack_clr())
+dump('SNC', pack_snc())
 
 test_run(1)
 test_run(23)
