@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-RUN, SPK, SNC, CLR = 0, 1, 2, 3
-
-
 def pack_u(val, size):
     return bin(val)[2:].zfill(size)
 
@@ -31,18 +28,24 @@ def bits_to_bytes(bit_string):
 
     return bytes(packed_bytes)
 
+##############################################################################
 
-def pack_clr(opcode_width, operand_width):
+RUN, SPK, SNC, CLR = 0, 1, 2, 3
+
+OPCODE_WIDTH = 2
+OPERAND_WIDTH = 14
+
+def pack_clr():
 
     return bits_to_bytes(
-            pack_u(CLR, opcode_width) +
-            pack_u(0, operand_width))
+            pack_u(CLR, OPCODE_WIDTH) +
+            pack_u(0, OPERAND_WIDTH))
 
-def pack_snc(opcode_width, operand_width):
+def pack_snc():
 
     return bits_to_bytes(
-            pack_u(SNC, opcode_width) +
-            pack_u(0, operand_width))
+            pack_u(SNC, OPCODE_WIDTH) +
+            pack_u(0, OPERAND_WIDTH))
 
 def pack_run(opcode_width, operand_width, to_run):
 
@@ -80,9 +83,9 @@ SPK 1 63: write: xC0 x6F
 
 '''
 
-print('CLR: ', [('x%02X' % c) for c in pack_clr(2, 14)])
+print('CLR: ', [('x%02X' % c) for c in pack_clr()])
 
-print('SNC: ', [('x%02X' % c) for c in pack_snc(2, 14)])
+print('SNC: ', [('x%02X' % c) for c in pack_snc()])
 
 test_run(1)
 test_run(23)
