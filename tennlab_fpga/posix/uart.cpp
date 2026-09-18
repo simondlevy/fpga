@@ -80,6 +80,16 @@ void neuro::Processor::UartWrite(const uint8_t byte)
     (void)ignore;
 }
 
+void neuro::Processor::UartWrite(const uint8_t * bytes, const size_t count)
+{
+    if (kProxy) {
+        return;
+    }
+
+    const auto ignore = write(fd_, bytes, count);
+    (void)ignore;
+}
+
 auto neuro::Processor::UartAvailable() -> int
 {
     if (kProxy) {

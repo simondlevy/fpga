@@ -59,10 +59,26 @@ def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
             pack_s(charge, charge_width))
 
 def test_run(to_run):
-    print('RUN: %d' % to_run, [('x%02X' % c) for c in pack_run_command(2, 14, to_run)])
+    print('RUN: %d' % to_run, [('x%02X' % c)for c in pack_run_command(2, 14, to_run)])
 
 def test_spk(idx, val):
     print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk_command(2, 1, 7, idx, val)])
+
+'''
+cmd_fmt = u2u14
+spk_fmt = u2u1s7
+
+CLR:      write: x00 xC0
+
+SNC:      write: x00 x80
+
+RUN 1:    write: x01 x00
+RUN 23:   write: x17 x00
+
+SPK 0 63: write: xC0 x4F
+SPK 1 63: write: xC0 x6F
+
+'''
 
 print('CLR: ', [('x%02X' % c) for c in pack_clr_command(2, 14)])
 
