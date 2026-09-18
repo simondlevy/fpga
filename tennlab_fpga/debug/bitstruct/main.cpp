@@ -67,6 +67,29 @@ static Bits pack_s(const int val, const int size)
     return bits;
 }
 
+static Bytes finish_packing(const Bits bit_string)
+{
+#if 0
+    // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
+    remainder = len(bit_string) % 8;
+    if (remainder != 0) {
+        bit_string += '0' * (8 - remainder);
+    }
+
+    // Group the bits into chunks of 8 and convert them into actual bytes
+    packed_bytes = bytearray();
+    for (i in range(0, len(bit_string), 8)) {
+        byte_chunk = bit_string[i:i+8];
+        packed_bytes.append(int(byte_chunk, 2));
+    }
+
+    return bytes(packed_bytes);
+#endif
+
+    return Bytes();
+}
+
+
 static Bytes pack_spk_command(const int opcode_width, const int index_width,
         const int charge_width, const int index, const int charge)
 {
