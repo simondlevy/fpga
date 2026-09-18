@@ -72,7 +72,8 @@ def test_run(to_run):
     dump('RUN: %d' % to_run, pack_run(to_run))
 
 def test_spk(idx, val):
-    print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk(2, 1, 7, idx, val)])
+    dump('SPK: %d %d' % (idx, val), pack_spk(2, 1, 7, idx, val))
+    #print( [('x%02X' % c) for c in pack_spk(2, 1, 7, idx, val)])
 
 '''
 cmd_fmt = u2u14
