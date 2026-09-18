@@ -81,14 +81,6 @@ static void DumpByte(const Byte byte)
     printf("x%02X ", byte);
 }
 
-static void DumpBytes(const ByteArray bytes)
-{
-    for (auto byte : bytes) {
-        DumpByte(byte);
-    }
-    printf("\n");
-}
-
 static ByteArray BitsToBytes(const BitArray bits)
 {
     // Pad the final sequence with zeros if it doesn't align to an 8-bit byte
@@ -157,6 +149,16 @@ static ByteArray PackSpk(const int opcode_width, const int index_width,
     return bytes;
 }
 
+static void Dump(const char * label, const ByteArray bytes)
+{
+    printf("%s: ", label);
+    for (auto byte : bytes) {
+        DumpByte(byte);
+    }
+    printf("\n");
+}
+
+
 int main()
 {
     /*
@@ -168,10 +170,10 @@ int main()
     SPK 1 63: write: xC0 x6F 
     */
 
-    DumpBytes(PackClr());
-    DumpBytes(PackSnc());
-    DumpBytes(PackRun(1));
-    DumpBytes(PackRun(23));
+    Dump("CLR", PackClr());
+    Dump("SNC", PackSnc());
+    //DumpBytes(PackRun(1));
+    //DumpBytes(PackRun(23));
 
     return 0;
 }
