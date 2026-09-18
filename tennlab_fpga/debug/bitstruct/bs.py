@@ -38,6 +38,8 @@ RUN, SPK, SNC, CLR = 0, 1, 2, 3
 
 OPCODE_WIDTH = 2
 OPERAND_WIDTH = 14
+INDEX_WIDTH = 1
+CHARGE_WIDTH = 7
 
 def pack_clr():
 
@@ -58,12 +60,12 @@ def pack_run(to_run):
             pack_u(to_run, OPERAND_WIDTH))
 
 
-def pack_spk(opcode_width, index_width, charge_width, index, charge):
+def pack_spk(index, charge):
 
     return bits_to_bytes(
-            pack_u(SPK, opcode_width) +
-            pack_u(index, index_width) +
-            pack_s(charge, charge_width))
+            pack_u(SPK, OPCODE_WIDTH) +
+            pack_u(index, INDEX_WIDTH) +
+            pack_s(charge, CHARGE_WIDTH))
 
 def dump(label, result):
     print(label, ': ', bytes_to_list(result))
@@ -72,8 +74,7 @@ def test_run(to_run):
     dump('RUN: %d' % to_run, pack_run(to_run))
 
 def test_spk(idx, val):
-    dump('SPK: %d %d' % (idx, val), pack_spk(2, 1, 7, idx, val))
-    #print( [('x%02X' % c) for c in pack_spk(2, 1, 7, idx, val)])
+    dump('SPK: %d %d' % (idx, val), pack_spk(idx, val))
 
 '''
 cmd_fmt = u2u14
