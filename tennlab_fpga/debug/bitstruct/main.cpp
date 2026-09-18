@@ -123,10 +123,7 @@ static BitArray PackU(const int val, const int size)
 static BitArray pack_s(const int val, const int size)
 {
     // Calculate Two's Complement for negative numbers
-    const auto twoscomp = val < 0 ? (1 << size) + val : val;
-
-    BitArray bits;
-    return bits;
+    return PackU(val < 0 ? (1 << size) + val : val, size);
 }
 
 static ByteArray PackSpkCommand(const int opcode_width, const int index_width,
