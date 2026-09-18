@@ -61,6 +61,9 @@ def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
 def test_run(to_run):
     print('RUN: %d' % to_run, [('x%02X' % c) for c in pack_run_command(2, 14, to_run)])
 
+def test_spk(idx, val):
+    print('SPK: %d %d' % (idx, val), [('x%02X' % c) for c in pack_spk_command(2, 1, 7, idx, val)])
+
 print('CLR: ', [('x%02X' % c) for c in pack_clr_command(2, 14)])
 
 print('SNC: ', [('x%02X' % c) for c in pack_snc_command(2, 14)])
@@ -68,9 +71,5 @@ print('SNC: ', [('x%02X' % c) for c in pack_snc_command(2, 14)])
 test_run(1)
 test_run(23)
 
-#result = pack_spk_command(2, 1, 7, 0, 63)
-#print([('x%02X' % c) for c in result])
-#result = pack_spk_command(2, 1, 7, 1, 63)
-#print([('x%02X' % c) for c in result])
-
-
+test_spk(0, 63)
+test_spk(1, 63)
