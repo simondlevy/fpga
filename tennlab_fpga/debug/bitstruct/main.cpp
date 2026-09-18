@@ -107,18 +107,9 @@ static ByteArray BitsToBytes(const BitArray bits)
         packed_bytes.push_back(BitsToByte(byte_chunk));
     }
 
-    return packed_bytes;
-}
+    ByteArray reversed_copy(packed_bytes.rbegin(), packed_bytes.rend());
 
-static BitArray PackUnsigned(const int val, const int size)
-{
-    return Zpad(Int2Bin(val), size - 2);
-}
-
-static BitArray PackSigned(const int val, const int size)
-{
-    // Calculate Two's Complement for negative numbers
-    return PackUnsigned(val < 0 ? (1 << size) + val : val, size);
+    return reversed_copy;
 }
 
 
@@ -126,17 +117,30 @@ static BitArray PackSigned(const int val, const int size)
 
 enum { RUN, SPK, SNC, CLR };
 
+static const int kOpcodeWidth = 2;
+static const int kOperandWidth = 14;
 
-static ByteArray PackClr(const int opcode_width)
+static BitArray PackUnsigned(const int val)
 {
-    ByteArray bytes;
-    return bytes;
+    return Zpad(Int2Bin(val), kOperandWidth - kOpcodeWidth);
 }
 
-static ByteArray PackSnc(const int opcode_width)
+/*
+static BitArray PackSigned(const int val, const int size)
 {
-    ByteArray bytes;
-    return bytes;
+    // Calculate Two's Complement for negative numbers
+    return PackUnsigned(val < 0 ? (1 << size) + val : val, size);
+}*/
+
+
+static ByteArray PackClr()
+{
+    return BitsToBytes(PackUnsigned(CLR));
+}
+
+static ByteArray PackSnc()
+{
+    return BitsToBytes(PackUnsigned(SNC));
 }
 
 
@@ -152,16 +156,22 @@ static ByteArray PackSpk(const int opcode_width, const int index_width,
 {
     ByteArray bytes;
     return bytes;
-}int main()
-{
-    auto bits = Zpad(PackUnsigned(3, 6), 2);
-    DumpBits(bits);
-    DumpBytes(BitsToBytes(bits));
+}
 
+int main()
+{
     /*
-       PackSpkCommand(2, 1, 7, 0, 63);
-       PackSpkCommand(2, 1, 7, 1, 63);
-       PackRunCommand(2, 6, 3);*/
+    CLR: write: x00 xC0 
+    SNC: write: x00 x80 
+    RUN 1: write: x01 x00 
+    RUN 23: write: x17 x00 
+    SPK 0 63: write: xC0 x4F 
+    SPK 1 63: write: xC0 x6F 
+    */
+
+    DumpBytes(PackClr());
+    DumpBytes(PackSnc());
 
     return 0;
 }
+
