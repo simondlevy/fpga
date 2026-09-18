@@ -28,6 +28,10 @@ def bits_to_bytes(bit_string):
 
     return bytes(packed_bytes)
 
+
+def bytes_to_list(bytes):
+    return [('x%02X' % c) for c in bytes]
+
 ##############################################################################
 
 RUN, SPK, SNC, CLR = 0, 1, 2, 3
@@ -83,9 +87,9 @@ SPK 1 63: write: xC0 x6F
 
 '''
 
-print('CLR: ', [('x%02X' % c) for c in pack_clr()])
+print('CLR: ', bytes_to_list(pack_clr()))
+print('SNC: ', bytes_to_list(pack_snc()))
 
-print('SNC: ', [('x%02X' % c) for c in pack_snc()])
 
 test_run(1)
 test_run(23)
