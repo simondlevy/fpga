@@ -16,7 +16,7 @@ def pack_s(val, size):
     return pack_u(val, size)
 
 
-def finish_packing(bit_string):
+def bits_to_bytes(bit_string):
 
     # Pad the final sequence with zeros if it doesn't align to an 8-bit byte
     remainder = len(bit_string) % 8
@@ -34,7 +34,7 @@ def finish_packing(bit_string):
 
 def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
 
-    return finish_packing(
+    return bits_to_bytes(
             pack_u(SPK, opcode_width) +
             pack_u(index, index_width) +
             pack_s(charge, charge_width))
@@ -42,7 +42,7 @@ def pack_spk_command(opcode_width, index_width, charge_width, index, charge):
 
 def pack_run_command(opcode_width, operand_width, to_run):
 
-    return finish_packing(
+    return bits_to_bytes(
             pack_u(RUN, opcode_width) +
             pack_u(to_run, operand_width))
 
