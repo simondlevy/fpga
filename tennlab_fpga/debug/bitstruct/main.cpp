@@ -16,27 +16,25 @@ static const constexpr int ceil(const int a, const int b)
 
 const constexpr int nbytes = ceil(kOpcodeWidth + kOperandWidth, 8);
 
+static void DumpBytes(uint64_t bits)
+{
+    for (int k=0; k<nbytes; ++k) {
+        printf("x%02X ", (int)(bits & 0xFF));
+        bits >>= 8;
+    }
+    printf("\n");}
+
 static void DumpCmd(const int opcode, const int operand)
 {
     uint64_t bits = (opcode << kOperandWidth) | operand;
 
-    for (int k=0; k<nbytes; ++k) {
-        printf("x%02X ", (int)(bits & 0xFF));
-        bits >>= 8;
-    }
-    printf("\n");
+    DumpBytes(bits);
 }
 
 static void DumpSpk(const int index, const int charge)
 {
-    /*
-    uint64_t bits = (opcode << kOperandWidth) | operand;
-
-    for (int k=0; k<nbytes; ++k) {
-        printf("x%02X ", (int)(bits & 0xFF));
-        bits >>= 8;
-    }
-    printf("\n");*/
+    const auto charge_twoscomp =
+        charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 }
 
 int main()
