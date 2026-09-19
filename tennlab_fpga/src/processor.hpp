@@ -162,6 +162,46 @@ namespace neuro {
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
 
+            static constexpr inline size_t kBytesPerMessage()
+            {
+                return ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
+            }
+
+            static void OldDumpBytes(uint64_t bits, const uint8_t nbytes, const char * target)
+            {
+                printf("target = %s; actual = ", target);
+                for (int k=0; k<nbytes; ++k) {
+                    printf("x%02X ", (int)(bits & 0xFF));
+                    bits >>= 8;
+                }
+
+                printf("\n");
+            }
+
+            static void OldDumpCmd(const int opcode, const int operand, const char * target)
+            {
+                const auto nbytes = kBytesPerMessage();
+
+                OldDumpBytes((opcode << kOperandWidth) | operand, nbytes, target);
+            }
+
+            static void OldDumpSpk(const int index, const int charge, const char * target)
+            {
+                const auto nbytes = kBytesPerMessage();
+
+                const auto charge_twoscomp =
+                    charge < 0 ? (1 << kChargeWidth) + charge  : charge;
+
+                OldDumpBytes(
+                        (kOpcodeSpk << kOperandWidth) +
+                        (index << (kOperandWidth-kIndexWidth)) +
+                        (charge_twoscomp << (kOperandWidth-kChargeWidth-1)), 
+                        nbytes,
+                        target);
+            }
+
+
+
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {
                 return byte >> (8 - kOpcodeWidth);
@@ -184,7 +224,7 @@ namespace neuro {
                 return opcode << (8 - kOpcodeWidth) | operand;
             }
 
-             void PrepareToSend(LevySpike * spikes, int count)
+            void PrepareToSend(LevySpike * spikes, int count)
             {
                 for (int k=0; k<count; ++k) {
 
@@ -231,7 +271,7 @@ namespace neuro {
                 const auto avail = UartAvailable();
 
                 for (int k=0; k<avail; ++k) {
-                    
+
                     const auto byte = ReadByte();
 
                     const auto opcode = GetOpcode(byte);

@@ -3,7 +3,7 @@
 
 enum { kRun, kSpk, kSnc, kClr };
 
-static const bool kUseDronepong = false;
+static const bool kUseDronepong = true;
 static const bool kUseNew = false;
 
 static const int kOpcodeWidth = 2;
@@ -12,17 +12,10 @@ static const int kChargeWidth = kUseDronepong ? 7 : 2;
 static const int kOperandWidth = kUseDronepong ? 14 : 6;
 
 
-static inline size_t bitpack_size(unsigned nbits)
-{
-    return ((size_t)nbits + 7) / 8;
-}
-
-static constexpr inline size_t kBytesPerMesssage()
+static constexpr inline size_t kBytesPerMessage()
 {
     return ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
 }
-
-static uint8_t bytes[kBytesPerMesssage()];
 
 /* Append `width` bits of `value` (MSB first) at bit offset *pos.
  * `buf` must have been zeroed by the caller. */
@@ -67,7 +60,7 @@ static void NewDumpBytes(const uint8_t * bytes, const size_t count, const char *
 
 static void NewDumpCmd(const int opcode, const int operand, const char * target)
 {
-    const auto nbytes = bitpack_size(kOpcodeWidth + kOperandWidth);
+    const auto nbytes = kBytesPerMessage();
 
     uint8_t buf[8] = {};
     size_t pos = 0;
@@ -79,7 +72,7 @@ static void NewDumpCmd(const int opcode, const int operand, const char * target)
 
 static void NewDumpSpk(const int index, const int charge, const char * target)
 {
-    const auto nbytes = bitpack_size(kOpcodeWidth + kIndexWidth + kChargeWidth);
+    const auto nbytes = kBytesPerMessage();
 
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
@@ -106,7 +99,7 @@ static void OldDumpBytes(uint64_t bits, const uint8_t nbytes, const char * targe
 
 static void OldDumpCmd(const int opcode, const int operand, const char * target)
 {
-    const auto nbytes = bitpack_size(kOpcodeWidth + kOperandWidth);
+    const auto nbytes = kBytesPerMessage();
 
     OldDumpBytes((opcode << kOperandWidth) | operand, nbytes, target);
 }
@@ -114,7 +107,7 @@ static void OldDumpCmd(const int opcode, const int operand, const char * target)
 
 static void OldDumpSpk(const int index, const int charge, const char * target)
 {
-    const auto nbytes = bitpack_size(kOpcodeWidth + kIndexWidth + kChargeWidth);
+    const auto nbytes = kBytesPerMessage();
 
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
