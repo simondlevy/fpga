@@ -59,7 +59,7 @@ namespace neuro {
                     count++;
                 }
 
-                PrepareToSend(spikes_now, count);
+                SendSpikes(spikes_now, count);
             }
 
             void ClearActivity()
@@ -107,7 +107,7 @@ namespace neuro {
                         (int)QueuePeek().time :
                         target_time;
 
-                    PrepareToSend(spikes, count);
+                    SendSpikes(spikes, count);
 
                     auto runs = run_time - input_time_;
 
@@ -187,26 +187,21 @@ namespace neuro {
                 return opcode << (8 - kOpcodeWidth) | operand;
             }
 
-            void PrepareToSend(LevySpike * spikes, int count)
+            void SendSpikes(LevySpike * spikes, int count)
             {
                 for (int k=0; k<count; ++k) {
 
                     const auto spike = spikes[k];
 
-                    /*
-                    const uint8_t idx_mask = (1 << kInputIndexWidth) - 1;
-                    const uint8_t val_mask = (1 << kChargeWidth) - 1;
+                    const int charge = spike.value * kSpikeValueFactor;
 
-                    const int8_t val = (int8_t)(spike.value * kSpikeValueFactor);
+                    const auto charge_twoscomp =
+                        charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-                    const uint8_t byte =
-                        kOpcodeSpk << kOpcodeShift |
-                        (spike.id & idx_mask) << kIndexShift |
-                        (val & val_mask) << kValueShift;
-
-                    WriteByte(byte);*/
-
-                    NewSendSpike(spike.id, spike.value * kSpikeValueFactor);
+                    NewSendMessage(
+                            (kOpcodeSpk << kOperandWidth) +
+                            (spike.id << (kOperandWidth-kIndexWidth)) +
+                            (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
                 }
             }
 
@@ -225,23 +220,6 @@ namespace neuro {
             void NewSendCommand(const int opcode, const int operand=0)
             {
                 NewSendMessage((opcode << kOperandWidth) | operand);
-            }
-
-            void NewSendSpike(const int index, const int charge)
-            {
-                const auto charge_twoscomp =
-                    charge < 0 ? (1 << kChargeWidth) + charge  : charge;
-
-                NewSendMessage(
-                        (kOpcodeSpk << kOperandWidth) +
-                        (index << (kOperandWidth-kIndexWidth)) +
-                        (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
-            }
-
-
-            void WriteByte(const uint8_t byte)
-            {
-                UartWrite(byte);
             }
 
             auto ReadByte() -> uint8_t
@@ -358,7 +336,6 @@ namespace neuro {
             // Hardware-dependent --------------------------------------------
 
             void UartBegin();
-            void UartWrite(const uint8_t byte);
             void UartWrite(const uint8_t * bytes, const size_t count);
             auto UartAvailable() -> int;
             auto UartRead() -> uint8_t;
