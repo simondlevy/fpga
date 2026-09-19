@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import bitstruct as bs
 
 def bits_to_bytes(bit_string):
 
@@ -74,6 +75,9 @@ def test_run(to_run):
 
 def test_spk(idx, val):
     dump('SPK: %d %d' % (idx, val), pack_spk(idx, val))
+    packed = bs.pack('u2u1s7', SPK, idx, val)
+    print(['x%02X' % byte for byte in packed])
+    print("".join(f"{byte:08b}" for byte in packed))
 
 '''
 cmd_fmt = u2u14

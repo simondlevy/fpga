@@ -57,9 +57,7 @@ static void DumpSpk(const int index, const int charge)
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-    const uint64_t bits = (SPK << (16 + kOpcodeWidth));
-
-    DumpBits(bits);
+    const uint64_t bits = (SPK << 14) + (index << 13) + (charge_twoscomp << 6);
 
     DumpBytes(bits);
 }
@@ -81,10 +79,8 @@ SPK 1 63: write: xC0 x6F
     //DumpCmd(RUN, 1);
     //DumpCmd(RUN, 23);
 
-    //DumpSpk(0, 63);
-    //DumpSpk(1, 63);
-
-    DumpBits(15);
+    DumpSpk(0, 63);
+    DumpSpk(1, 63);
 
     return 0;
 }
