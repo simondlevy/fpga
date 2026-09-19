@@ -167,18 +167,15 @@ namespace neuro {
                 return ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
             }
 
-            void SendSpike(const int index, const int charge)
+            void NewSendSpike(const int index, const int charge)
             {
-                const auto nbytes = kBytesPerMessage();
-
                 const auto charge_twoscomp =
                     charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-                SendMessage(
+                NewSendMessage(
                         (kOpcodeSpk << kOperandWidth) +
                         (index << (kOperandWidth-kIndexWidth)) +
-                        (charge_twoscomp << (kOperandWidth-kChargeWidth-1)), 
-                        nbytes);
+                        (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
             }
 
             auto GetOpcode(const uint8_t byte) -> uint8_t
@@ -223,21 +220,19 @@ namespace neuro {
                 }
             }
 
-            static void SendMessage(uint64_t bits, const uint8_t nbytes)
+            static void NewSendMessage(uint64_t bits)
             {
-                for (int k=0; k<nbytes; ++k) {
+                const auto nbytes = kBytesPerMessage();
+
+                for (size_t k=0; k<nbytes; ++k) {
                     printf("x%02X ", (int)(bits & 0xFF));
                     bits >>= 8;
                 }
-
-                printf("\n");
             }
 
             void NewSendCommmand(const int opcode, const int operand=0)
             {
-                const auto nbytes = kBytesPerMessage();
-
-                SendMessage((opcode << kOperandWidth) | operand, nbytes);
+                NewSendMessage((opcode << kOperandWidth) | operand);
             }
 
             void SendCommand(const uint8_t opcode, const int operand=0)
