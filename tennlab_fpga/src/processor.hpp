@@ -175,10 +175,10 @@ namespace neuro {
                 return (((byte << kOpcodeWidth) >> kOpcodeWidth) & 0XFF);
             }
 
-            auto GetNeuronIndex(const uint8_t byte) -> uint8_t
+            auto GetOutputNeuronIndex(const uint8_t byte) -> uint8_t
             {
-                const uint8_t mask = 0xFF >> (8 - kOutputIndexWidth);
-                return kOutputIndexWidth > 0 ? (byte >> 5) & mask : 0;
+                const uint8_t mask = 0xFF >> (8 - kOutputNeuronIndexWidth);
+                return kOutputNeuronIndexWidth > 0 ? (byte >> 5) & mask : 0;
             }
 
             auto MakeCommand(
@@ -238,7 +238,7 @@ namespace neuro {
                     }
 
                     else if (opcode == kOpcodeSpk) {
-                        const auto out_idx = GetNeuronIndex(byte);
+                        const auto out_idx = GetOutputNeuronIndex(byte);
                         output_times_[out_idx][output_counts_[out_idx]] = output_time_;
                         output_counts_[out_idx]++;
                     }

@@ -58,7 +58,7 @@ code += ('static const int kOutputNeurons = %d;\n' %
          net.num_outputs())
 code += ('static const int kSpikeValueFactor = %d;\n' %
          spike_value_factor(net))
-code += ('static const int kOutputIndexWidth = %d;\n' %
+code += ('static const int kOutputNeuronIndexWidth = %d;\n' %
          unsigned_width(net.num_outputs() - 1))
 code += 'static const int kMaxRunsAhead = %d;\n' % max_runs_ahead
 code += ('static const int kMaxRun = %d;\n' %
