@@ -18,11 +18,7 @@ const constexpr int nbytes = ceil(kOpcodeWidth + kOperandWidth, 8);
 
 static void Dump(const int opcode, const int operand)
 {
-    uint64_t bits = opcode;
-
-    bits <<= kOperandWidth;
-
-    bits |= operand;
+    uint64_t bits = (opcode << kOperandWidth) | operand;
 
     for (int k=0; k<nbytes; ++k) {
         printf("x%02X ", (int)(bits & 0xFF));
