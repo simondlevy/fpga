@@ -145,6 +145,9 @@ namespace neuro {
 
         private:
 
+            static constexpr size_t kBytesPerMessage =
+                ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
+
             typedef uint8_t Bit;
 
             typedef std::vector<Bit> BitArray;
@@ -161,11 +164,6 @@ namespace neuro {
 
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
-
-            static constexpr inline size_t kBytesPerMessage()
-            {
-                return ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
-            }
 
             void NewSendSpike(const int index, const int charge)
             {
@@ -222,9 +220,9 @@ namespace neuro {
 
             static void NewSendMessage(uint64_t bits)
             {
-                uint8_t bytes[kBytesPerMessage()];
+                uint8_t bytes[kBytesPerMessage];
 
-                for (size_t k=0; k<kBytesPerMessage(); ++k) {
+                for (size_t k=0; k<kBytesPerMessage; ++k) {
                     bytes[k] = (uint8_t)(bits & 0xFF);
                     bits >>= 8;
                 }
