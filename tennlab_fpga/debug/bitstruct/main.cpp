@@ -16,7 +16,7 @@ static const constexpr int ceil(const int a, const int b)
 
 const constexpr int nbytes = ceil(kOpcodeWidth + kOperandWidth, 8);
 
-static void Dump(const int opcode, const int operand, const int nbytes)
+static void Dump(const int opcode, const int operand)
 {
     uint64_t bits = opcode;
 
@@ -42,11 +42,11 @@ SPK 0 63: write: xC0 x4F
 SPK 1 63: write: xC0 x6F 
      */
 
-    Dump(CLR, 0, nbytes);
-    Dump(SNC, 0, nbytes);
+    Dump(CLR, 0);
+    Dump(SNC, 0);
 
-    Dump(RUN, 1, nbytes);
-    Dump(RUN, 23, nbytes);
+    Dump(RUN, 1);
+    Dump(RUN, 23);
 
     return 0;
 }
