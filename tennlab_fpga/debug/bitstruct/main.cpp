@@ -3,7 +3,7 @@
 
 enum { kRun, kSpk, kSnc, kClr };
 
-static const bool kUseDronepong = false;
+static const bool kUseDronepong = true;
 
 static const int kOpcodeWidth = 2;
 static const int kIndexWidth = 1;
@@ -47,22 +47,6 @@ static inline size_t bitpack_size(unsigned nbits)
     return ((size_t)nbits + 7) / 8;
 }
 
-static inline void bitpack_uu(uint8_t *out, size_t out_size,
-                              unsigned wa, unsigned wb,
-                              uint64_t a, uint64_t b)
-{
-}
-
-
-static inline void bitpack_uuu(uint8_t *out, size_t out_size,
-                               unsigned wa, unsigned wb, unsigned wc,
-                               uint64_t a, uint64_t b, uint64_t c)
-{
-    size_t pos = 0;
-    bitpack_put(out, &pos, a, wa);
-    bitpack_put(out, &pos, b, wb);
-    bitpack_put(out, &pos, c, wc);
-}
 
 static void DumpBytes(const uint8_t * bytes, const size_t count, const char * target)
 {
@@ -91,11 +75,10 @@ static void DumpSpk(const int index, const int charge, const char * target)
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
     uint8_t buf[8] = {};
-
-    bitpack_uuu(buf, sizeof buf,
-            kOpcodeWidth, kIndexWidth, kChargeWidth,
-            kSpk, index, charge_twoscomp);
-
+    size_t pos = 0;
+    bitpack_put(buf, &pos, kSpk, kOpcodeWidth);
+    bitpack_put(buf, &pos, index, kIndexWidth);
+    bitpack_put(buf, &pos, charge_twoscomp, kChargeWidth);
     const auto nbytes = bitpack_size(kOpcodeWidth + kIndexWidth + kChargeWidth);
 
     DumpBytes(buf, nbytes, target);
