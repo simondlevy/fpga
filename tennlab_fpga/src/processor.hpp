@@ -116,7 +116,7 @@ namespace neuro {
                         const auto to_run = std::min(std::min( runs, kMaxRun),
                                 kMaxRunsAhead + output_time_ - input_time_);
 
-                        SendCommand(kOpcodeRun, to_run);
+                        NewSendCommand(kOpcodeRun, to_run);
 
                         input_time_ += runs;
 
@@ -125,7 +125,7 @@ namespace neuro {
 
                     if (run_time == target_time) {
 
-                        SendCommand(kOpcodeSnc);
+                        NewSendCommand(kOpcodeSnc);
                     }
                 }
 
@@ -233,11 +233,6 @@ namespace neuro {
             void NewSendCommand(const int opcode, const int operand=0)
             {
                 NewSendMessage((opcode << kOperandWidth) | operand);
-            }
-
-            void SendCommand(const uint8_t opcode, const int operand=0)
-            {
-                WriteByte(MakeCommand(opcode, operand));
             }
 
             void WriteByte(const uint8_t byte)
