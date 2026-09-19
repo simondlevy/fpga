@@ -9,6 +9,13 @@ static const int kOperandWidth = 14;
 static const int kIndexWidth = 1;
 static const int kChargeWidth = 7;
 
+static const constexpr int ceil(const int a, const int b)
+{
+    return (a + b - 1) / b;
+}
+
+const constexpr int nbytes = ceil(kOpcodeWidth + kOperandWidth, 8);
+
 static void Dump(const int opcode, const int operand, const int nbytes)
 {
     uint64_t bits = opcode;
@@ -24,11 +31,6 @@ static void Dump(const int opcode, const int operand, const int nbytes)
     printf("\n");
 }
 
-static const int ceil(const int a, const int b)
-{
-    return (a + b - 1) / b;
-}
-
 int main()
 {
     /*
@@ -40,11 +42,10 @@ SPK 0 63: write: xC0 x4F
 SPK 1 63: write: xC0 x6F 
      */
 
-    const int nbytes = ceil(kOpcodeWidth + kOperandWidth, 8);
-
     Dump(CLR, 0, nbytes);
     Dump(SNC, 0, nbytes);
 
+    Dump(RUN, 1, nbytes);
     Dump(RUN, 23, nbytes);
 
     return 0;
