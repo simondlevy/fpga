@@ -60,12 +60,17 @@ def main():
     h_code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
     h_code += '#pragma once\n\n'
     h_code += '#include <processor.hpp>\n\n'
+    h_code += 'static const int kOpcodeWidth = %d;\n' % opc_width
+    h_code += ('static const int kIndexWidth = %d;\n' %
+               unsigned_width(net.num_inputs() - 1))
+    h_code += ('static const int kChargeWidth = %d;\n' % charge_width(net))
+    h_code += ('static const int kOperandWidth = %d;\n' % 
+              (width_nearest_byte(opc_width + spk_width) - opc_width))
+
     h_code += ('static const int kOutputNeurons = %d;\n' %
                 net.num_outputs())
-    h_code += ('static const int kChargeWidth = %d;\n' % charge_width(net))
     h_code += ('static const int kSpikeValueFactor = %d;\n' %
                 spike_value_factor(net))
-    h_code += 'static const int kOpcodeWidth = %d;\n' % opc_width
     h_code += 'static const int kInputIndexWidth = %d;\n' % input_index_width
     h_code += ('static const int kOutputIndexWidth = %d;\n' %
               unsigned_width(net.num_outputs() - 1))
@@ -81,10 +86,6 @@ def main():
                    max_runs_ahead)))
     h_code += ('static const bool kDebug = %s;\n\n' %
                 ('true' if args.debug else 'false'))
-    h_code += ('static const int kOperandWidth = %d;\n' % 
-              (width_nearest_byte(opc_width + spk_width) - opc_width))
-    h_code += ('static const int kIndexWidth = %d;\n' %
-               unsigned_width(net.num_inputs() - 1))
      
     with open('network_config.h', 'w') as outfile:
         outfile.write(h_code)

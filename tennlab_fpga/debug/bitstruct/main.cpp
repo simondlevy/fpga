@@ -19,8 +19,7 @@ static inline size_t bitpack_size(unsigned nbits)
 
 static constexpr inline size_t kBytesPerMesssage()
 {
-    constexpr size_t nbits = kOpcodeWidth + kIndexWidth + kChargeWidth;
-    return (nbits + 7) / 8;
+    return ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
 }
 
 static uint8_t bytes[kBytesPerMesssage()];
