@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 
 enum { kRun, kSpk, kSnc, kClr };
 
@@ -49,43 +48,35 @@ static inline size_t bitpack_size(unsigned nbits)
     return ((size_t)nbits + 7) / 8;
 }
 
+static inline size_t bitpack_uu(uint8_t *out, size_t out_size,
+                                 unsigned wa, unsigned wb,
+                                 uint64_t a, uint64_t b)
+{
+    size_t nbytes = bitpack_size(wa + wb);
+
+    size_t pos = 0;
+
+    bitpack_put(out, &pos, a, wa);
+    bitpack_put(out, &pos, b, wb);
+
+    return nbytes;
+}
+
+
 static inline size_t bitpack_uuu(uint8_t *out, size_t out_size,
                                  unsigned wa, unsigned wb, unsigned wc,
                                  uint64_t a, uint64_t b, uint64_t c)
 {
     size_t nbytes = bitpack_size(wa + wb + wc);
-    if (out_size < nbytes) {
-        return 0;
-    }
 
     size_t pos = 0;
 
-    memset(out, 0, nbytes);
     bitpack_put(out, &pos, a, wa);
     bitpack_put(out, &pos, b, wb);
     bitpack_put(out, &pos, c, wc);
 
     return nbytes;
 }
-
-static inline size_t bitpack_uu(uint8_t *out, size_t out_size,
-                                 unsigned wa, unsigned wb,
-                                 uint64_t a, uint64_t b)
-{
-    size_t nbytes = bitpack_size(wa + wb);
-    if (out_size < nbytes) {
-        return 0;
-    }
-
-    size_t pos = 0;
-
-    memset(out, 0, nbytes);
-    bitpack_put(out, &pos, a, wa);
-    bitpack_put(out, &pos, b, wb);
-
-    return nbytes;
-}
-
 
 static void DumpBytes(const uint8_t * bytes, const size_t count, const char * target)
 {
@@ -98,7 +89,7 @@ static void DumpBytes(const uint8_t * bytes, const size_t count, const char * ta
 
 static void DumpCmd(const int opcode, const int operand, const char * target)
 {
-    uint8_t buf[8];
+    uint8_t buf[8] = {};
 
     size_t n = bitpack_uu(buf, sizeof buf,
             kOpcodeWidth, kOperandWidth,
@@ -113,7 +104,7 @@ static void DumpSpk(const int index, const int charge, const char * target)
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-    uint8_t buf[8];
+    uint8_t buf[8] = {};
 
     size_t n = bitpack_uuu(buf, sizeof buf,
             kOpcodeWidth, kIndexWidth, kChargeWidth,
