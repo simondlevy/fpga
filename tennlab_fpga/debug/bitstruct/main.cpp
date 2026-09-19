@@ -3,9 +3,6 @@
 
 enum { RUN, SPK, SNC, CLR };
 
-// u2u14
-// u2u1s7
-
 
 static const int kOpcodeWidth = 2;
 static const int kOperandWidth = 14;
@@ -47,8 +44,13 @@ static void DumpSpk(const int index, const int charge)
 
 int main()
 {
+    // XOR:
+    // cmd: u2u6
+    // spk: u2u1s2
 
     // Dronepong:
+    // cmd: u2u14
+    // spk: u2u1s7
     // CLR: write: x00 xC0 
     // SNC: write: x00 x80 
     // RUN 1: write: x01 x00 

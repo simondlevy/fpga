@@ -4,7 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-all: test
+all: xor
 
 ROOT = ../..
 
@@ -14,8 +14,8 @@ SRC = $(TFPGA)/src
 
 NET = $(ROOT)/networks/xor.txt
 
-test: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
-	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp uart.cpp
+xor: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
+	g++ -Wall -I. -I$(SRC) -I.. -o xor main.cpp uart.cpp
 
 network_config.h: $(NET)
 	$(TFPGA)/utils/compile.py -d $(NET)
@@ -23,11 +23,14 @@ network_config.h: $(NET)
 load:
 	$(ROOT)/utils/load.py -s -t cmoda7_35t $(ROOT)/networks/xor.txt
 
-run: test
-	./test
+run: xor
+	./xor
+
+pyrun: xor.py
+	./xor.py
 
 edit:
 	vim main.cpp
 
 clean:
-	rm -rf test network_config.h proc.cpp
+	rm -rf xor network_config.h proc.cpp
