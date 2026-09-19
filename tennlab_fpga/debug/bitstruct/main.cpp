@@ -5,42 +5,12 @@
 
 enum { kRun, kSpk, kSnc, kClr };
 
+static const bool kUseDronepong = true;
+
 static const int kOpcodeWidth = 2;
 static const int kIndexWidth = 1;
-
-//#define DRONEPONG
-
-#ifdef DRONEPONG
-static const int kChargeWidth = 7;
-static const int kOperandWidth = 14;
-#else
-static const int kChargeWidth = 2;
-static const int kOperandWidth = 6;
-#endif
-
-
-static const constexpr int Ceil(const int a, const int b)
-{
-    return (a + b - 1) / b;
-}
-
-const constexpr int kByteCount = Ceil(kOpcodeWidth + kOperandWidth, 8);
-
-static void DumpBytes(uint64_t bits)
-{
-    for (int k=0; k<kByteCount; ++k) {
-        printf("x%02X ", (int)(bits & 0xFF));
-        bits >>= 8;
-    }
-
-    printf("\n");
-}
-
-static void DumpCmd(const int opcode, const int operand)
-{
-    DumpBytes((opcode << kOperandWidth) | operand);
-}
-
+static const int kChargeWidth = kUseDronepong ? 7 : 2;
+static const int kOperandWidth = kUseDronepong ? 14 : 6;
 
 
 /* Append `width` bits of `value` (MSB first) at bit offset *pos.
@@ -79,8 +49,6 @@ static inline size_t bitpack_size(unsigned nbits)
     return ((size_t)nbits + 7) / 8;
 }
 
-/* pack "u<wa>u<wb>u<wc>": writes ceil((wa+wb+wc)/8) bytes into `out`
- * and returns that count, or 0 if `out_size` is too small. */
 static inline size_t bitpack_uuu(uint8_t *out, size_t out_size,
                                  unsigned wa, unsigned wb, unsigned wc,
                                  uint64_t a, uint64_t b, uint64_t c)
@@ -100,7 +68,47 @@ static inline size_t bitpack_uuu(uint8_t *out, size_t out_size,
     return nbytes;
 }
 
-static void DumpSpk(const int index, const int charge)
+static inline size_t bitpack_uu(uint8_t *out, size_t out_size,
+                                 unsigned wa, unsigned wb,
+                                 uint64_t a, uint64_t b)
+{
+    size_t nbytes = bitpack_size(wa + wb);
+    if (out_size < nbytes) {
+        return 0;
+    }
+
+    size_t pos = 0;
+
+    memset(out, 0, nbytes);
+    bitpack_put(out, &pos, a, wa);
+    bitpack_put(out, &pos, b, wb);
+
+    return nbytes;
+}
+
+
+static void DumpBytes(const uint8_t * bytes, const size_t count, const char * target)
+{
+    printf("target = %s; actual = ", target);
+    for (int k=0; k<count; ++k) {
+        printf("x%02X ", bytes[count-k-1]);
+    }
+    printf("\n");
+}
+
+static void DumpCmd(const int opcode, const int operand, const char * target)
+{
+    uint8_t buf[8];
+
+    size_t n = bitpack_uu(buf, sizeof buf,
+            kOpcodeWidth, kOperandWidth,
+            opcode, operand);
+
+    DumpBytes(buf, n, target);
+}
+
+
+static void DumpSpk(const int index, const int charge, const char * target)
 {
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
@@ -111,47 +119,26 @@ static void DumpSpk(const int index, const int charge)
             kOpcodeWidth, kIndexWidth, kChargeWidth,
             kSpk, index, charge_twoscomp);
 
-    for (int k=0; k<n; ++k) {
-        printf("x%02X ", buf[n-k-1]);
-    }
-    printf("\n");
+    DumpBytes(buf, n, target);
 }
 
 int main()
 {
-    // XOR:
-    // cmd: u2u6
-    // spk: u2u1s2
-    // kClr: write: xC0 
-    // kSnc: write: x80 
-    // kRun 3: write: x03 
-    // kSpk 0 1: write: x48 
-    // kSpk 1 1: write: x68 
-
-    // Dronepong:
-    // cmd: u2u14
-    // spk: u2u1s7
-    // kClr: write: x00 xC0 
-    // kSnc: write: x00 x80 
-    // kRun 1: write: x01 x00 
-    // kRun 23: write: x17 x00 
-    // kSpk 0 63: write: xC0 x4F 
-    // kSpk 1 63: write: xC0 x6F 
-
-    DumpCmd(kClr, 0);
-    DumpCmd(kSnc, 0);
-
-#ifdef DRONEPONG
-    DumpCmd(kRun, 1);
-    DumpCmd(kRun, 23);
-
-    DumpSpk(0, 63);
-    DumpSpk(1, 63);
-#else
-    DumpCmd(kRun, 3);
-    DumpSpk(0, 1);
-    DumpSpk(1, 1);
-#endif
+    if (kUseDronepong) {
+        DumpCmd(kClr, 0, "x00 xC0");
+        DumpCmd(kSnc, 0, "x00 x80");
+        DumpCmd(kRun, 1, "x01 x00");
+        DumpCmd(kRun, 23, "x17 x00");
+        DumpSpk(0, 63, "xC0 x4F");
+        DumpSpk(1, 63, "xC0 x6F");
+    }
+    else {
+        DumpCmd(kClr, 0, "xC0");
+        DumpCmd(kSnc, 0, "x80");
+        DumpCmd(kRun, 3, "x03");
+        DumpSpk(0, 1, "x48");
+        DumpSpk(1, 1, "x68");
+    }
 
     return 0;
 }
