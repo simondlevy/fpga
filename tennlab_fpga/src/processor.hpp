@@ -64,7 +64,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                SendCommand(kOpcodeClr);
+                NewSendCommand(kOpcodeClr);
 
                 Receive();
 
@@ -218,7 +218,7 @@ namespace neuro {
                 }
             }
 
-            static void NewSendMessage(uint64_t bits)
+            void NewSendMessage(uint64_t bits)
             {
                 uint8_t bytes[kBytesPerMessage];
 
@@ -227,10 +227,10 @@ namespace neuro {
                     bits >>= 8;
                 }
 
-                (void)bytes;
+                UartWrite(bytes, kBytesPerMessage);
             }
 
-            void NewSendCommmand(const int opcode, const int operand=0)
+            void NewSendCommand(const int opcode, const int operand=0)
             {
                 NewSendMessage((opcode << kOperandWidth) | operand);
             }
