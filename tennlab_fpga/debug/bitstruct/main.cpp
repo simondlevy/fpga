@@ -20,21 +20,6 @@ static const constexpr int Ceil(const int a, const int b)
 
 const constexpr int kByteCount = Ceil(kOpcodeWidth + kOperandWidth, 8);
 
-static void DumpBits(uint64_t bits)
-{
-    const auto nbits = kByteCount * 8;
-    uint8_t c[nbits] = {};
-    for (int k=0; k<nbits; ++k) {
-        c[k] = bits & 0x1;
-        bits >>= 1;
-    }
-    printf("b");
-    for (int k=nbits; k>0; --k) {
-        printf("%d", c[k-1]);
-    }
-    printf("\n");
-}
-
 static void DumpBytes(uint64_t bits)
 {
     for (int k=0; k<kByteCount; ++k) {
@@ -57,7 +42,10 @@ static void DumpSpk(const int index, const int charge)
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-    const uint64_t bits = (SPK << 14) + (index << 13) + (charge_twoscomp << 6);
+    const uint64_t bits =
+        (SPK << kOperandWidth) +
+        (index << (kOperandWidth-kIndexWidth)) +
+        (charge_twoscomp << (kChargeWidth-kIndexWidth));
 
     DumpBytes(bits);
 }
@@ -73,11 +61,11 @@ SPK 0 63: write: xC0 x4F
 SPK 1 63: write: xC0 x6F 
      */
 
-    //DumpCmd(CLR, 0);
-    //DumpCmd(SNC, 0);
+    DumpCmd(CLR, 0);
+    DumpCmd(SNC, 0);
 
-    //DumpCmd(RUN, 1);
-    //DumpCmd(RUN, 23);
+    DumpCmd(RUN, 1);
+    DumpCmd(RUN, 23);
 
     DumpSpk(0, 63);
     DumpSpk(1, 63);
