@@ -15,6 +15,8 @@ static void Dump(const int opcode, const int operand, const int nbytes)
 
     bits <<= kOperandWidth;
 
+    bits |= operand;
+
     for (int k=0; k<nbytes; ++k) {
         printf("x%02X ", (int)(bits & 0xFF));
         bits >>= 8;
