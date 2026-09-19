@@ -35,6 +35,9 @@ load: $(NET)
 run: test
 	./test
 
+prun:
+	./pytest.py
+
 clean:
 	rm -f test $(HDR) embedded_dronepong.cpp dronepong_fpga.hpp
 

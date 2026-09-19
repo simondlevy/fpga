@@ -455,6 +455,12 @@ class Processor(neuro.Processor):
             if len(rx) != num_rx_bytes:
                 raise RuntimeError("Did not receive coherent response from target.")
 
+            if self._debug:
+                print('read: ', end='')
+                for byte in rx:
+                    print('x%02X ' % byte, end= '')
+                print()
+
             match self._from_fpga.type:
                 case IoType.DISPATCH:
                     out_dict = self._from_fpga.spk_fmt.unpack(rx)
