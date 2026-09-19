@@ -16,7 +16,7 @@ static const constexpr int ceil(const int a, const int b)
 
 const constexpr int nbytes = ceil(kOpcodeWidth + kOperandWidth, 8);
 
-static void Dump(const int opcode, const int operand)
+static void DumpCmd(const int opcode, const int operand)
 {
     uint64_t bits = (opcode << kOperandWidth) | operand;
 
@@ -25,6 +25,18 @@ static void Dump(const int opcode, const int operand)
         bits >>= 8;
     }
     printf("\n");
+}
+
+static void DumpSpk(const int index, const int charge)
+{
+    /*
+    uint64_t bits = (opcode << kOperandWidth) | operand;
+
+    for (int k=0; k<nbytes; ++k) {
+        printf("x%02X ", (int)(bits & 0xFF));
+        bits >>= 8;
+    }
+    printf("\n");*/
 }
 
 int main()
@@ -38,11 +50,14 @@ SPK 0 63: write: xC0 x4F
 SPK 1 63: write: xC0 x6F 
      */
 
-    Dump(CLR, 0);
-    Dump(SNC, 0);
+    DumpCmd(CLR, 0);
+    DumpCmd(SNC, 0);
 
-    Dump(RUN, 1);
-    Dump(RUN, 23);
+    DumpCmd(RUN, 1);
+    DumpCmd(RUN, 23);
+
+    DumpSpk(0, 63);
+    DumpSpk(1, 63);
 
     return 0;
 }
