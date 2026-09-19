@@ -4,6 +4,7 @@
 enum { kRun, kSpk, kSnc, kClr };
 
 static const bool kUseDronepong = true;
+static const bool kUseNew = false;
 
 static const int kOpcodeWidth = 2;
 static const int kIndexWidth = 1;
@@ -48,7 +49,7 @@ static inline size_t bitpack_size(unsigned nbits)
 }
 
 
-static void DumpBytes(const uint8_t * bytes, const size_t count, const char * target)
+static void NewDumpBytes(const uint8_t * bytes, const size_t count, const char * target)
 {
     printf("target = %s; actual = ", target);
     for (int k=0; k<count; ++k) {
@@ -57,20 +58,41 @@ static void DumpBytes(const uint8_t * bytes, const size_t count, const char * ta
     printf("\n");
 }
 
-static void DumpCmd(const int opcode, const int operand, const char * target)
+static void NewDumpCmd(const int opcode, const int operand, const char * target)
 {
+    const auto nbytes = bitpack_size(kOpcodeWidth + kOperandWidth);
+
     uint8_t buf[8] = {};
     size_t pos = 0;
     bitpack_put(buf, &pos, opcode, kOpcodeWidth);
     bitpack_put(buf, &pos, operand, kOperandWidth);
-    const auto nbytes = bitpack_size(kOpcodeWidth + kOperandWidth);
 
-    DumpBytes(buf, nbytes, target);
-
+    NewDumpBytes(buf, nbytes, target);
 }
 
-static void DumpSpk(const int index, const int charge, const char * target)
+static void OldDumpBytes(uint64_t bits, const uint8_t nbytes, const char * target)
 {
+    printf("target = %s; actual = ", target);
+    for (int k=0; k<nbytes; ++k) {
+        printf("x%02X ", (int)(bits & 0xFF));
+        bits >>= 8;
+    }
+
+    printf("\n");
+}
+
+static void OldDumpCmd(const int opcode, const int operand, const char * target)
+{
+    const auto nbytes = bitpack_size(kOpcodeWidth + kOperandWidth);
+
+    OldDumpBytes((opcode << kOperandWidth) | operand, nbytes, target);
+}
+
+
+static void NewDumpSpk(const int index, const int charge, const char * target)
+{
+    const auto nbytes = bitpack_size(kOpcodeWidth + kIndexWidth + kChargeWidth);
+
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
@@ -79,27 +101,61 @@ static void DumpSpk(const int index, const int charge, const char * target)
     bitpack_put(buf, &pos, kSpk, kOpcodeWidth);
     bitpack_put(buf, &pos, index, kIndexWidth);
     bitpack_put(buf, &pos, charge_twoscomp, kChargeWidth);
+
+    NewDumpBytes(buf, nbytes, target);
+}
+
+static void OldDumpSpk(const int index, const int charge, const char * target)
+{
     const auto nbytes = bitpack_size(kOpcodeWidth + kIndexWidth + kChargeWidth);
 
-    DumpBytes(buf, nbytes, target);
+    const auto charge_twoscomp =
+        charge < 0 ? (1 << kChargeWidth) + charge  : charge;
+
+    OldDumpBytes(
+            (kSpk << kOperandWidth) +
+            (index << (kOperandWidth-kIndexWidth)) +
+            (charge_twoscomp << (kOperandWidth-kChargeWidth-1)), 
+            nbytes,
+            target);
 }
+
 
 int main()
 {
     if (kUseDronepong) {
-        DumpCmd(kClr, 0, "x00 xC0");
-        DumpCmd(kSnc, 0, "x00 x80");
-        DumpCmd(kRun, 1, "x01 x00");
-        DumpCmd(kRun, 23, "x17 x00");
-        DumpSpk(0, 63, "xC0 x4F");
-        DumpSpk(1, 63, "xC0 x6F");
+        if (kUseNew) {
+            NewDumpCmd(kClr, 0, "x00 xC0");
+            NewDumpCmd(kSnc, 0, "x00 x80");
+            NewDumpCmd(kRun, 1, "x01 x00");
+            NewDumpCmd(kRun, 23, "x17 x00");
+            NewDumpSpk(0, 63, "xC0 x4F");
+            NewDumpSpk(1, 63, "xC0 x6F");
+        }
+        else {
+            OldDumpCmd(kClr, 0, "x00 xC0");
+            OldDumpCmd(kSnc, 0, "x00 x80");
+            OldDumpCmd(kRun, 1, "x01 x00");
+            OldDumpCmd(kRun, 23, "x17 x00");
+            OldDumpSpk(0, 63, "xC0 x4F");
+            OldDumpSpk(1, 63, "xC0 x6F");
+        }
     }
     else {
-        DumpCmd(kClr, 0, "xC0");
-        DumpCmd(kSnc, 0, "x80");
-        DumpCmd(kRun, 3, "x03");
-        DumpSpk(0, 1, "x48");
-        DumpSpk(1, 1, "x68");
+        if (kUseNew) {
+            NewDumpCmd(kClr, 0, "xC0");
+            NewDumpCmd(kSnc, 0, "x80");
+            NewDumpCmd(kRun, 3, "x03");
+            NewDumpSpk(0, 1, "x48");
+            NewDumpSpk(1, 1, "x68");
+        }
+        else {
+            OldDumpCmd(kClr, 0, "xC0");
+            OldDumpCmd(kSnc, 0, "x80");
+            OldDumpCmd(kRun, 3, "x03");
+            OldDumpSpk(0, 1, "x48");
+            OldDumpSpk(1, 1, "x68");
+        }
     }
 
     return 0;
