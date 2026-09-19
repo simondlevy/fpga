@@ -3,7 +3,7 @@
 
 enum { kRun, kSpk, kSnc, kClr };
 
-static const bool kUseDronepong = true;
+static const bool kUseDronepong = false;
 static const bool kUseNew = false;
 
 static const int kOpcodeWidth = 2;
