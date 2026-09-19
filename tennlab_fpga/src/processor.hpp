@@ -145,7 +145,7 @@ namespace neuro {
 
         private:
 
-            static constexpr size_t kBytesPerMessage =
+            static constexpr size_t kBytesPerMessageToFpga =
                 ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
 
             typedef uint8_t Bit;
@@ -207,26 +207,19 @@ namespace neuro {
 
             void SendMessage(uint64_t bits)
             {
-                uint8_t bytes[kBytesPerMessage];
+                uint8_t bytes[kBytesPerMessageToFpga];
 
-                for (size_t k=0; k<kBytesPerMessage; ++k) {
+                for (size_t k=0; k<kBytesPerMessageToFpga; ++k) {
                     bytes[k] = (uint8_t)(bits & 0xFF);
                     bits >>= 8;
                 }
 
-                UartWrite(bytes, kBytesPerMessage);
+                UartWrite(bytes, kBytesPerMessageToFpga);
             }
 
             void SendCommand(const int opcode, const int operand=0)
             {
                 SendMessage((opcode << kOperandWidth) | operand);
-            }
-
-            auto ReadByte() -> uint8_t
-            {
-                const auto byte = UartRead();
-
-                return byte;
             }
 
             void Receive()
@@ -235,7 +228,7 @@ namespace neuro {
 
                 for (int k=0; k<avail; ++k) {
 
-                    const auto byte = ReadByte();
+                    const auto byte = UartRead();
 
                     const auto opcode = GetOpcode(byte);
 
