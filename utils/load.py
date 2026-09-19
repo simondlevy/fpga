@@ -37,3 +37,9 @@ net.read_from_file(args.input_file)
 proc = fpga.Processor(args.target, args.port, args.io_type)
 
 proc.load_network(net, args.spi_flash)
+
+print('to fpga:   cmd=%-8s spk=%-8s' %
+      (proc._to_fpga.cmd_fmt_str,  proc._to_fpga.spk_fmt_str))
+
+print('from fpga: cmd=%-8s spk=%-8s' %
+      (proc._from_fpga.cmd_fmt_str,  proc._from_fpga.spk_fmt_str))

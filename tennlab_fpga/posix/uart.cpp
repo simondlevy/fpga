@@ -70,13 +70,13 @@ void neuro::Processor::UartBegin()
     tcflush(fd_, TCIOFLUSH);
 }
 
-void neuro::Processor::UartWrite(const uint8_t byte)
+void neuro::Processor::UartWrite(const uint8_t * bytes, const size_t count)
 {
     if (kProxy) {
         return;
     }
 
-    const auto ignore = write(fd_, &byte, 1);
+    const auto ignore = write(fd_, bytes, count);
     (void)ignore;
 }
 

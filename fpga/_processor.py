@@ -47,7 +47,7 @@ neuro.Spike.__gt__ = lambda self, other: self.time > other.time
 neuro.Spike.__ge__ = lambda self, other: self.time >= other.time
 
 
-class _InpQueue(list):
+class _ToFpgaQueue(list):
     def __init__(self, data: Iterable[neuro.Spike]):
         super().__init__(data)
         heapify(self)
@@ -103,35 +103,33 @@ class _IoConfig:
             case IoType.DISPATCH:
                 opc_width = unsigned_width(len(DispatchOpcode) - 1)
                 spk_names = ["opcode"]
-                spk_fmt_str = f"u{opc_width}"
-                idx_width, operand_width = dispatch_operand_widths(
+                self.spk_fmt_str = f"u{opc_width}"
+                self.idx_width, operand_width = dispatch_operand_widths(
                     opc_width, self._num_net_io(), self._charge_width(), is_axi
                 )
                 cmd_names = spk_names + ["operand"]
-                cmd_fmt_str = spk_fmt_str + f"u{operand_width}"
-                print('operand_width = ', operand_width)
-                print('cmd_fmt_str = ', cmd_fmt_str)
-                self.cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
+                self.cmd_fmt_str = self.spk_fmt_str + f"u{operand_width}"
+                self.cmd_fmt = bs.compile(self.cmd_fmt_str, cmd_names)
 
-                if idx_width:
+                if self.idx_width:
                     spk_names.append("idx")
-                    spk_fmt_str += f"u{idx_width}"
+                    self.spk_fmt_str += f"u{self.idx_width}"
                 if self._charge_width():
                     spk_names.append("val")
-                    spk_fmt_str += f"s{self._charge_width()}"
+                    self.spk_fmt_str += f"s{self._charge_width()}"
             case IoType.STREAM:
                 spk_names = [flg.name for flg in StreamFlag]
-                spk_fmt_str = "b1" * len(StreamFlag)
+                self.spk_fmt_str = "b1" * len(StreamFlag)
                 spk_fmt_elem = (
                     f"s{self._charge_width()}" if self._charge_width() else "b1"
                 )
                 for io in range(self._num_net_io()):
                     spk_names.append(io)
-                    spk_fmt_str += spk_fmt_elem
+                    self.spk_fmt_str += spk_fmt_elem
             case _:
                 raise ValueError()
 
-        self.spk_fmt = bs.compile(spk_fmt_str, spk_names)
+        self.spk_fmt = bs.compile(self.spk_fmt_str, spk_names)
 
         self.clear()
 
@@ -139,11 +137,11 @@ class _IoConfig:
         self.time = 0
 
 
-class InpConfig(_IoConfig):
+class ToFpgaConfig(_IoConfig):
 
     def clear(self):
         super().clear()
-        self.queue = _InpQueue([])
+        self.queue = _ToFpgaQueue([])
 
     def _num_net_io(self):
         return self._network.num_inputs()
@@ -153,7 +151,7 @@ class InpConfig(_IoConfig):
         return charge_width(self._network)
 
 
-class OutConfig(_IoConfig):
+class FromFpgaConfig(_IoConfig):
 
     def clear(self):
         super().clear()
@@ -179,36 +177,41 @@ class Processor(neuro.Processor):
     ):
         super().__init__(*args, **kwargs)
 
-        self._debug = debug
+        if target == 'cpp':
+            pass
 
-        self._target_name = target
-
-        with open(resources.files(config).joinpath("targets.json")) as f:
-            self._target_config = load(f)[self._target_name]
-
-        if interface is None or isinstance(interface, str):
-            baudrate = 115200
-            try:
-                baudrate = self._target_config["parameters"]["uart"]["baud_rates"][-1]
-            except KeyError:
-                pass
-            except IndexError:
-                pass
-            if isinstance(interface, str):
-                interface = Serial(interface, baudrate)
-        elif isinstance(interface, Serial):
-            baudrate = interface.baudrate
         else:
-            raise RuntimeError("fpga Processor interface must be a " +
-                               "periphery.Serial or str or None object.")
-        self._interface = interface
-        self._baudrate = baudrate
 
-        self._io_type = io_type.upper()
+            self._debug = debug
 
-        self._network = None
-        self._programmed = False
-        self.clear()
+            self._target_name = target
+
+            with open(resources.files(config).joinpath("targets.json")) as f:
+                self._target_config = load(f)[self._target_name]
+
+            if interface is None or isinstance(interface, str):
+                baudrate = 115200
+                try:
+                    baudrate = self._target_config["parameters"]["uart"]["baud_rates"][-1]
+                except KeyError:
+                    pass
+                except IndexError:
+                    pass
+                if isinstance(interface, str):
+                    interface = Serial(interface, baudrate)
+            elif isinstance(interface, Serial):
+                baudrate = interface.baudrate
+            else:
+                raise RuntimeError("fpga Processor interface must be a " +
+                                   "periphery.Serial or str or None object.")
+            self._interface = interface
+            self._baudrate = baudrate
+
+            self._io_type = io_type.upper()
+
+            self._network = None
+            self._programmed = False
+            self.clear()
 
     def _ignore(self, _):
         return
@@ -220,18 +223,14 @@ class Processor(neuro.Processor):
         if spike.time < 0:
             raise RuntimeError("Spikes cannot be scheduled in the past.")
 
-        if (self._debug):
-            print('AS %d %f %f' % (spike.id, spike.time, spike.value))
-
-        self._inp.queue.append(
-            neuro.Spike(spike.id, spike.time + self._inp.time, spike.value)
+        self._to_fpga.queue.append(
+            neuro.Spike(spike.id, spike.time + self._to_fpga.time, spike.value)
         )
-        if self._inp.type == IoType.DISPATCH:
+        if self._to_fpga.type == IoType.DISPATCH:
             spikes_now = []
-            while self._inp.queue and self._inp.queue[0].time == self._inp.time:
+            while self._to_fpga.queue and self._to_fpga.queue[0].time == self._to_fpga.time:
                 # send these spikes as soon as they arrive to reduce latency
-                spikes_now.append(self._inp.queue.popleft())
-            #print('apply_spike: %d' % len(spikes_now))
+                spikes_now.append(self._to_fpga.queue.popleft())
             self._hw_tx(spikes_now, 0, False)
 
     def apply_spikes(self, spikes: list[neuro.Spike]) -> None:
@@ -267,12 +266,9 @@ class Processor(neuro.Processor):
             raise RuntimeError("Cannot clear network activity before " +
                                "programming the target FPGA.")
 
-        if (self._debug):
-            print('CLR')
-
-        if self._inp.type == IoType.DISPATCH:
-            self._write(
-                self._inp.cmd_fmt.pack(
+        if self._to_fpga.type == IoType.DISPATCH:
+            self._write('CLR',
+                self._to_fpga.cmd_fmt.pack(
                     {
                         "opcode": DispatchOpcode.CLR,
                         "operand": 0,
@@ -280,15 +276,15 @@ class Processor(neuro.Processor):
                 )[::-1] 
             )
         self._flush()
-        match (self._inp.type, self._out.type):
+        match (self._to_fpga.type, self._from_fpga.type):
             case (IoType.DISPATCH, IoType.DISPATCH):
                 self._hw_rx(self._max_run, True)
             case _:
                 while self._interface.poll(1):
                     self._interface.read(self._interface.input_waiting())
 
-        self._inp.clear()
-        self._out.clear()
+        self._to_fpga.clear()
+        self._from_fpga.clear()
 
     def load_network(self, net: neuro.Network, use_spiflash: bool = False) -> None:
 
@@ -323,7 +319,7 @@ class Processor(neuro.Processor):
             raise RuntimeError("Cannot get output vector before programming the target FPGA.")
 
         return [
-            t - self._last_run for t in self._out.queue[out_idx] if t >= self._last_run
+            t - self._last_run for t in self._from_fpga.queue[out_idx] if t >= self._last_run
         ]
 
     def output_vectors(self) -> list[list[float]]:
@@ -339,21 +335,19 @@ class Processor(neuro.Processor):
         if time < 1:
             raise ValueError("It's not possible to run for less than 1 timestep")
 
-        print('RUN %d' % time)
-
-        target_time = self._inp.time + time
+        target_time = self._to_fpga.time + time
         rx_thread = Thread(target=self._hw_rx, args=(target_time,))
         rx_thread.daemon = True
         rx_thread.start()
-        self._last_run = self._inp.time
-        while self._inp.time < target_time:
+        self._last_run = self._to_fpga.time
+        while self._to_fpga.time < target_time:
             spikes = []
-            while self._inp.queue and int(self._inp.queue[0].time) == self._inp.time:
-                spikes.append(self._inp.queue.popleft())
-            run_time = int(self._inp.queue[0].time) if self._inp.queue else target_time
+            while self._to_fpga.queue and int(self._to_fpga.queue[0].time) == self._to_fpga.time:
+                spikes.append(self._to_fpga.queue.popleft())
+            run_time = int(self._to_fpga.queue[0].time) if self._to_fpga.queue else target_time
             self._hw_tx(
                 spikes,
-                run_time - self._inp.time,
+                run_time - self._to_fpga.time,
                 (run_time == target_time),
             )
         rx_thread.join()
@@ -430,13 +424,13 @@ class Processor(neuro.Processor):
     def _flush(self):
         self._interface.flush()
 
-    def _write(self, data):
-        self._do_debug('write', data)
+    def _write(self, label, data):
+        self._do_debug(label + ': write', data)
         self._interface.write(data)
 
     def _read(self, size, timeout=None):
         data = self._interface.read( size, timeout)
-        self._do_debug('read ', data) 
+        #self._do_debug('read ', data) 
         return data
 
     def _do_debug(self, label, data):
@@ -447,12 +441,12 @@ class Processor(neuro.Processor):
             print()
 
     def _hw_rx(self, target: int, seek_clr: bool = False) -> None:
-        num_rx_bytes = width_bits_to_bytes(self._out.spk_fmt.calcsize())
+        num_rx_bytes = width_bits_to_bytes(self._from_fpga.spk_fmt.calcsize())
 
         while True:
             if (
-                self._inp.time != target
-                and self._out.time == self._inp.time
+                self._to_fpga.time != target
+                and self._from_fpga.time == self._to_fpga.time
                 and not seek_clr
             ):
                 sleep(100e-9)
@@ -461,54 +455,54 @@ class Processor(neuro.Processor):
             if len(rx) != num_rx_bytes:
                 raise RuntimeError("Did not receive coherent response from target.")
 
-            match self._out.type:
+            match self._from_fpga.type:
                 case IoType.DISPATCH:
-                    out_dict = self._out.spk_fmt.unpack(rx)
+                    out_dict = self._from_fpga.spk_fmt.unpack(rx)
                     match out_dict["opcode"]:
                         case DispatchOpcode.RUN:
-                            ran = self._out.cmd_fmt.unpack(rx)["operand"]
-                            self._out.time += ran
+                            ran = self._from_fpga.cmd_fmt.unpack(rx)["operand"]
+                            self._from_fpga.time += ran
                         case DispatchOpcode.SPK:
                             out_idx = (
                                 out_dict["idx"]
-                                if len(self._out.spk_fmt._infos) > 1
-                                and self._out.spk_fmt._infos[1].name == "idx"
+                                if len(self._from_fpga.spk_fmt._infos) > 1
+                                and self._from_fpga.spk_fmt._infos[1].name == "idx"
                                 else 0
                             )
-                            self._out.queue[out_idx].append(float(self._out.time))
+                            self._from_fpga.queue[out_idx].append(float(self._from_fpga.time))
                         case DispatchOpcode.SNC:
                             break
                         case DispatchOpcode.CLR:
                             if seek_clr:
                                 return
-                            elif self._out.time and self._inp.type == IoType.DISPATCH:
+                            elif self._from_fpga.time and self._to_fpga.type == IoType.DISPATCH:
                                 raise RuntimeError(
                                     "Should not have received CLR during run()"
                                 )
                             else:
-                                self._out.clear()
+                                self._from_fpga.clear()
                         case _:
                             raise ValueError()
 
                 case IoType.STREAM:
-                    out_dict = self._out.spk_fmt.unpack(rx)
+                    out_dict = self._from_fpga.spk_fmt.unpack(rx)
                     for out_idx in range(self._network.num_outputs()):
                         if out_dict[out_idx]:
-                            self._out.queue[out_idx].append(float(self._out.time))
-                    if out_dict[StreamFlag.CLR.name] and self._out.time:
+                            self._from_fpga.queue[out_idx].append(float(self._from_fpga.time))
+                    if out_dict[StreamFlag.CLR.name] and self._from_fpga.time:
                         raise RuntimeError("Should not have received CLR during run()")
 
-                    self._out.time += 1
+                    self._from_fpga.time += 1
 
                     # don't check DISO because SNC can't travel back in time
-                    if self._inp.type == IoType.STREAM and (
-                        out_dict[StreamFlag.SNC.name] != (self._out.time == target)
+                    if self._to_fpga.type == IoType.STREAM and (
+                        out_dict[StreamFlag.SNC.name] != (self._from_fpga.time == target)
                     ):
                         raise RuntimeError(
                             f"SNC flag {bool(out_dict[StreamFlag.SNC.name])}"
-                            f" does NOT match timing {self._out.time}/{target}"
+                            f" does NOT match timing {self._from_fpga.time}/{target}"
                         )
-                    if self._out.time == target:
+                    if self._from_fpga.time == target:
                         break
 
     def _hw_tx(
@@ -525,23 +519,16 @@ class Processor(neuro.Processor):
 
         # TODO: magic timing will be resolved by buffers PR
         def pause(runs: int) -> None:
-            self._inp.time += runs
+            self._to_fpga.time += runs
             sleep(self._secs_per_run * runs)
 
-        match self._inp.type:
+        match self._to_fpga.type:
 
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
-                    '''
-                    print('opcode=', int(DispatchOpcode.SPK),
-                          '|idx=', idx,
-                          '|val=', val,
-                          '|charge_width=', self._inp._charge_width(),
-                          '|spike_value_factor=', spike_value_factor(self._network))
-                    '''
-                    self._write(
-                        self._inp.spk_fmt.pack(
+                    self._write('SPK %d %d' % (idx, int(val)),
+                        self._to_fpga.spk_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SPK,
                                 "idx": idx,
@@ -555,14 +542,14 @@ class Processor(neuro.Processor):
                         [
                             runs,
                             self._max_run,
-                            self._max_runs_ahead + self._out.time - self._inp.time,
+                            self._max_runs_ahead + self._from_fpga.time - self._to_fpga.time,
                         ]
                     )
                     if not to_run:
                         sleep(100e-9)
                         continue
-                    self._write(
-                        self._inp.cmd_fmt.pack(
+                    self._write('RUN %d' % to_run,
+                        self._to_fpga.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.RUN,
                                 "operand": to_run,
@@ -572,8 +559,8 @@ class Processor(neuro.Processor):
                     pause(to_run)
                     runs -= to_run
                 if sync:
-                    self._write(
-                        self._inp.cmd_fmt.pack(
+                    self._write('SNC',
+                        self._to_fpga.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SNC,
                                 "operand": 0,
@@ -594,15 +581,15 @@ class Processor(neuro.Processor):
                 spike_dict = temp
 
                 spike_dict[StreamFlag.SNC.name] = sync and (runs == 1)
-                if self._inp.time == 0:
+                if self._to_fpga.time == 0:
                     spike_dict[StreamFlag.CLR.name] = True
-                self._write(self._inp.spk_fmt.pack(spike_dict)[::-1], 'E')
+                self._write(self._to_fpga.spk_fmt.pack(spike_dict)[::-1], 'E')
                 pause(1)
 
                 for r in reversed(range(runs - 1)):
                     if sync and r == 0:
                         run_dict[StreamFlag.SNC.name] = True
-                    self._write(self._inp.spk_fmt.pack(run_dict)[::-1], 'F')
+                    self._write(self._to_fpga.spk_fmt.pack(run_dict)[::-1], 'F')
                     pause(1)
 
     def _build_network(self) -> type:
@@ -654,8 +641,8 @@ class Processor(neuro.Processor):
                 }
                 for module in [
                     "io_configs",
-                    f"{self._inp.type.name.lower()}_source",
-                    f"{self._out.type.name.lower()}_sink",
+                    f"{self._to_fpga.type.name.lower()}_source",
+                    f"{self._from_fpga.type.name.lower()}_sink",
                     "network_arstn",
                     "axis_processor",
                     "uart_processor",
@@ -773,7 +760,6 @@ class Processor(neuro.Processor):
             return None
 
     def _run_programmer(self, cmd: list, executable: str) -> None:
-        print(" ".join(cmd))
         try:
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError as e:
@@ -785,8 +771,8 @@ class Processor(neuro.Processor):
     def _set_comm_limits(self):
         self._secs_per_run = 0.0
 
-        max_bytes_per_run = width_bits_to_bytes(self._out.spk_fmt.calcsize())
-        match self._out.type:
+        max_bytes_per_run = width_bits_to_bytes(self._from_fpga.spk_fmt.calcsize())
+        match self._from_fpga.type:
             case IoType.DISPATCH:
                 max_bytes_per_run *= self._network.num_outputs() + 1
                 self._secs_per_run += (
@@ -801,11 +787,11 @@ class Processor(neuro.Processor):
         self._max_run = SYSTEM_BUFFER // max_bytes_per_run
         self._max_runs_ahead = self._max_run
 
-        match self._inp.type:
+        match self._to_fpga.type:
             case IoType.DISPATCH:
                 # limited by both buffer size and command field width
                 self._max_run = min(
-                    2 ** (self._inp.cmd_fmt._infos[1].size) - 1,
+                    2 ** (self._to_fpga.cmd_fmt._infos[1].size) - 1,
                     self._max_run,
                 )
             case IoType.STREAM:
@@ -816,20 +802,18 @@ class Processor(neuro.Processor):
     def _setup_io(self):
         match self._io_type[:2]:
             case "DI":
-                #print('inp=', end='')
-                self._inp = InpConfig(IoType.DISPATCH, self._network)
+                self._to_fpga = ToFpgaConfig(IoType.DISPATCH, self._network)
             case "SI":
-                self._inp = InpConfig(IoType.STREAM, self._network)
+                self._to_fpga = ToFpgaConfig(IoType.STREAM, self._network)
             case _:
                 raise ValueError(
                     f"Invalid input type: {self._io_type[:2]}\nExpected: (D|S)I"
                 )
         match self._io_type[2:]:
             case "DO":
-                #print('out=', end='')
-                self._out = OutConfig(IoType.DISPATCH, self._network)
+                self._from_fpga = FromFpgaConfig(IoType.DISPATCH, self._network)
             case "SO":
-                self._out = OutConfig(IoType.STREAM, self._network)
+                self._from_fpga = FromFpgaConfig(IoType.STREAM, self._network)
             case _:
                 raise ValueError(
                     f"Invalid output type: {self._io_type[2:]}\nExpected: (D|S)O"

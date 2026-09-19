@@ -8,12 +8,15 @@
 
 #pragma once
 
-#include <math.h>
+#include <algorithm>
+#include <vector>
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "spike.hpp"
+#include <network_config.h>
 
 namespace neuro {
 
@@ -21,9 +24,8 @@ namespace neuro {
 
         private:
 
-            static constexpr int kSystemBufferSizeBytes = 4096;
+            // Aribtrary limts
             static constexpr int kMaxInputSpikes = 1024;
-            static constexpr int kMaxOutputNeurons = 16;
             static constexpr int kMaxSpikesPerNeuron = 256;
             static constexpr int kQueueCapacity = 1024;
 
@@ -35,58 +37,17 @@ namespace neuro {
                 kOpcodeCount
             };
 
+
         public:
 
-            Processor(
-                    const int num_inputs,
-                    const int num_outputs,
-                    const int charge_width,
-                    const int spike_value_factor,
-                    const bool debug=false)
+            Processor()
             {
-                num_inputs_ = num_inputs;
-                num_outputs_ = num_outputs;
-                opcode_width_ = UnsignedWidth(kOpcodeCount - 1);
-                output_idx_width_ = UnsignedWidth(num_outputs - 1) ;
- 
-                idx_width_ = InputIndexWidth();
-
-                charge_width_ = charge_width;
-                spike_value_factor_ = spike_value_factor;
-                debug_ = debug;
-
-                const auto idx_width = InputIndexWidth();
-
-                const auto spk_width = idx_width + charge_width;
-
-                operand_width_ = WidthNearestByte(OpcodeWidth() + spk_width)
-                        - OpcodeWidth();
-
                 output_time_ = 0;
                 input_time_ = 0;
-
-                const uint8_t output_size_bits =
-                    OpcodeWidth() + OutputIndexWidth();
-
-                const int max_bytes_per_run =
-                    WidthBitsToBytes(output_size_bits) * (num_outputs + 1);
-
-                max_runs_ahead_ = kSystemBufferSizeBytes / max_bytes_per_run;
-
-                max_run_ = std::min(
-                        (1 << operand_width_) - 1, max_runs_ahead_);
-
-                opc_shift_ = 8 - OpcodeWidth();
-                idx_shift_ = opc_shift_ - idx_width_;
-                val_shift_ = idx_shift_ - charge_width;
             }
 
             void ApplySpike(const int id, const float time, const float value)
             {
-                if (debug_) {
-                    printf("AS\n");
-                }
-
                 QueuePush(LevySpike(id, time + input_time_, value));
 
                 static LevySpike spikes_now[kQueueCapacity];
@@ -98,15 +59,11 @@ namespace neuro {
                     count++;
                 }
 
-                PrepareToSend(spikes_now, count);
+                SendSpikes(spikes_now, count);
             }
 
             void ClearActivity()
             {
-                if (debug_) {
-                    printf("CLR\n");
-                }
-
                 SendCommand(kOpcodeClr);
 
                 Receive();
@@ -122,10 +79,6 @@ namespace neuro {
 
             void Run(const int time)
             {
-                if (debug_) {
-                    printf("RUN\n");
-                }
-
                 const auto target_time = input_time_ + time;
 
                 while (input_time_ < target_time) {
@@ -154,16 +107,14 @@ namespace neuro {
                         (int)QueuePeek().time :
                         target_time;
 
-                    PrepareToSend(spikes, count);
+                    SendSpikes(spikes, count);
 
                     auto runs = run_time - input_time_;
 
                     while (runs > 0) {
 
-                        const auto to_run = std::min(std::min(
-                                    runs,
-                                    max_run_),
-                                max_runs_ahead_ + output_time_ - input_time_);
+                        const auto to_run = std::min(std::min( runs, kMaxRun),
+                                kMaxRunsAhead + output_time_ - input_time_);
 
                         SendCommand(kOpcodeRun, to_run);
 
@@ -194,126 +145,90 @@ namespace neuro {
 
         private:
 
-            const int MAXMSG = 32;
+            static constexpr size_t kBytesPerMessageToFpga =
+                ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
 
-            int idx_width_;
-            int charge_width_;
-            int spike_value_factor_;
-            bool debug_;
+            typedef uint8_t Bit;
+
+            typedef std::vector<Bit> BitArray;
+
+            typedef uint8_t Byte;
+
+            typedef std::vector<Byte> ByteArray;
+
             int input_time_;
             int output_time_;
-            int max_runs_ahead_;
-            int max_run_;
-            uint8_t operand_width_;
-            uint8_t opc_shift_;
-            uint8_t idx_shift_;
-            uint8_t val_shift_;
 
-            int num_inputs_;
-            int num_outputs_;
-            int output_idx_width_;
-            int opcode_width_;
-
-            float output_times_[kMaxOutputNeurons][kMaxSpikesPerNeuron];
-            int output_counts_[kMaxOutputNeurons];
+            float output_times_[kOutputNeurons][kMaxSpikesPerNeuron];
+            int output_counts_[kOutputNeurons];
 
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
 
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {
-                return byte >> (8 - opcode_width_);
+                return byte >> (8 - kOpcodeWidth);
             }
 
             auto GetRunTime(const uint8_t byte) -> uint8_t
             {
-                return (((byte << opcode_width_) >> opcode_width_) & 0XFF);
+                return (((byte << kOpcodeWidth) >> kOpcodeWidth) & 0XFF);
             }
 
-            auto GetNeuronIndex(const uint8_t byte) -> uint8_t
+            auto GetOutputNeuronIndex(const uint8_t byte) -> uint8_t
             {
-                const auto idx_width = output_idx_width_;
-                const uint8_t mask = 0xFF >> (8 - idx_width);
-                return idx_width > 0 ? (byte >> 5) & mask : 0;
-            }
-
-            auto OpcodeWidth() -> uint8_t
-            {
-                return opcode_width_;
-            }
-
-            auto InputIndexWidth() -> uint8_t
-            {
-                return UnsignedWidth(num_inputs_ - 1) ;
-            }
-
-            auto OutputIndexWidth() -> uint8_t
-            {
-                return UnsignedWidth(num_outputs_ - 1) ;
+                const uint8_t mask = 0xFF >> (8 - kOutputNeuronIndexWidth);
+                return kOutputNeuronIndexWidth > 0 ? (byte >> 5) & mask : 0;
             }
 
             auto MakeCommand(
                     const uint8_t opcode, const uint8_t operand=0) -> uint8_t
             {
-                return opcode << (8 - opcode_width_) | operand;
+                return opcode << (8 - kOpcodeWidth) | operand;
             }
 
-             void PrepareToSend(LevySpike * spikes, int count)
+            void SendSpikes(LevySpike * spikes, int count)
             {
                 for (int k=0; k<count; ++k) {
 
                     const auto spike = spikes[k];
 
-                    const uint8_t idx_mask = (1 << idx_width_) - 1;
-                    const uint8_t val_mask = (1 << charge_width_) - 1;
+                    const int charge = spike.value * kSpikeValueFactor;
 
-                    const int8_t val = (int8_t)(spike.value * spike_value_factor_);
+                    const auto charge_twoscomp =
+                        charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-                    const uint8_t byte =
-                        kOpcodeSpk << opc_shift_ |
-                        (spike.id & idx_mask) << idx_shift_ |
-                        (val & val_mask) << val_shift_;
-
-                    WriteByte(byte);
+                    SendMessage(
+                            (kOpcodeSpk << kOperandWidth) +
+                            (spike.id << (kOperandWidth-kIndexWidth)) +
+                            (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
                 }
             }
 
-            void SendCommand(const uint8_t opcode, const uint8_t operand=0)
+            void SendMessage(uint64_t bits)
             {
-                WriteByte(MakeCommand(opcode, operand));
-            }
+                uint8_t bytes[kBytesPerMessageToFpga];
 
-            void WriteByte(const uint8_t byte)
-            {
-                if (debug_) {
-                    printf("  write x%02X\n", byte);
+                for (size_t k=0; k<kBytesPerMessageToFpga; ++k) {
+                    bytes[k] = (uint8_t)(bits & 0xFF);
+                    bits >>= 8;
                 }
 
-                UartWrite(byte);
+                UartWrite(bytes, kBytesPerMessageToFpga);
             }
 
-            auto ReadByte() -> uint8_t
+            void SendCommand(const int opcode, const int operand=0)
             {
-                const auto byte = UartRead();
-
-                if (debug_) {
-                    printf("  read  x%02X\n", byte);
-                }
-
-                return byte;
+                SendMessage((opcode << kOperandWidth) | operand);
             }
 
             void Receive()
             {
                 const auto avail = UartAvailable();
 
-                if (debug_) {
-                    printf("  avail %d\n", (int)avail);
-                }
-
                 for (int k=0; k<avail; ++k) {
-                    
-                    const auto byte = ReadByte();
+
+                    const auto byte = UartRead();
 
                     const auto opcode = GetOpcode(byte);
 
@@ -323,7 +238,7 @@ namespace neuro {
                     }
 
                     else if (opcode == kOpcodeSpk) {
-                        const auto out_idx = GetNeuronIndex(byte);
+                        const auto out_idx = GetOutputNeuronIndex(byte);
                         output_times_[out_idx][output_counts_[out_idx]] = output_time_;
                         output_counts_[out_idx]++;
                     }
@@ -411,46 +326,12 @@ namespace neuro {
                 return heap_size_ == 0;
             }
 
- 
             // Hardware-dependent --------------------------------------------
 
             void UartBegin();
-            void UartWrite(const uint8_t byte);
+            void UartWrite(const uint8_t * bytes, const size_t count);
             auto UartAvailable() -> int;
             auto UartRead() -> uint8_t;
-
-            // Bit-twiddling -------------------------------------------------
-
-            static auto WidthNearestByte(const int bits) -> int
-            {
-                return WidthBytesToBits(WidthBitsToBytes(bits));
-            }
-
-            static auto WidthBitsToBytes(const int bits) -> int
-            {
-                return int(ceil(bits / 8.f));
-            }
-
-            static auto WidthBytesToBits(const int bytes) -> int
-            {
-                return bytes * 8;
-            }
-
-            static auto UnsignedWidth(const int value) -> int
-            {
-                return SignedWidth(value) - 1;
-            }
-
-            static auto SignedWidth(const int value) -> int
-            {
-                return Clog2(abs(value) + int(value >= 0)) + 1;
-            }
-
-            static auto Clog2(float value) -> int
-            { 
-                return int(ceil(log2(value)));
-            }
-
 
     }; // class Processor
 

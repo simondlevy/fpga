@@ -27,7 +27,7 @@ embedded_dronepong.cpp: $(NET) dronepong_fpga.hpp
 	$(EMBEDDER) < $(NET) > embedded_dronepong.cpp
 
 dronepong_fpga.hpp: $(NET)
-	$(FPGA_TL_DIR)/utils/mkhdr.py -d $(NET) > dronepong_fpga.hpp
+	$(FPGA_TL_DIR)/utils/compile.py -d $(NET)
 
 load: $(NET)
 	$(FPGA_DIR)/utils/load.py -s -t cmoda7_35t $(NET)
