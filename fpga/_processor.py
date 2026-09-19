@@ -459,7 +459,6 @@ class Processor(neuro.Processor):
                 print('read: ', end='')
                 for byte in rx:
                     print('x%02X ' % byte, end= '')
-                print()
 
             match self._from_fpga.type:
                 case IoType.DISPATCH:
@@ -467,6 +466,8 @@ class Processor(neuro.Processor):
                     match out_dict["opcode"]:
                         case DispatchOpcode.RUN:
                             ran = self._from_fpga.cmd_fmt.unpack(rx)["operand"]
+                            if self._debug:
+                                print(' : RAN ')
                             self._from_fpga.time += ran
                         case DispatchOpcode.SPK:
                             out_idx = (
@@ -475,10 +476,17 @@ class Processor(neuro.Processor):
                                 and self._from_fpga.spk_fmt._infos[1].name == "idx"
                                 else 0
                             )
+                            if self._debug:
+                                print(' : SPK ')
                             self._from_fpga.queue[out_idx].append(float(self._from_fpga.time))
                         case DispatchOpcode.SNC:
+                            if self._debug:
+                                print(' : SNC ')
                             break
                         case DispatchOpcode.CLR:
+                            if self._debug:
+                                print(' : CLR ')
+                            break
                             if seek_clr:
                                 return
                             elif self._from_fpga.time and self._to_fpga.type == IoType.DISPATCH:
