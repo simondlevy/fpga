@@ -81,38 +81,13 @@ def main():
                    max_runs_ahead)))
     h_code += ('static const bool kDebug = %s;\n\n' %
                 ('true' if args.debug else 'false'))
+    h_code += ('static const int kOperandWidth = %d;\n' % 
+              (width_nearest_byte(opc_width + spk_width) - opc_width))
+    h_code += ('static const int kIndexWidth = %d;\n' %
+               unsigned_width(net.num_inputs() - 1))
      
     with open('network_config.h', 'w') as outfile:
         outfile.write(h_code)
-
-    cpp_code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
-
-    cpp_code += 'void WriteClr()\n'
-    cpp_code += '{\n'
-    cpp_code += ('    const uint8_t bytes[%d] = {%s 0x%02X};\n' %
-                 (cmd_bytes,
-                 ('x00, ') * (cmd_bytes-1),
-                  DispatchOpcode.CLR << (8-opc_width)))
-    cpp_code += '}\n\n'
-
-    cpp_code += 'void WriteRun(const int to_run)\n'
-    cpp_code += '{\n'
-    cpp_code += ('    const uint8_t bytes[%d] = {%s 0x%02X};\n' %
-                 (cmd_bytes,
-                 ('x00, ') * (cmd_bytes-1),
-                  DispatchOpcode.RUN << (8-opc_width)))
-    cpp_code += '}\n\n'
-
-    cpp_code += 'void WriteSnc()\n'
-    cpp_code += '{\n'
-    cpp_code += ('    const uint8_t bytes[%d] = {%s 0x%02X};\n' %
-                 (cmd_bytes,
-                 ('x00, ') * (cmd_bytes-1),
-                  DispatchOpcode.SNC << (8-opc_width)))
-    cpp_code += '}\n\n'
-
-    with open('proc.cpp', 'w') as outfile:
-        outfile.write(cpp_code)
 
 
 main()

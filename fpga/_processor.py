@@ -104,16 +104,16 @@ class _IoConfig:
                 opc_width = unsigned_width(len(DispatchOpcode) - 1)
                 spk_names = ["opcode"]
                 self.spk_fmt_str = f"u{opc_width}"
-                idx_width, operand_width = dispatch_operand_widths(
+                self.idx_width, operand_width = dispatch_operand_widths(
                     opc_width, self._num_net_io(), self._charge_width(), is_axi
                 )
                 cmd_names = spk_names + ["operand"]
                 self.cmd_fmt_str = self.spk_fmt_str + f"u{operand_width}"
                 self.cmd_fmt = bs.compile(self.cmd_fmt_str, cmd_names)
 
-                if idx_width:
+                if self.idx_width:
                     spk_names.append("idx")
-                    self.spk_fmt_str += f"u{idx_width}"
+                    self.spk_fmt_str += f"u{self.idx_width}"
                 if self._charge_width():
                     spk_names.append("val")
                     self.spk_fmt_str += f"s{self._charge_width()}"

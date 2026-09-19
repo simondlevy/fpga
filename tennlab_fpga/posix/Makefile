@@ -33,4 +33,4 @@ edit:
 	vim main.cpp
 
 clean:
-	rm -rf xor network_config.h proc.cpp
+	rm -rf xor network_config.h
