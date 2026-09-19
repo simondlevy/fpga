@@ -222,12 +222,14 @@ namespace neuro {
 
             static void NewSendMessage(uint64_t bits)
             {
-                const auto nbytes = kBytesPerMessage();
+                uint8_t bytes[kBytesPerMessage()];
 
-                for (size_t k=0; k<nbytes; ++k) {
-                    printf("x%02X ", (int)(bits & 0xFF));
+                for (size_t k=0; k<kBytesPerMessage(); ++k) {
+                    bytes[k] = (uint8_t)(bits & 0xFF);
                     bits >>= 8;
                 }
+
+                (void)bytes;
             }
 
             void NewSendCommmand(const int opcode, const int operand=0)
