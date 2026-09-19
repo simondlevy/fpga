@@ -165,17 +165,6 @@ namespace neuro {
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
 
-            void NewSendSpike(const int index, const int charge)
-            {
-                const auto charge_twoscomp =
-                    charge < 0 ? (1 << kChargeWidth) + charge  : charge;
-
-                NewSendMessage(
-                        (kOpcodeSpk << kOperandWidth) +
-                        (index << (kOperandWidth-kIndexWidth)) +
-                        (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
-            }
-
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {
                 return byte >> (8 - kOpcodeWidth);
@@ -204,6 +193,7 @@ namespace neuro {
 
                     const auto spike = spikes[k];
 
+                    /*
                     const uint8_t idx_mask = (1 << kInputIndexWidth) - 1;
                     const uint8_t val_mask = (1 << kChargeWidth) - 1;
 
@@ -214,7 +204,9 @@ namespace neuro {
                         (spike.id & idx_mask) << kIndexShift |
                         (val & val_mask) << kValueShift;
 
-                    WriteByte(byte);
+                    WriteByte(byte);*/
+
+                    NewSendSpike(spike.id, spike.value * kSpikeValueFactor);
                 }
             }
 
@@ -234,6 +226,18 @@ namespace neuro {
             {
                 NewSendMessage((opcode << kOperandWidth) | operand);
             }
+
+            void NewSendSpike(const int index, const int charge)
+            {
+                const auto charge_twoscomp =
+                    charge < 0 ? (1 << kChargeWidth) + charge  : charge;
+
+                NewSendMessage(
+                        (kOpcodeSpk << kOperandWidth) +
+                        (index << (kOperandWidth-kIndexWidth)) +
+                        (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
+            }
+
 
             void WriteByte(const uint8_t byte)
             {
