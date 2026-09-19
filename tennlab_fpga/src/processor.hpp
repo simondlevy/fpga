@@ -200,8 +200,6 @@ namespace neuro {
                         target);
             }
 
-
-
             auto GetOpcode(const uint8_t byte) -> uint8_t
             {
                 return byte >> (8 - kOpcodeWidth);

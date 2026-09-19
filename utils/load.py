@@ -38,5 +38,8 @@ proc = fpga.Processor(args.target, args.port, args.io_type)
 
 proc.load_network(net, args.spi_flash)
 
-print(proc._to_fpga.cmd_fmt_str)
-print(proc._to_fpga.spk_fmt_str)
+print('to fpga: cmd=%s spk=%s' %
+      (proc._to_fpga.cmd_fmt_str,  proc._to_fpga.spk_fmt_str))
+
+print('from fpga: cmd=%s spk=%s' %
+      (proc._from_fpga.cmd_fmt_str,  proc._from_fpga.spk_fmt_str))
