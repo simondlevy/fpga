@@ -64,7 +64,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                NewSendCommand(kOpcodeClr);
+                SendCommand(kOpcodeClr);
 
                 Receive();
 
@@ -167,37 +167,18 @@ namespace neuro {
                 return ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
             }
 
-            static void OldDumpBytes(uint64_t bits, const uint8_t nbytes, const char * target)
-            {
-                printf("target = %s; actual = ", target);
-                for (int k=0; k<nbytes; ++k) {
-                    printf("x%02X ", (int)(bits & 0xFF));
-                    bits >>= 8;
-                }
-
-                printf("\n");
-            }
-
-            static void OldDumpCmd(const int opcode, const int operand, const char * target)
-            {
-                const auto nbytes = kBytesPerMessage();
-
-                OldDumpBytes((opcode << kOperandWidth) | operand, nbytes, target);
-            }
-
-            static void OldDumpSpk(const int index, const int charge, const char * target)
+            void SendSpike(const int index, const int charge)
             {
                 const auto nbytes = kBytesPerMessage();
 
                 const auto charge_twoscomp =
                     charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-                OldDumpBytes(
+                SendMessage(
                         (kOpcodeSpk << kOperandWidth) +
                         (index << (kOperandWidth-kIndexWidth)) +
                         (charge_twoscomp << (kOperandWidth-kChargeWidth-1)), 
-                        nbytes,
-                        target);
+                        nbytes);
             }
 
             auto GetOpcode(const uint8_t byte) -> uint8_t
@@ -242,12 +223,24 @@ namespace neuro {
                 }
             }
 
-            void SendCommand(const uint8_t opcode, const int operand=0)
+            static void SendMessage(uint64_t bits, const uint8_t nbytes)
             {
-                WriteByte(MakeCommand(opcode, operand));
+                for (int k=0; k<nbytes; ++k) {
+                    printf("x%02X ", (int)(bits & 0xFF));
+                    bits >>= 8;
+                }
+
+                printf("\n");
             }
 
-            void NewSendCommand(const uint8_t opcode, const int operand=0)
+            void NewSendCommmand(const int opcode, const int operand=0)
+            {
+                const auto nbytes = kBytesPerMessage();
+
+                SendMessage((opcode << kOperandWidth) | operand, nbytes);
+            }
+
+            void SendCommand(const uint8_t opcode, const int operand=0)
             {
                 WriteByte(MakeCommand(opcode, operand));
             }
