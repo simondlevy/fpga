@@ -12,10 +12,23 @@ static const int kChargeWidth = kUseDronepong ? 7 : 2;
 static const int kOperandWidth = kUseDronepong ? 14 : 6;
 
 
+static inline size_t bitpack_size(unsigned nbits)
+{
+    return ((size_t)nbits + 7) / 8;
+}
+
+static constexpr inline size_t kBytesPerMesssage()
+{
+    constexpr size_t nbits = kOpcodeWidth + kIndexWidth + kChargeWidth;
+    return (nbits + 7) / 8;
+}
+
+static uint8_t bytes[kBytesPerMesssage()];
+
 /* Append `width` bits of `value` (MSB first) at bit offset *pos.
  * `buf` must have been zeroed by the caller. */
 static inline void bitpack_put(uint8_t *buf, size_t *pos,
-                               uint64_t value, unsigned width)
+        uint64_t value, unsigned width)
 {
     if (width == 0) {
         return;
@@ -43,11 +56,6 @@ static inline void bitpack_put(uint8_t *buf, size_t *pos,
     }
 }
 
-static inline size_t bitpack_size(unsigned nbits)
-{
-    return ((size_t)nbits + 7) / 8;
-}
-
 
 static void NewDumpBytes(const uint8_t * bytes, const size_t count, const char * target)
 {
@@ -70,6 +78,22 @@ static void NewDumpCmd(const int opcode, const int operand, const char * target)
     NewDumpBytes(buf, nbytes, target);
 }
 
+static void NewDumpSpk(const int index, const int charge, const char * target)
+{
+    const auto nbytes = bitpack_size(kOpcodeWidth + kIndexWidth + kChargeWidth);
+
+    const auto charge_twoscomp =
+        charge < 0 ? (1 << kChargeWidth) + charge  : charge;
+
+    uint8_t buf[8] = {};
+    size_t pos = 0;
+    bitpack_put(buf, &pos, kSpk, kOpcodeWidth);
+    bitpack_put(buf, &pos, index, kIndexWidth);
+    bitpack_put(buf, &pos, charge_twoscomp, kChargeWidth);
+
+    NewDumpBytes(buf, nbytes, target);
+}
+
 static void OldDumpBytes(uint64_t bits, const uint8_t nbytes, const char * target)
 {
     printf("target = %s; actual = ", target);
@@ -88,22 +112,6 @@ static void OldDumpCmd(const int opcode, const int operand, const char * target)
     OldDumpBytes((opcode << kOperandWidth) | operand, nbytes, target);
 }
 
-
-static void NewDumpSpk(const int index, const int charge, const char * target)
-{
-    const auto nbytes = bitpack_size(kOpcodeWidth + kIndexWidth + kChargeWidth);
-
-    const auto charge_twoscomp =
-        charge < 0 ? (1 << kChargeWidth) + charge  : charge;
-
-    uint8_t buf[8] = {};
-    size_t pos = 0;
-    bitpack_put(buf, &pos, kSpk, kOpcodeWidth);
-    bitpack_put(buf, &pos, index, kIndexWidth);
-    bitpack_put(buf, &pos, charge_twoscomp, kChargeWidth);
-
-    NewDumpBytes(buf, nbytes, target);
-}
 
 static void OldDumpSpk(const int index, const int charge, const char * target)
 {
