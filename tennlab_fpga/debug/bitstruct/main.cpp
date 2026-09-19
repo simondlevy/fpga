@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -10,17 +9,22 @@ static const int kOperandWidth = 14;
 static const int kIndexWidth = 1;
 static const int kChargeWidth = 7;
 
-static void Dump(const uint8_t opcode, const uint8_t nbytes)
+static void Dump(const int opcode, const int operand, const int nbytes)
 {
     uint64_t bits = opcode;
 
     bits <<= kOperandWidth;
 
-    for (uint8_t k=0; k<nbytes; ++k) {
-        printf("x%02X ", (uint8_t)(bits & 0xFF));
+    for (int k=0; k<nbytes; ++k) {
+        printf("x%02X ", (int)(bits & 0xFF));
         bits >>= 8;
     }
     printf("\n");
+}
+
+static const int ceil(const int a, const int b)
+{
+    return (a + b - 1) / b;
 }
 
 int main()
@@ -34,10 +38,12 @@ SPK 0 63: write: xC0 x4F
 SPK 1 63: write: xC0 x6F 
      */
 
-    const uint8_t nbytes = (uint8_t)ceil((kOpcodeWidth + kOperandWidth) / 8);
+    const int nbytes = ceil(kOpcodeWidth + kOperandWidth, 8);
 
-    Dump(CLR, nbytes);
-    Dump(SNC, nbytes);
+    Dump(CLR, 0, nbytes);
+    Dump(SNC, 0, nbytes);
+
+    Dump(RUN, 23, nbytes);
 
     return 0;
 }
