@@ -3,7 +3,7 @@
 
 enum { kRun, kSpk, kSnc, kClr };
 
-static const bool kUseDronepong = true;
+static const bool kUseDronepong = false;
 
 static const int kOpcodeWidth = 2;
 static const int kIndexWidth = 1;
@@ -51,10 +51,6 @@ static inline void bitpack_uu(uint8_t *out, size_t out_size,
                               unsigned wa, unsigned wb,
                               uint64_t a, uint64_t b)
 {
-    size_t pos = 0;
-
-    bitpack_put(out, &pos, a, wa);
-    bitpack_put(out, &pos, b, wb);
 }
 
 
@@ -63,7 +59,6 @@ static inline void bitpack_uuu(uint8_t *out, size_t out_size,
                                uint64_t a, uint64_t b, uint64_t c)
 {
     size_t pos = 0;
-
     bitpack_put(out, &pos, a, wa);
     bitpack_put(out, &pos, b, wb);
     bitpack_put(out, &pos, c, wc);
@@ -81,11 +76,9 @@ static void DumpBytes(const uint8_t * bytes, const size_t count, const char * ta
 static void DumpCmd(const int opcode, const int operand, const char * target)
 {
     uint8_t buf[8] = {};
-
-    bitpack_uu(buf, sizeof buf,
-            kOpcodeWidth, kOperandWidth,
-            opcode, operand);
-
+    size_t pos = 0;
+    bitpack_put(buf, &pos, opcode, kOpcodeWidth);
+    bitpack_put(buf, &pos, operand, kOperandWidth);
     const auto nbytes = bitpack_size(kOpcodeWidth + kOperandWidth);
 
     DumpBytes(buf, nbytes, target);
