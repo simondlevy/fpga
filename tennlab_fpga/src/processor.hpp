@@ -64,7 +64,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                NewSendCommand(kOpcodeClr);
+                SendCommand(kOpcodeClr);
 
                 Receive();
 
@@ -116,7 +116,7 @@ namespace neuro {
                         const auto to_run = std::min(std::min( runs, kMaxRun),
                                 kMaxRunsAhead + output_time_ - input_time_);
 
-                        NewSendCommand(kOpcodeRun, to_run);
+                        SendCommand(kOpcodeRun, to_run);
 
                         input_time_ += runs;
 
@@ -125,7 +125,7 @@ namespace neuro {
 
                     if (run_time == target_time) {
 
-                        NewSendCommand(kOpcodeSnc);
+                        SendCommand(kOpcodeSnc);
                     }
                 }
 
@@ -198,14 +198,14 @@ namespace neuro {
                     const auto charge_twoscomp =
                         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-                    NewSendMessage(
+                    SendMessage(
                             (kOpcodeSpk << kOperandWidth) +
                             (spike.id << (kOperandWidth-kIndexWidth)) +
                             (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
                 }
             }
 
-            void NewSendMessage(uint64_t bits)
+            void SendMessage(uint64_t bits)
             {
                 uint8_t bytes[kBytesPerMessage];
 
@@ -217,9 +217,9 @@ namespace neuro {
                 UartWrite(bytes, kBytesPerMessage);
             }
 
-            void NewSendCommand(const int opcode, const int operand=0)
+            void SendCommand(const int opcode, const int operand=0)
             {
-                NewSendMessage((opcode << kOperandWidth) | operand);
+                SendMessage((opcode << kOperandWidth) | operand);
             }
 
             auto ReadByte() -> uint8_t
