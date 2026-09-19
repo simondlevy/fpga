@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-
 enum { RUN, SPK, SNC, CLR };
 
 // u2u14
@@ -26,15 +25,13 @@ static void DumpBytes(uint64_t bits)
         printf("x%02X ", (int)(bits & 0xFF));
         bits >>= 8;
     }
-    
+
     printf("\n");
 }
 
 static void DumpCmd(const int opcode, const int operand)
 {
-    const uint64_t bits = (opcode << kOperandWidth) | operand;
-
-    DumpBytes(bits);
+    DumpBytes((opcode << kOperandWidth) | operand);
 }
 
 static void DumpSpk(const int index, const int charge)
@@ -42,24 +39,22 @@ static void DumpSpk(const int index, const int charge)
     const auto charge_twoscomp =
         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
-    const uint64_t bits =
+    DumpBytes(
         (SPK << kOperandWidth) +
         (index << (kOperandWidth-kIndexWidth)) +
-        (charge_twoscomp << (kChargeWidth-kIndexWidth));
-
-    DumpBytes(bits);
+        (charge_twoscomp << (kChargeWidth-kIndexWidth)));
 }
 
 int main()
 {
-    /*
-CLR: write: x00 xC0 
-SNC: write: x00 x80 
-RUN 1: write: x01 x00 
-RUN 23: write: x17 x00 
-SPK 0 63: write: xC0 x4F 
-SPK 1 63: write: xC0 x6F 
-     */
+
+    // Dronepong:
+    // CLR: write: x00 xC0 
+    // SNC: write: x00 x80 
+    // RUN 1: write: x01 x00 
+    // RUN 23: write: x17 x00 
+    // SPK 0 63: write: xC0 x4F 
+    // SPK 1 63: write: xC0 x6F 
 
     DumpCmd(CLR, 0);
     DumpCmd(SNC, 0);
