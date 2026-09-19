@@ -91,11 +91,11 @@ SPK 1 63: write: xC0 x6F
 
 '''
 
-dump('CLR', pack_clr())
-dump('SNC', pack_snc())
+#dump('CLR', pack_clr())
+#dump('SNC', pack_snc())
 
-test_run(1)
-test_run(23)
+#test_run(1)
+#test_run(23)
 
 test_spk(0, 63)
 test_spk(1, 63)
