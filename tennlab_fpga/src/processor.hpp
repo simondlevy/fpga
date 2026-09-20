@@ -165,22 +165,6 @@ namespace neuro {
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
 
-            auto GetOpcode(const uint8_t byte) -> uint8_t
-            {
-                return byte >> (8 - kOpcodeWidth);
-            }
-
-            auto GetRunTime(const uint8_t byte) -> uint8_t
-            {
-                return (((byte << kOpcodeWidth) >> kOpcodeWidth) & 0XFF);
-            }
-
-            auto GetOutputNeuronIndex(const uint8_t byte) -> uint8_t
-            {
-                const uint8_t mask = 0xFF >> (8 - kOutputNeuronIndexWidth);
-                return kOutputNeuronIndexWidth > 0 ? (byte >> 5) & mask : 0;
-            }
-
             auto MakeCommand(
                     const uint8_t opcode, const uint8_t operand=0) -> uint8_t
             {
@@ -230,15 +214,21 @@ namespace neuro {
 
                     const auto byte = UartRead();
 
-                    const auto opcode = GetOpcode(byte);
+                    const auto opcode = byte >> (8 - kOpcodeWidth);
 
                     if (opcode == kOpcodeRun) {
-                        const uint8_t operand = GetRunTime(byte);
+                        const uint8_t operand = 
+                            (((byte << kOpcodeWidth) >> kOpcodeWidth) & 0XFF);
                         output_time_ += operand;
                     }
 
                     else if (opcode == kOpcodeSpk) {
-                        const auto out_idx = GetOutputNeuronIndex(byte);
+
+                        const uint8_t mask = 0xFF >> (8 - kOutputNeuronIndexWidth);
+
+                        const auto out_idx =
+                            kOutputNeuronIndexWidth > 0 ? (byte >> 5) & mask : 0;
+
                         output_times_[out_idx][output_counts_[out_idx]] = output_time_;
                         output_counts_[out_idx]++;
                     }
