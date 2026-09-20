@@ -176,8 +176,13 @@ namespace neuro {
                     const auto charge_twoscomp =
                         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
+                    char dbglabel[20] = {};
+                    if (kDebug) {
+                        sprintf(dbglabel, "SPK %2d %2d", spike.id, charge);
+                    }
+
                     SendMessage(
-                            "SPK",
+                            dbglabel,
                             (kOpcodeSpk << kOperandWidth) +
                             (spike.id << (kOperandWidth-kInputNeuronIndexWidth)) +
                             (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
@@ -224,7 +229,7 @@ namespace neuro {
                         output_time_ += operand;
 
                         if (kDebug) {
-                            printf(" => RUN %d\n", operand);
+                            printf("    => RUN %d\n", operand);
                         }
                     }
 
@@ -244,7 +249,7 @@ namespace neuro {
                     }
 
                     else if (opcode == kOpcodeClr && kDebug) {
-                        printf(" => CLR\n");
+                        printf("        => CLR\n");
                     }
 
                     else if (opcode == kOpcodeSnc && kDebug) {
@@ -258,14 +263,13 @@ namespace neuro {
                 UartWrite(bytes, kBytesPerMessageToFpga);
 
                 if (kDebug) {
-                    printf("DBG: write %s => ", dbglabel);
+                    printf("DBG: write %9s => ", dbglabel);
                     for (size_t k=0; k<kBytesPerMessageToFpga; ++k) {
                         printf("x%02X ", bytes[k]);
                     }
                     printf("\n");
                 }
             }
-
 
             // Hardware-dependent --------------------------------------------
 
