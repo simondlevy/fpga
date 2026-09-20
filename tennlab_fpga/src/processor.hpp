@@ -67,7 +67,7 @@ namespace neuro {
 
             void ClearActivity()
             {
-                SendCommand(kOpcodeClr);
+                SendCommand("CLR", kOpcodeClr);
 
                 Receive();
 
@@ -117,7 +117,7 @@ namespace neuro {
                         const auto to_run = std::min(std::min( runs, kMaxRun),
                                 kMaxRunsAhead + output_time_ - input_time_);
 
-                        SendCommand(kOpcodeRun, to_run);
+                        SendCommand("RUN", kOpcodeRun, to_run);
 
                         input_time_ += runs;
 
@@ -126,7 +126,7 @@ namespace neuro {
 
                     if (run_time == target_time) {
 
-                        SendCommand(kOpcodeSnc);
+                        SendCommand("SNC", kOpcodeSnc);
                     }
                 }
 
@@ -177,13 +177,14 @@ namespace neuro {
                         charge < 0 ? (1 << kChargeWidth) + charge  : charge;
 
                     SendMessage(
+                            "SPK",
                             (kOpcodeSpk << kOperandWidth) +
                             (spike.id << (kOperandWidth-kInputNeuronIndexWidth)) +
                             (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
                 }
             }
 
-            void SendMessage(uint64_t bits)
+            void SendMessage(const char * dbglabel, uint64_t bits)
             {
                 uint8_t bytes[kBytesPerMessageToFpga];
 
@@ -192,12 +193,13 @@ namespace neuro {
                     bits >>= 8;
                 }
 
-                UartWrite(bytes, kBytesPerMessageToFpga);
+                Write(dbglabel, bytes);
             }
 
-            void SendCommand(const int opcode, const int operand=0)
+            void SendCommand(const char * dbglabel, const int opcode,
+                    const int operand=0)
             {
-                SendMessage((opcode << kOperandWidth) | operand);
+                SendMessage(dbglabel, (opcode << kOperandWidth) | operand);
             }
 
             void Receive()
@@ -228,6 +230,20 @@ namespace neuro {
                     }
                 }
             }
+
+            void Write(const char * dbglabel, const uint8_t * bytes)
+            {
+                UartWrite(bytes, kBytesPerMessageToFpga);
+
+                if (kDebug) {
+                    printf("DBG: %s => ", dbglabel);
+                    for (size_t k=0; k<kBytesPerMessageToFpga; ++k) {
+                        printf("x%02X ", bytes[k]);
+                    }
+                    printf("\n");
+                }
+            }
+
 
             // Hardware-dependent --------------------------------------------
 
