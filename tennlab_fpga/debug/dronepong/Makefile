@@ -41,5 +41,8 @@ prun:
 clean:
 	rm -f test $(HDR) embedded_dronepong.cpp dronepong_fpga.hpp
 
+fclean:
+	rm -rf $(HOME)./cache/neuro_fpga/
+
 edit:
 	vim main.cpp

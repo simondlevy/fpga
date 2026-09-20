@@ -165,12 +165,6 @@ namespace neuro {
             LevySpike heap_[kQueueCapacity];
             int heap_size_;
 
-            auto MakeCommand(
-                    const uint8_t opcode, const uint8_t operand=0) -> uint8_t
-            {
-                return opcode << (8 - kOpcodeWidth) | operand;
-            }
-
             void SendSpikes(LevySpike * spikes, int count)
             {
                 for (int k=0; k<count; ++k) {

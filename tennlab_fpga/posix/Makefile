@@ -34,3 +34,6 @@ edit:
 
 clean:
 	rm -rf xor network_config.h
+
+fclean:
+	rm -rf $(HOME)./cache/neuro_fpga/

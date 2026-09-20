@@ -103,33 +103,33 @@ class _IoConfig:
             case IoType.DISPATCH:
                 opc_width = unsigned_width(len(DispatchOpcode) - 1)
                 spk_names = ["opcode"]
-                self.spk_fmt_str = f"u{opc_width}"
+                spk_fmt_str = f"u{opc_width}"
                 self.idx_width, operand_width = dispatch_operand_widths(
                     opc_width, self._num_net_io(), self._charge_width(), is_axi
                 )
                 cmd_names = spk_names + ["operand"]
-                self.cmd_fmt_str = self.spk_fmt_str + f"u{operand_width}"
-                self.cmd_fmt = bs.compile(self.cmd_fmt_str, cmd_names)
+                cmd_fmt_str = self.spk_fmt_str + f"u{operand_width}"
+                cmd_fmt = bs.compile(cmd_fmt_str, cmd_names)
 
                 if self.idx_width:
                     spk_names.append("idx")
-                    self.spk_fmt_str += f"u{self.idx_width}"
+                    spk_fmt_str += f"u{self.idx_width}"
                 if self._charge_width():
                     spk_names.append("val")
-                    self.spk_fmt_str += f"s{self._charge_width()}"
+                    spk_fmt_str += f"s{self._charge_width()}"
             case IoType.STREAM:
                 spk_names = [flg.name for flg in StreamFlag]
-                self.spk_fmt_str = "b1" * len(StreamFlag)
+                spk_fmt_str = "b1" * len(StreamFlag)
                 spk_fmt_elem = (
                     f"s{self._charge_width()}" if self._charge_width() else "b1"
                 )
                 for io in range(self._num_net_io()):
                     spk_names.append(io)
-                    self.spk_fmt_str += spk_fmt_elem
+                    spk_fmt_str += spk_fmt_elem
             case _:
                 raise ValueError()
 
-        self.spk_fmt = bs.compile(self.spk_fmt_str, spk_names)
+        self.spk_fmt = bs.compile(spk_fmt_str, spk_names)
 
         self.clear()
 
