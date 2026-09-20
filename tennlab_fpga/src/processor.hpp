@@ -224,7 +224,7 @@ namespace neuro {
                         output_time_ += operand;
 
                         if (kDebug) {
-                            printf(" => RUN %d", operand);
+                            printf(" => RUN %d\n", operand);
                         }
                     }
 
@@ -237,11 +237,18 @@ namespace neuro {
 
                         output_times_[out_idx][output_counts_[out_idx]] = output_time_;
                         output_counts_[out_idx]++;
+
+                        if (kDebug) {
+                            printf(" => SPK %d\n", out_idx);
+                        }
                     }
 
-                    if (kDebug) {
-                        printf("\n");
+                    else if (opcode == kOpcodeClr && kDebug) {
+                        printf(" => CLR\n");
+                    }
 
+                    else if (opcode == kOpcodeSnc && kDebug) {
+                        printf(" => SNC\n");
                     }
                 }
             }
