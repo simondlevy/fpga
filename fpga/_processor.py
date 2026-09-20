@@ -425,19 +425,18 @@ class Processor(neuro.Processor):
         self._interface.flush()
 
     def _write(self, label, data):
-        self._do_debug(label + ': write', data)
+
+        if self._debug:
+            print('write: ' + label + ' => ', end='')
+            for byte in data:
+                print('x%02X ' % byte, end='')
+            print()
+
         self._interface.write(data)
 
     def _read(self, size, timeout=None):
         data = self._interface.read( size, timeout)
         return data
-
-    def _do_debug(self, label, data):
-        if self._debug:
-            print(label + ': ', end='')
-            for byte in data:
-                print('x%02X ' % byte, end='')
-            print()
 
     def _hw_rx(self, target: int, seek_clr: bool = False) -> None:
         num_rx_bytes = width_bits_to_bytes(self._from_fpga.spk_fmt.calcsize())
@@ -466,7 +465,7 @@ class Processor(neuro.Processor):
                         case DispatchOpcode.RUN:
                             ran = self._from_fpga.cmd_fmt.unpack(rx)["operand"]
                             if self._debug:
-                                print(' : RUN %d' % ran)
+                                print(' => RUN %d' % ran)
                             self._from_fpga.time += ran
                         case DispatchOpcode.SPK:
                             out_idx = (
@@ -476,15 +475,15 @@ class Processor(neuro.Processor):
                                 else 0
                             )
                             if self._debug:
-                                print(' : SPK %d' % out_idx)
+                                print(' => SPK %d' % out_idx)
                             self._from_fpga.queue[out_idx].append(float(self._from_fpga.time))
                         case DispatchOpcode.SNC:
                             if self._debug:
-                                print(' : SNC')
+                                print(' => SNC')
                             break
                         case DispatchOpcode.CLR:
                             if self._debug:
-                                print(' : CLR')
+                                print(' => CLR')
                             break
                             if seek_clr:
                                 return
