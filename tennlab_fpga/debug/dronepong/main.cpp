@@ -26,21 +26,21 @@ int main()
 {
     proc_.Connect();
 
-    int timestep_prev = -1;
+    int time_prev = -1;
 
     for (auto entry : entries) {
 
-        if (entry.timestep == 1) {
+        if (entry.time == 1) {
             break;
         }
 
-        if (timestep_prev != entry.timestep) {
-            if (timestep_prev != -1) {
+        if (time_prev != entry.time) {
+            if (time_prev != -1) {
                 proc_.Run(kSimTime);
                 //print(proc.output_counts());
             }
             proc_.ClearActivity();
-            timestep_prev = entry.timestep;
+            time_prev = entry.time;
         }
 
         proc_.ApplySpike(entry.id, entry.time, entry.value);
@@ -49,7 +49,7 @@ int main()
 
     const int runtime = 10; // entries[kEntries-1].step;
 
-    for (int timestep=0; timestep<runtime; ++timestep) {
+    for (int time=0; time<runtime; ++time) {
 
         clear_encoded_spikes();
         encode();
@@ -57,7 +57,7 @@ int main()
         proc_.ClearActivity();
 
         for (auto entry:entries) {
-            if (entry.step == timestep) {
+            if (entry.time == time) {
                 proc_.ApplySpike(entry.id, entry.time, entry.value);
                 apply_spike(entry.id, entry.time, entry.value);
             }
@@ -65,10 +65,10 @@ int main()
 
         run(kSimTime);
 
-        proc_.Run(SIM_TIME);
+        proc_.Run(kSimTime);
 
         printf("%03d | %02d %02d | %02d %02d\n",
-                timestep, output_count(0), output_count(1),
+                time, output_count(0), output_count(1),
                 proc_.GetOutputCount(0), proc_.GetOutputCount(1));
     }
 
