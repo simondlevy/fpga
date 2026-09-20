@@ -206,24 +206,26 @@ namespace neuro {
             {
                 const auto avail = UartAvailable();
 
-                if (kDebug) {
-                    printf("DBG: read\n");
-                }
-
                 for (int k=0; k<avail; ++k) {
 
                     const auto byte = UartRead();
 
                     if (kDebug) {
-                        printf("x%02X ", byte);
+                        printf("DBG: read x%02X", byte);
                     }
 
                     const auto opcode = byte >> (8 - kOpcodeWidth);
 
                     if (opcode == kOpcodeRun) {
+
                         const uint8_t operand = 
                             (((byte << kOpcodeWidth) >> kOpcodeWidth) & 0XFF);
+
                         output_time_ += operand;
+
+                        if (kDebug) {
+                            //printf(" => RUN\n");
+                        }
                     }
 
                     else if (opcode == kOpcodeSpk) {
@@ -236,10 +238,11 @@ namespace neuro {
                         output_times_[out_idx][output_counts_[out_idx]] = output_time_;
                         output_counts_[out_idx]++;
                     }
-                }
 
-                if (kDebug) {
-                    printf("\n");
+                    if (kDebug) {
+                        printf("\n");
+
+                    }
                 }
             }
 
