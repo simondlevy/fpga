@@ -258,7 +258,7 @@ namespace neuro {
                 UartWrite(bytes, kBytesPerMessageToFpga);
 
                 if (kDebug) {
-                    printf("DBG: write: %s => ", dbglabel);
+                    printf("DBG: write %s => ", dbglabel);
                     for (size_t k=0; k<kBytesPerMessageToFpga; ++k) {
                         printf("x%02X ", bytes[k]);
                     }

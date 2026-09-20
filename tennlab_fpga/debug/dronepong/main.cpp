@@ -46,31 +46,5 @@ int main()
         proc_.ApplySpike(entry.id, entry.time, entry.value);
     }
 
-
-    const int runtime = 10; // entries[kEntries-1].step;
-
-    for (int time=0; time<runtime; ++time) {
-
-        clear_encoded_spikes();
-        encode();
-
-        proc_.ClearActivity();
-
-        for (auto entry:entries) {
-            if (entry.time == time) {
-                proc_.ApplySpike(entry.id, entry.time, entry.value);
-                apply_spike(entry.id, entry.time, entry.value);
-            }
-        }
-
-        run(kSimTime);
-
-        proc_.Run(kSimTime);
-
-        printf("%03d | %02d %02d | %02d %02d\n",
-                time, output_count(0), output_count(1),
-                proc_.GetOutputCount(0), proc_.GetOutputCount(1));
-    }
-
     return 0;
 }

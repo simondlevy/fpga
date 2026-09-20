@@ -41,7 +41,7 @@ prun:
 	./pytest.py
 
 clean:
-	rm -f test $(HDR) embedded_dronepong.cpp 
+	rm -rf test $(HDR) embedded_dronepong.cpp __pycache__/
 
 fclean:
 	rm -rf $(HOME)./cache/neuro_fpga/
