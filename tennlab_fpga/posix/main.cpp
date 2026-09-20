@@ -12,7 +12,7 @@
 
 static neuro::Processor proc_;
 
-static void run(const uint8_t a, const uint8_t b)
+static void Run(const uint8_t a, const uint8_t b)
 {
     // proc_ is declared in auto-generated xor.hpp
     proc_.ClearActivity();
@@ -25,7 +25,8 @@ static void run(const uint8_t a, const uint8_t b)
         proc_.ApplySpike(1, 0, 1);
     }
 
-    proc_.Run(3);
+    proc_.Run(kSimTime);
+
     printf("input = %d,%d; output = %d\n", a, b, proc_.GetOutputCount(0));
 }
 
@@ -35,10 +36,10 @@ int main()
 
     proc_.ClearActivity();
 
-    run(0, 0);
-    run(0, 1);
-    run(1, 0);
-    run(1, 1);
+    Run(0, 0);
+    Run(0, 1);
+    Run(1, 0);
+    Run(1, 1);
 
     return 0;
 }

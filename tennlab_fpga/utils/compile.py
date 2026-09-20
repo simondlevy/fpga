@@ -74,7 +74,7 @@ else:
              (min((1 << (width_nearest_byte(opcode_width +
                          (input_index_width + charge_width(net))) -
                          opcode_width)) - 1, max_runs_ahead)))
-    code += 'static const int kSimTime = %d;\n\n' % sim_time(net)
+    code += 'static const int kSimTime = %d;\n' % sim_time(net)
     code += ('static const bool kDebug = %s;\n\n' %
              ('true' if args.debug else 'false'))
 
