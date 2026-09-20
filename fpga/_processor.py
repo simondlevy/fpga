@@ -267,7 +267,7 @@ class Processor(neuro.Processor):
                                "programming the target FPGA.")
 
         if self._to_fpga.type == IoType.DISPATCH:
-            self._write('CLR',
+            self._write('CLR      ',
                 self._to_fpga.cmd_fmt.pack(
                     {
                         "opcode": DispatchOpcode.CLR,
@@ -430,7 +430,6 @@ class Processor(neuro.Processor):
 
     def _read(self, size, timeout=None):
         data = self._interface.read( size, timeout)
-        #self._do_debug('read ', data) 
         return data
 
     def _do_debug(self, label, data):
@@ -456,9 +455,9 @@ class Processor(neuro.Processor):
                 raise RuntimeError("Did not receive coherent response from target.")
 
             if self._debug:
-                print('read: ', end='')
+                print('read:', end='')
                 for byte in rx:
-                    print('x%02X ' % byte, end= '')
+                    print(' x%02X' % byte, end= '')
 
             match self._from_fpga.type:
                 case IoType.DISPATCH:
@@ -481,11 +480,11 @@ class Processor(neuro.Processor):
                             self._from_fpga.queue[out_idx].append(float(self._from_fpga.time))
                         case DispatchOpcode.SNC:
                             if self._debug:
-                                print(' : SNC ')
+                                print(' : SNC')
                             break
                         case DispatchOpcode.CLR:
                             if self._debug:
-                                print(' : CLR ')
+                                print(' : CLR')
                             break
                             if seek_clr:
                                 return
@@ -541,7 +540,7 @@ class Processor(neuro.Processor):
             case IoType.DISPATCH:
 
                 for idx, val in spike_dict.items():
-                    self._write('SPK %d %d' % (idx, int(val)),
+                    self._write('SPK %2d %2d' % (idx, int(val)),
                         self._to_fpga.spk_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SPK,
@@ -562,7 +561,7 @@ class Processor(neuro.Processor):
                     if not to_run:
                         sleep(100e-9)
                         continue
-                    self._write('RUN %d' % to_run,
+                    self._write('RUN %3d  ' % to_run,
                         self._to_fpga.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.RUN,
@@ -573,7 +572,7 @@ class Processor(neuro.Processor):
                     pause(to_run)
                     runs -= to_run
                 if sync:
-                    self._write('SNC',
+                    self._write('SNC      ',
                         self._to_fpga.cmd_fmt.pack(
                             {
                                 "opcode": DispatchOpcode.SNC,
