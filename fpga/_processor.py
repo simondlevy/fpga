@@ -467,7 +467,7 @@ class Processor(neuro.Processor):
                         case DispatchOpcode.RUN:
                             ran = self._from_fpga.cmd_fmt.unpack(rx)["operand"]
                             if self._debug:
-                                print(' : RAN ')
+                                print(' : RUN %d' % ran)
                             self._from_fpga.time += ran
                         case DispatchOpcode.SPK:
                             out_idx = (
@@ -477,7 +477,7 @@ class Processor(neuro.Processor):
                                 else 0
                             )
                             if self._debug:
-                                print(' : SPK ')
+                                print(' : SPK %d' % out_idx)
                             self._from_fpga.queue[out_idx].append(float(self._from_fpga.time))
                         case DispatchOpcode.SNC:
                             if self._debug:
