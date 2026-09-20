@@ -13,6 +13,7 @@ namespace neuro {
     class LevySpike {
 
         friend class Processor;
+        friend class SpikeQueue;
 
         private:
 
