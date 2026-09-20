@@ -427,7 +427,7 @@ class Processor(neuro.Processor):
     def _write(self, label, data):
 
         if self._debug:
-            print('DBG: write: ' + label + ' => ', end='')
+            print('DBG: write ' + label + ' => ', end='')
             for byte in data:
                 print('x%02X ' % byte, end='')
             print()
@@ -454,7 +454,7 @@ class Processor(neuro.Processor):
                 raise RuntimeError("Did not receive coherent response from target.")
 
             if self._debug:
-                print('DBG: read:', end='')
+                print('DBG: read', end='')
                 for byte in rx:
                     print(' x%02X' % byte, end= '')
 

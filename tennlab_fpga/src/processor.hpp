@@ -206,9 +206,17 @@ namespace neuro {
             {
                 const auto avail = UartAvailable();
 
+                if (kDebug) {
+                    printf("DBG: read\n");
+                }
+
                 for (int k=0; k<avail; ++k) {
 
                     const auto byte = UartRead();
+
+                    if (kDebug) {
+                        printf("x%02X ", byte);
+                    }
 
                     const auto opcode = byte >> (8 - kOpcodeWidth);
 
@@ -229,6 +237,10 @@ namespace neuro {
                         output_counts_[out_idx]++;
                     }
                 }
+
+                if (kDebug) {
+                    printf("\n");
+                }
             }
 
             void Write(const char * dbglabel, const uint8_t * bytes)
@@ -236,7 +248,7 @@ namespace neuro {
                 UartWrite(bytes, kBytesPerMessageToFpga);
 
                 if (kDebug) {
-                    printf("DBG: %s => ", dbglabel);
+                    printf("DBG: write: %s => ", dbglabel);
                     for (size_t k=0; k<kBytesPerMessageToFpga; ++k) {
                         printf("x%02X ", bytes[k]);
                     }
