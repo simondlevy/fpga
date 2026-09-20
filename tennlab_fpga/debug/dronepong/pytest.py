@@ -19,8 +19,6 @@ IO_TYPE = 'DIDO'
 NET = ('/home/levys/Desktop/framework/cpp-apps/applications/dronepong/' +
        'networks/dronepong_risp_train.txt')
 
-SIM_TIME = 50
-
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -39,7 +37,6 @@ except Exception:
 
 proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=True)
 
-
 proc.attach_network(net)
 
 timestep_prev = -1
@@ -53,8 +50,8 @@ for entry in entries:
 
     if timestep_prev != timestep:
         if timestep_prev != -1:
-            proc.run(SIM_TIME)
-            print(proc.output_counts())
+            proc.run(fpga.network.sim_time(net))
+            #print(proc.output_counts())
         proc.clear_activity()
         timestep_prev = timestep
 

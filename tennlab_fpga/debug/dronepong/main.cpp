@@ -26,7 +26,7 @@ int main()
 {
     proc_.Connect();
 
-    int time_prev = -1;
+    int timestep_prev = -1;
 
     for (auto entry : entries) {
 
@@ -34,13 +34,13 @@ int main()
             break;
         }
 
-        if (time_prev != entry.time) {
-            if (time_prev != -1) {
+        if (timestep_prev != entry.time) {
+            if (timestep_prev != -1) {
                 proc_.Run(kSimTime);
                 //print(proc.output_counts());
             }
             proc_.ClearActivity();
-            time_prev = entry.time;
+            timestep_prev = entry.time;
         }
 
         proc_.ApplySpike(entry.id, entry.time, entry.value);
