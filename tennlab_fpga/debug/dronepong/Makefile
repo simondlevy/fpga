@@ -18,15 +18,17 @@ FPGA_DIR = $(HOME)//Desktop/fpga
 
 FPGA_TL_DIR = $(FPGA_DIR)/tennlab_fpga
 
+HDR = network_config.h
+
 NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 
 
-test: main.cpp $(SRC)/*.hpp $(UART) $(HDR) embedded_dronepong.cpp dronepong_fpga.hpp
-	g++ -Wall -I$(SRC) -I.. -o test main.cpp $(UART) embedded_dronepong.cpp
+test: main.cpp $(SRC)/*.hpp $(UART) $(HDR) embedded_dronepong.cpp $(HDR)
+	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp $(UART) embedded_dronepong.cpp
 
-embedded_dronepong.cpp: $(NET) dronepong_fpga.hpp
+embedded_dronepong.cpp: $(NET) $(HDR)
 	$(EMBEDDER) < $(NET) > embedded_dronepong.cpp
 
-dronepong_fpga.hpp: $(NET)
+$(HDR): $(NET)
 	$(FPGA_TL_DIR)/utils/compile.py -d $(NET)
 
 load: $(NET)
@@ -39,7 +41,7 @@ prun:
 	./pytest.py
 
 clean:
-	rm -f test $(HDR) embedded_dronepong.cpp dronepong_fpga.hpp
+	rm -f test $(HDR) embedded_dronepong.cpp 
 
 fclean:
 	rm -rf $(HOME)./cache/neuro_fpga/

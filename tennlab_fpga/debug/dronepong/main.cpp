@@ -11,10 +11,9 @@
 
 #include <processor.hpp>
 
-#include "dronepong_fpga.hpp"
 #include "spikes.h"
 
-static const std::string kPortName = "/dev/ttyUSB1";
+static neuro::Processor proc_;
 
 extern void clear_encoded_spikes();
 extern void encode();
@@ -27,7 +26,6 @@ int main()
 {
     proc_.Connect();
 
-#if 0
     int timestep_prev = -1;
 
     for (auto entry : entries) {
@@ -73,7 +71,6 @@ int main()
                 timestep, output_count(0), output_count(1),
                 proc_.GetOutputCount(0), proc_.GetOutputCount(1));
     }
-#endif
 
     return 0;
 }

@@ -147,7 +147,7 @@ namespace neuro {
         private:
 
             static constexpr size_t kBytesPerMessageToFpga =
-                ((kOpcodeWidth + kIndexWidth + kChargeWidth) + 7) / 8;
+                ((kOpcodeWidth + kInputNeuronIndexWidth + kChargeWidth) + 7) / 8;
 
             typedef uint8_t Bit;
 
@@ -178,7 +178,7 @@ namespace neuro {
 
                     SendMessage(
                             (kOpcodeSpk << kOperandWidth) +
-                            (spike.id << (kOperandWidth-kIndexWidth)) +
+                            (spike.id << (kOperandWidth-kInputNeuronIndexWidth)) +
                             (charge_twoscomp << (kOperandWidth-kChargeWidth-1)));
                 }
             }
