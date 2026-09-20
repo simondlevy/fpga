@@ -224,7 +224,7 @@ namespace neuro {
                         output_time_ += operand;
 
                         if (kDebug) {
-                            //printf(" => RUN\n");
+                            printf(" => RUN %d", operand);
                         }
                     }
 
