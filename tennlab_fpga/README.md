@@ -4,7 +4,7 @@
 
 This directory contains support code for communicating between a microcontroller (MCU)
 like Arduino and an FPGA programmed as described in the top-level
-[README](https://github.com/TENNLab-UTK), as well as support for those who wish to use C++
+[README](https://github.com/TENNLab-UTK/fpga), as well as support for those who wish to use C++
 instead of Python for writing such programs on an ordinary Linux host computer. 
 
 ## Supported FPGAs
