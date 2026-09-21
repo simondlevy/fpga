@@ -23,5 +23,5 @@ or desktop C++ program.
 4. Support for talking to a network already resident on the board, without rebuilding or
    reprogramming it.
    
-5. Support for communicating with the Cmod A7-35t over the UART on its PMOD pins.
+5. Support for communicating with the Cmod A7-35t over the UART on its Pmod pins.
    

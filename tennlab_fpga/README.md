@@ -2,8 +2,6 @@
 
 <img src="media/teensy-cmod.jpg" width=500>
 
-Point of Contact: [Simon D. Levy](https://github.com/simondlevy)
-
 This directory contains support code for communicating between a microcontroller (MCU)
 like Arduino and an FPGA programmed as described in the top-level
 [README](../README.md), as well as support for those who wish to use C++
