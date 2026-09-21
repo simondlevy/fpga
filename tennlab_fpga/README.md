@@ -99,7 +99,7 @@ non-volatile mode, the latter using the SPI flash on the Cmod FPGA.
 
 ## Exploring further
 
-The [utils/compile.py](utils/compile.py) generates C++ code based on a given
+The [compile.py](utils/compile.py) script generates C++ code based on a given
 network and processor.  You can try this out for the XOR network by doing:
 
 ```bash
