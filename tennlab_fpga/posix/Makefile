@@ -18,7 +18,7 @@ xor: main.cpp uart.cpp $(SRC)/*.hpp network_config.h
 	g++ -Wall -I. -I$(SRC) -I.. -o xor main.cpp uart.cpp
 
 network_config.h: $(NET)
-	$(TFPGA)/utils/compile.py -d $(NET)
+	$(TFPGA)/utils/compile.py $(NET)
 
 load:
 	$(ROOT)/utils/load.py -s -t cmoda7_35t $(ROOT)/networks/xor.txt
