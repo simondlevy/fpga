@@ -19,6 +19,8 @@ IO_TYPE = 'DIDO'
 NET = ('/home/levys/Desktop/framework/cpp-apps/applications/dronepong/' +
        'networks/dronepong_risp_train.txt')
 
+DEBUG = False
+
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -35,7 +37,7 @@ except Exception:
     print('Unable to open ' + NET)
     exit(1)
 
-proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=True)
+proc = fpga.Processor(args.target, PORT, IO_TYPE, debug=DEBUG)
 
 proc.attach_network(net)
 
@@ -48,16 +50,15 @@ for entry in entries:
             (entry[0], entry[1], int(entry[2]), int(entry[3])))
     '''
 
-
     timestep = entry[0]
 
-    if timestep == 2:
+    if timestep == 30:
         break
 
     if timestep_prev != timestep:
         if timestep_prev != -1:
             proc.run(fpga.network.sim_time(net))
-            #print(proc.output_counts())
+            print(proc.output_counts())
         proc.clear_activity()
         timestep_prev = timestep
 

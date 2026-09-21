@@ -25,17 +25,17 @@ int main()
 
         /*
         printf("(%d, %d, %d, %d)\n",
-                entry.timestep, entry.id, (int)entry.time, (int)entry.value);
-                */
+                entry.timestep, entry.id, (int)entry.time, (int)entry.value);*/
 
-        if (entry.timestep == 2) {
+        if (entry.timestep == 30) {
             break;
         }
 
         if (timestep_prev != entry.timestep) {
             if (timestep_prev != -1) {
                 proc_.Run(kSimTime);
-                //print(proc.output_counts());
+                printf("[%d, %d]\n",
+                        proc_.GetOutputCount(0),  proc_.GetOutputCount(1));
             }
             proc_.ClearActivity();
             timestep_prev = entry.timestep;
