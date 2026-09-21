@@ -117,7 +117,9 @@ namespace neuro {
                         const auto to_run = std::min(std::min( runs, kMaxRun),
                                 kMaxRunsAhead + output_time_ - input_time_);
 
-                        SendCommand("RUN", kOpcodeRun, to_run);
+                        char dbglabel[20] = {};
+                        sprintf(dbglabel, "RUN %d", to_run);
+                        SendCommand(dbglabel, kOpcodeRun, to_run);
 
                         input_time_ += runs;
 
@@ -178,7 +180,7 @@ namespace neuro {
 
                     char dbglabel[20] = {};
                     if (kDebug) {
-                        sprintf(dbglabel, "SPK %2d %2d", spike.id, charge);
+                        sprintf(dbglabel, "SPK %-2d %-2d", spike.id, charge);
                     }
 
                     SendMessage(
@@ -216,7 +218,7 @@ namespace neuro {
                     const auto byte = UartRead();
 
                     if (kDebug) {
-                        printf("DBG: read x%02X", byte);
+                        printf("DBG: read  x%02X", byte);
                     }
 
                     const auto opcode = byte >> (8 - kOpcodeWidth);
@@ -229,7 +231,7 @@ namespace neuro {
                         output_time_ += operand;
 
                         if (kDebug) {
-                            printf("    => RUN %d\n", operand);
+                            printf("       => RUN %d\n", operand);
                         }
                     }
 
@@ -244,16 +246,16 @@ namespace neuro {
                         output_counts_[out_idx]++;
 
                         if (kDebug) {
-                            printf(" => SPK %d\n", out_idx);
+                            printf("       => SPK %d\n", out_idx);
                         }
                     }
 
                     else if (opcode == kOpcodeClr && kDebug) {
-                        printf("        => CLR\n");
+                        printf("       => CLR\n");
                     }
 
                     else if (opcode == kOpcodeSnc && kDebug) {
-                        printf(" => SNC\n");
+                        printf("       => SNC\n");
                     }
                 }
             }
@@ -263,7 +265,7 @@ namespace neuro {
                 UartWrite(bytes, kBytesPerMessageToFpga);
 
                 if (kDebug) {
-                    printf("DBG: write %9s => ", dbglabel);
+                    printf("DBG: write %-9s => ", dbglabel);
                     for (size_t k=0; k<kBytesPerMessageToFpga; ++k) {
                         printf("x%02X ", bytes[k]);
                     }

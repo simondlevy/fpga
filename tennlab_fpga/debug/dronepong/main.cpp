@@ -28,7 +28,7 @@ int main()
                 entry.timestep, entry.id, (int)entry.time, (int)entry.value);
                 */
 
-        if (entry.timestep == 1) {
+        if (entry.timestep == 2) {
             break;
         }
 
