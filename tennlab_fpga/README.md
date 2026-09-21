@@ -4,7 +4,7 @@
 
 This directory contains support code for communicating between a microcontroller (MCU)
 like Arduino and an FPGA programmed as described in the top-level
-[README](../README.md), as well as support for those who wish to use C++
+[README](https://github.com/TENNLab-UTK), as well as support for those who wish to use C++
 instead of Python for writing such programs on an ordinary Linux host computer. 
 
 ## Supported FPGAs
@@ -23,8 +23,8 @@ another MCU, please commit it and do a pull request.
 
 ## Installation
 
-1. Follow the directions in the [Getting Started](../README.md#getting_started)
-section of the main repo README for installing the FPGA Python library. 
+1. Follow the directions in the [Getting Started](https://github.com/TENNLab-UTK/fpga#getting_started)
+section of the original repo README for installing the FPGA Python library. 
 
 2. Install [openFPGALoader](https://trabucayre.github.io/openFPGALoader/guide/install.html)
 
