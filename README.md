@@ -6,12 +6,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -->
 
-<div align="center">
-
 # Neuromorphic FPGA
 
 This repository contains a fork of the UTK TeNNLab FPGA
-[repository](https://github.com/TENNLab-UTK/fpga), q.v., for background,
+[repository](https://github.com/TENNLab-UTK/fpga), q.v. for background,
 installation, and other details.  I made the following changes:
 
 1. Support for the [Nexys A7]()https://digilent.com/shop/nexys-a7-amd-artix-7-fpga-trainer-board-recommended-for-ece-curriculum/)
