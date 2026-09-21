@@ -43,6 +43,12 @@ timestep_prev = -1
 
 for entry in entries:
 
+    '''
+    print('(%d, %d, %d, %d)' %
+            (entry[0], entry[1], int(entry[2]), int(entry[3])))
+    '''
+
+
     timestep = entry[0]
 
     if timestep == 1:
@@ -56,3 +62,4 @@ for entry in entries:
         timestep_prev = timestep
 
     proc.apply_spike(neuro.Spike(entry[1], entry[2], entry[3]))
+    

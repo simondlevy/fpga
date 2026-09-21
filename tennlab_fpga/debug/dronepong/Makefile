@@ -12,8 +12,6 @@ SRC = $(ROOT)/src
 
 UART = $(ROOT)/posix/uart.cpp
 
-EMBEDDER = $(HOME)/Desktop/embedded-framework/bin/framework_embedder
-
 FPGA_DIR = $(HOME)//Desktop/fpga
 
 FPGA_TL_DIR = $(FPGA_DIR)/tennlab_fpga
@@ -22,11 +20,8 @@ HDR = network_config.h
 
 NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 
 
-test: main.cpp $(SRC)/*.hpp $(UART) $(HDR) embedded_dronepong.cpp $(HDR)
-	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp $(UART) embedded_dronepong.cpp
-
-embedded_dronepong.cpp: $(NET) $(HDR)
-	$(EMBEDDER) < $(NET) > embedded_dronepong.cpp
+test: main.cpp $(SRC)/*.hpp $(UART) $(HDR) $(HDR)
+	g++ -Wall -I. -I$(SRC) -I.. -o test main.cpp $(UART)
 
 $(HDR): $(NET)
 	$(FPGA_TL_DIR)/utils/compile.py -d $(NET)
@@ -41,7 +36,7 @@ prun:
 	./pytest.py
 
 clean:
-	rm -rf test $(HDR) embedded_dronepong.cpp __pycache__/
+	rm -rf test $(HDR) __pycache__/
 
 fclean:
 	rm -rf $(HOME)./cache/neuro_fpga/
