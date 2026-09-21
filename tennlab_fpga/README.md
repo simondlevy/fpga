@@ -92,7 +92,7 @@ cannot load a network onto the FPGA.  The Processor class virtualizes the UART m
 to be used by the board (make connection, read, write, get number of bytes available),
 which are implemented in the ```uart.cpp``` code in each of the examples.
 
-The [../utils/load.py](load.py) script uses the Python ```Processor``` class to support
+The [load.py](../utils/load.py) script uses the Python ```Processor``` class to support
 loading a JSON-formatted network onto the FPGA in both volatile mode (already
 supported in the [original repo](https://github.com/TENNLab-UTK/fpga)), and
 non-volatile mode, the latter using the SPI flash on the Cmod FPGA.
