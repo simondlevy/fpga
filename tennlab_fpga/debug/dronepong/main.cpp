@@ -27,10 +27,6 @@ int main()
         printf("(%d, %d, %d, %d)\n",
                 entry.timestep, entry.id, (int)entry.time, (int)entry.value);*/
 
-        if (entry.timestep == 30) {
-            break;
-        }
-
         if (timestep_prev != entry.timestep) {
             if (timestep_prev != -1) {
                 proc_.Run(kSimTime);

@@ -52,9 +52,6 @@ for entry in entries:
 
     timestep = entry[0]
 
-    if timestep == 30:
-        break
-
     if timestep_prev != timestep:
         if timestep_prev != -1:
             proc.run(fpga.network.sim_time(net))
