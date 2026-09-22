@@ -57,7 +57,6 @@ else:
 
     code = '// AUTO-GENERATED: DO NOT EDIT\n\n'
     code += '#pragma once\n\n'
-    code += '#include <processor.hpp>\n\n'
     code += 'static const int kOpcodeWidth = %d;\n' % opcode_width
     code += ('static const int kInputNeuronIndexWidth = %d;\n' %
              unsigned_width(net.num_inputs() - 1))
