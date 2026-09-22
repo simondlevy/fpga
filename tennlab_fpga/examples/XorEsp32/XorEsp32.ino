@@ -8,9 +8,10 @@
 
 #include <stdint.h>
 
+#include "network_config.h"
 #include <processor.hpp>
 
-static auto proc_ = neuro::Processor(2, 1, 2, 1, false);
+static auto proc_ = neuro::Processor();
 
 static void Run(const uint8_t a, const uint8_t b)
 {
