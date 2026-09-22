@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "network_config.h"
 #include <processor.hpp>
 
 static std::string kPort = "/dev/ttyUSB1";

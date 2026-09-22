@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 
+#include "network_config.h"
 #include <processor.hpp>
 
 static neuro::Processor proc_;
