@@ -23,7 +23,7 @@
 static std::string kPort = "/dev/ttyUSB1";
 static constexpr speed_t kBaudRate = B4000000;
 static constexpr int kMaxMessageSize = 4096;
-static constexpr uint32_t kDefaultTimeoutMsec = 20;
+static constexpr uint32_t kDefaultTimeoutMsec = 10;
 static bool kProxy = false;
 
 static int fd_;
