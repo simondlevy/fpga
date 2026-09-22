@@ -38,7 +38,7 @@ clean:
 	rm -rf test $(HDR) __pycache__/
 
 fclean:
-	rm -rf $(HOME)./cache/neuro_fpga/
+	rm -rf $(HOME)/.cache/neuro_fpga/
 
 edit:
 	vim main.cpp

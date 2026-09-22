@@ -13,9 +13,13 @@
 
 static neuro::Processor proc_;
 
+static int timestep_prev;
+
 void setup()
 {
     proc_.Connect();
+
+    timestep_prev = -1;
 }
 
 void loop()
@@ -24,12 +28,9 @@ void loop()
 
 #if 0
 
-static neuro::Processor proc_;
-
 int main()
 {
 
-    int timestep_prev = -1;
 
     for (auto entry : entries) {
 

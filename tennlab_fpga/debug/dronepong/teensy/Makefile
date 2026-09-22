@@ -14,7 +14,7 @@ FQBN = teensy:avr:teensy40
 
 PORT = /dev/ttyACM0
 
-NET = $(ROOT)/networks/xor.txt
+NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 
 
 LIBS = $(HOME)/Documents/Arduino/libraries
 
@@ -25,8 +25,14 @@ build: $(SKETCH).ino $(SRC)/*.hpp
 flash:
 	arduino-cli upload -p $(PORT) --fqbn $(FQBN) .
 
+load: $(NET)
+	$(FPGA_DIR)/utils/load.py -s -t cmoda7_35t_pmod $(NET)
+
 edit:
 	vim $(SKETCH).ino
+
+fclean:
+	rm -rf $(HOME)./cache/neuro_fpga/
 
 listen:
 	miniterm.py $(PORT) 115200 --exit-char 3
