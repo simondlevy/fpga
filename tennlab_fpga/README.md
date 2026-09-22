@@ -68,7 +68,7 @@ image above:
 ```bash
 rm -rf ~/.cache/neuro_fpga # optional but recommended
 python3 utils/load.py -s -t cmoda7_35t_pmod networks/xor.txt # may take several minutes
-cp -r tennlab_fpga $(HOME)/Arduino/libraries # or wherever you keep your Arduino libraries
+cp -r tennlab_fpga $HOME/Arduino/libraries # or wherever you keep your Arduino libraries
 ```
 
 3. Open the Arduino IDE, find the <b>TeNLabFPGA/Xor</b> example sketch in
