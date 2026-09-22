@@ -23,7 +23,7 @@ argparser.add_argument("-n", "--no-load", action="store_true",
 args = argparser.parse_args()
 
 net = neuro.Network()
-net.read_from_file("../networks/simple.txt")
+net.read_from_file("networks/simple.txt")
 
 proc = fpga.Processor(args.target, "/dev/ttyUSB1", "DIDO")
 

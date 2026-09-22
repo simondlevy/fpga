@@ -8,16 +8,25 @@
 
 import argparse
 from pathlib import Path
+import importlib
+import json
 
 import neuro
 import fpga
+from fpga import config
+
+targets = []
+
+with open(importlib.resources.files(config).joinpath("targets.json")) as f:
+    targets = list(json.load(f).keys())
 
 parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('input_file')
 
-parser.add_argument('-t', '--target', default='basys3', help='target board')
+parser.add_argument('-t', '--target', choices=targets, default='basys3',
+                    help='target board')
 
 parser.add_argument('-p', '--port', default='/dev/ttyUSB1', help='target port')
 

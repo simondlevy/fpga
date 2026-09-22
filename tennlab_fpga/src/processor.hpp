@@ -19,7 +19,7 @@
 #include "queue.hpp"
 
 // auto-generated
-#include "network_config.h"
+#include <network_config.h>
 
 namespace neuro {
 
