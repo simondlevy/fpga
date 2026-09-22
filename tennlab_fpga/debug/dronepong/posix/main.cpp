@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "network_config.h"
 #include <processor.hpp>
 
 #include "spikes.h"

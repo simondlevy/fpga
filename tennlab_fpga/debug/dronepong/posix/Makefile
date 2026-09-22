@@ -10,7 +10,7 @@ ROOT = $(HOME)/Desktop/fpga/tennlab_fpga
 
 SRC = $(ROOT)/src
 
-UART = $(ROOT)/posix/uart.cpp
+UART = $(ROOT)/extras/posix/uart.cpp
 
 FPGA_DIR = $(HOME)//Desktop/fpga
 
@@ -33,9 +33,6 @@ load: $(NET)
 
 run: test
 	./test
-
-prun:
-	./pytest.py
 
 clean:
 	rm -rf test $(HDR) __pycache__/
