@@ -18,9 +18,6 @@
 #include "spike.hpp"
 #include "queue.hpp"
 
-// auto-generated
-#include <network_config.h>
-
 namespace neuro {
 
     class Processor {

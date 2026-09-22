@@ -8,7 +8,8 @@
 
 #include <Arduino.h>
 
-#include <processor.hpp>
+#include "network_config.h"
+#include "processor.hpp"
 
 static const uint32_t kBaudRate = 4'000'000; // Based on FPGA
 static const uint32_t kDelayUsec = 10;       // Based on trial-and-error 
@@ -18,14 +19,14 @@ void neuro::Processor::UartBegin()
     Serial1.begin(kBaudRate);
 }
 
-void neuro::Processor::UartWrite(const uint8_t byte)
+void neuro::Processor::UartWrite(const uint8_t * bytes, const size_t count)
 {
-    Serial1.write(byte);
+    Serial1.write(bytes, count);
 
     delayMicroseconds(kDelayUsec);
 }
 
-auto neuro::Processor::UartAvailable() -> size_t
+auto neuro::Processor::UartAvailable() -> int
 {
     return Serial1.available();
 }
