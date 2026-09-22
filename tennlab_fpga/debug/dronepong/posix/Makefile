@@ -16,17 +16,10 @@ FPGA_DIR = $(HOME)//Desktop/fpga
 
 FPGA_TL_DIR = $(FPGA_DIR)/tennlab_fpga
 
-HDR = network_config.h
-
-# DBG = -d
-
 NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 
 
-test: main.cpp $(SRC)/*.hpp $(UART) $(HDR) $(HDR)
+test: main.cpp $(SRC)/*.hpp $(UART)
 	g++ -Wall -I. -I$(SRC) -o test main.cpp $(UART)
-
-$(HDR): $(NET)
-	$(FPGA_TL_DIR)/utils/compile.py $(DBG) $(NET)
 
 load: $(NET)
 	$(FPGA_DIR)/utils/load.py -s -t cmoda7_35t $(NET)
@@ -35,7 +28,7 @@ run: test
 	./test
 
 clean:
-	rm -rf test $(HDR) __pycache__/
+	rm -rf test
 
 fclean:
 	rm -rf $(HOME)/.cache/neuro_fpga/

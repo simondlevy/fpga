@@ -32,7 +32,7 @@ edit:
 	vim $(SKETCH).ino
 
 fclean:
-	rm -rf $(HOME)./cache/neuro_fpga/
+	rm -rf $(HOME)/.cache/neuro_fpga/
 
 listen:
 	miniterm.py $(PORT) 115200 --exit-char 3
