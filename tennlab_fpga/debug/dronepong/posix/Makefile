@@ -12,7 +12,7 @@ SRC = $(ROOT)/src
 
 UART = $(ROOT)/extras/posix/uart.cpp
 
-FPGA_DIR = $(HOME)//Desktop/fpga
+FPGA_DIR = $(HOME)/Desktop/fpga
 
 FPGA_TL_DIR = $(FPGA_DIR)/tennlab_fpga
 

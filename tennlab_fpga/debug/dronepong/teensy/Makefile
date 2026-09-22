@@ -12,6 +12,8 @@ SRC = $(ROOT)/src
 
 FQBN = teensy:avr:teensy40
 
+FPGA_DIR = $(HOME)/Desktop/fpga
+
 PORT = /dev/ttyACM0
 
 NET = $(fr)/cpp-apps/applications/dronepong/networks/dronepong_risp_train.txt 

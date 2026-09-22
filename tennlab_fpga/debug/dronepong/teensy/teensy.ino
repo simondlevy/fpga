@@ -24,33 +24,21 @@ void setup()
 
 void loop()
 {
-}
-
-#if 0
-
-int main()
-{
-
-
     for (auto entry : entries) {
 
-        /*
-        printf("(%d, %d, %d, %d)\n",
+        /*printf("(%d, %d, %d, %d)\n",
                 entry.timestep, entry.id, (int)entry.time, (int)entry.value);*/
 
-        if (timestep_prev != entry.timestep) {
-            if (timestep_prev != -1) {
-                proc_.Run(kSimTime);
-                printf("[%d, %d]\n",
-                        proc_.GetOutputCount(0),  proc_.GetOutputCount(1));
+            if (timestep_prev != entry.timestep) {
+                if (timestep_prev != -1) {
+                    proc_.Run(kSimTime);
+                    printf("[%d, %d]\n",
+                            proc_.GetOutputCount(0),  proc_.GetOutputCount(1));
+                }
+                proc_.ClearActivity();
+                timestep_prev = entry.timestep;
             }
-            proc_.ClearActivity();
-            timestep_prev = entry.timestep;
-        }
 
         proc_.ApplySpike(entry.id, entry.time, entry.value);
     }
-
-    return 0;
 }
-#endif
