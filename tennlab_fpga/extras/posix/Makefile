@@ -6,7 +6,7 @@
 
 all: xor
 
-ROOT = ../..
+ROOT = ../../..
 
 TFPGA = $(ROOT)/tennlab_fpga
 
