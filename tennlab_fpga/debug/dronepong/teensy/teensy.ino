@@ -6,18 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-void setup()
-{
-}
-
-void loop()
-{
-}
-
-#if 0
-#include <stdio.h>
-#include <string>
-
 #include "network_config.h"
 #include <processor.hpp>
 
@@ -25,9 +13,21 @@ void loop()
 
 static neuro::Processor proc_;
 
-int main()
+void setup()
 {
     proc_.Connect();
+}
+
+void loop()
+{
+}
+
+#if 0
+
+static neuro::Processor proc_;
+
+int main()
+{
 
     int timestep_prev = -1;
 

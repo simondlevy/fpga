@@ -1,5 +1,4 @@
 test
 dronepong_fpga.hpp
 embedded_dronepong.cpp
-network_config.h
 proc.cpp
