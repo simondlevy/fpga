@@ -24,4 +24,6 @@ or desktop C++ program.
    reprogramming it.
    
 5. Support for communicating with the Cmod A7-35t over the UART on its Pmod pins.
+
+6. XOR network example
    
