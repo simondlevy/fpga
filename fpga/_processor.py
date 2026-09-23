@@ -10,7 +10,7 @@ import subprocess
 import sys
 from enum import Enum, IntEnum, auto
 from heapq import heapify, heappop, heappush
-from importlib import resources
+from importlib import import_module, resources
 from json import dump, load
 from threading import Thread
 from time import sleep
@@ -18,7 +18,8 @@ from typing import Iterable
 
 import bitstruct as bs
 import neuro
-from edalize.edatool import get_edatool
+from edalize.edatool import Edatool, get_edatool
+from edalize.flows.edaflow import Edaflow
 from periphery import Serial
 
 import fpga
@@ -36,8 +37,26 @@ from fpga.network import (
 SYSTEM_BUFFER = 4096
 TOPLEVEL = "uart_top"
 
+# Tools that Edalize's flow API (edalize.flows) can drive. Anything else falls
+# back to the legacy tool API (edalize.edatool.get_edatool): as of edalize
+# 0.6.8 edalize/tools/ ships no Quartus tool, so the Quartus targets have no
+# flow to migrate to yet.
+FLOW_API_TOOLS = ("vivado",)
+
 if not sys.version_info.major == 3 and sys.version_info.minor >= 6:
     raise RuntimeError("Python 3.6 or newer is required.")
+
+
+def get_flow(name: str) -> type:
+    """Look up an Edalize flow class by name, e.g. "vivado" -> flows.vivado.Vivado.
+
+    The flow API has no equivalent of the tool API's get_edatool(), so do the
+    same import-and-capitalize dance that Edalize itself does internally.
+    """
+    try:
+        return getattr(import_module(f"edalize.flows.{name}"), name.capitalize())
+    except (AttributeError, ModuleNotFoundError) as e:
+        raise RuntimeError(f"Edalize has no flow named '{name}'.") from e
 
 
 # we're hacking Spike to support comparison
@@ -408,7 +427,7 @@ class Processor(neuro.Processor):
         self._programmed = True
 
  
-    def _prepare_backend(self, net: neuro.Network) -> type:
+    def _prepare_backend(self, net: neuro.Network) -> Edaflow | Edatool:
 
         self.clear()
         self._network = net
@@ -604,7 +623,7 @@ class Processor(neuro.Processor):
                     self._write(self._to_fpga.spk_fmt.pack(run_dict)[::-1], 'F')
                     pause(1)
 
-    def _build_network(self) -> type:
+    def _build_network(self) -> Edaflow | Edatool:
         proc = proc_name(self._network)
 
         nethash = hash_network(self._network, HASH_LEN)
@@ -684,10 +703,23 @@ class Processor(neuro.Processor):
         )
 
         tool = self._target_config["default_tool"]
-        tool_options = self._target_config["tools"]
+        # Copy so that the per-target options below don't accumulate onto the
+        # config dict across calls.
+        tool_options = dict(self._target_config["tools"][tool])
         if tool == "vivado":
-            tool_options["vivado"]["include_dirs"] = [str(rtl_path)]
-            tool_options["vivado"]["source_mgmt_mode"] = "All"
+            # The flow API takes include directories from the file list rather
+            # than from a tool option, so name the header the SystemVerilog
+            # sources `include and mark it as an include file. (The old
+            # "include_dirs" tool option was a no-op -- no Vivado backend, tool
+            # or flow, has ever read it.)
+            files.append(
+                {
+                    "name": str(rtl_path / "macros.svh"),
+                    "file_type": "systemVerilogSource",
+                    "is_include_file": True,
+                }
+            )
+            tool_options["source_mgmt_mode"] = "All"
             files.append(
                 {
                     "name": str(
@@ -725,19 +757,51 @@ class Processor(neuro.Processor):
             "name": f"{nethash}",
             "parameters": parameters,
             "toplevel": TOPLEVEL,
-            "tool_options": tool_options,
         }
 
-        # https://github.com/olofk/edalize/issues/428
-        backend = get_edatool(self._target_config["default_tool"])(
-            edam=edam, work_root=proj_path, verbose=True
-        )
-
         proj_path.mkdir(parents=True, exist_ok=True)
+
+        if tool in FLOW_API_TOOLS:
+            # The flow API replaces the tool API's per-tool "tool_options" with
+            # a single flat "flow_options" namespace; the flow hands each
+            # option to itself or to whichever tool in the graph declares it.
+            edam["flow_options"] = self._flow_options(tool, tool_options)
+
+            # verbose=True because verbose=False silences nothing anyway:
+            # https://github.com/olofk/edalize/issues/428
+            backend = get_flow(tool)(edam=edam, work_root=proj_path, verbose=True)
+        else:
+            edam["tool_options"] = {tool: tool_options}
+
+            # https://github.com/olofk/edalize/issues/428
+            backend = get_edatool(tool)(
+                edam=edam, work_root=proj_path, verbose=True
+            )
+
         backend.configure()
         backend.build()
 
         return backend
+
+    @staticmethod
+    def _flow_options(tool: str, tool_options: dict) -> dict:
+        """Translate a targets.json "tools" entry into flow-API flow options."""
+
+        flow_options = dict(tool_options)
+
+        # "pgm" names a programmer in the tool API ("pgm": "vivado") but is a
+        # bool flow option in the flow API, where the flow already knows which
+        # tool does the programming.
+        pgm = flow_options.pop("pgm", None)
+        if pgm:
+            if pgm != tool:
+                raise RuntimeError(
+                    f"Target programs with '{pgm}' but builds with '{tool}';"
+                    f" the {tool} flow can only program with {tool}."
+                )
+            flow_options["pgm"] = True
+
+        return flow_options
 
     def _design_bin(self) -> pl.Path:
         # Edalize's Vivado run template turns on
